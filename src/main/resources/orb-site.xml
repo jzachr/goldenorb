@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+
+<configuration>
+
+
+<property>
+  <name>goldenOrb.orb.partition.messagehandlers.threads</name>
+  <value>15</value>
+  <description>Number of message handlers threads per partition.
+  </description>
+</property>
+
+<configuration>
+  <property>
+    <name>fs.default.name</name>
+    <value>hdfs://localhost:9000</value>
+  </property>
+</configuration>
+
+</configuration>
