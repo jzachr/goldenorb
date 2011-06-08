@@ -18,6 +18,7 @@ import org.goldenorb.event.NewMemberEvent;
 import org.goldenorb.event.OrbCallback;
 import org.goldenorb.event.OrbEvent;
 import org.goldenorb.event.OrbExceptionEvent;
+import org.mortbay.log.Log;
 
 public class LeaderGroup<MEMBER_TYPE extends Member> implements OrbConfigurable {
   
@@ -27,8 +28,9 @@ public class LeaderGroup<MEMBER_TYPE extends Member> implements OrbConfigurable 
   private String myPath;
   private MEMBER_TYPE member;
   private ZooKeeper zk;
-  private boolean processWatchedEvents;
+  private boolean processWatchedEvents = true;
   private SortedMap<String,MEMBER_TYPE> members = new TreeMap<String,MEMBER_TYPE>();
+  private boolean fireEvents = false;
   
   public LeaderGroup(ZooKeeper zk, OrbCallback orbCallback, String path, MEMBER_TYPE member) {
     this.orbCallback = orbCallback;
@@ -45,6 +47,7 @@ public class LeaderGroup<MEMBER_TYPE extends Member> implements OrbConfigurable 
         CreateMode.EPHEMERAL_SEQUENTIAL);
       members.put(myPath, member);
       updateMembers();
+      fireEvents = true;
     } catch (OrbZKFailure e) {
       fireEvent(new OrbExceptionEvent(e));
     }
@@ -60,14 +63,16 @@ public class LeaderGroup<MEMBER_TYPE extends Member> implements OrbConfigurable 
       try {
         memberList = zk.getChildren(basePath, new WatchMembers());
       } catch (KeeperException e) {
+        e.printStackTrace();
         throw new OrbZKFailure(e);
       } catch (InterruptedException e) {
+        e.printStackTrace();
         throw new OrbZKFailure(e);
       }
-      
+      members = new TreeMap<String,MEMBER_TYPE>();
       for (String memberPath : memberList) {
-        MEMBER_TYPE memberW = (MEMBER_TYPE) ZookeeperUtils.getNodeWritable(zk, memberPath, member.getClass(),
-          orbConf);
+        MEMBER_TYPE memberW = (MEMBER_TYPE) ZookeeperUtils.getNodeWritable(zk, basePath + "/" + memberPath,
+          member.getClass(), orbConf);
         if (memberW != null) {
           members.put(memberPath, memberW);
         }
@@ -105,7 +110,7 @@ public class LeaderGroup<MEMBER_TYPE extends Member> implements OrbConfigurable 
   }
   
   public boolean isLeader() {
-    return member == members.get(members.firstKey());
+    return member.equals(members.get(members.firstKey()));
   }
   
   public MEMBER_TYPE getLeader() {
@@ -113,7 +118,9 @@ public class LeaderGroup<MEMBER_TYPE extends Member> implements OrbConfigurable 
   }
   
   public void fireEvent(OrbEvent e) {
-    orbCallback.process(e);
+    if (fireEvents) {
+      orbCallback.process(e);
+    }
   }
   
   public void setOrbConf(OrbConfiguration orbConf) {
@@ -124,7 +131,7 @@ public class LeaderGroup<MEMBER_TYPE extends Member> implements OrbConfigurable 
     return orbConf;
   }
   
-  public void leave(){
+  public void leave() {
     this.processWatchedEvents = false;
     try {
       ZookeeperUtils.deleteNodeIfEmpty(zk, myPath);

@@ -104,6 +104,7 @@ public class ZookeeperUtils {
       result = zk.create(path, writableToByteArray(node), Ids.OPEN_ACL_UNSAFE, createMode);
     } catch (KeeperException.NodeExistsException e) {
       LOG.debug("Node " + path + " already exists!");
+      System.err.println("Node " + path + " already exists!");
     } catch (KeeperException e) {
       throw new OrbZKFailure(e);
     } catch (InterruptedException e) {
