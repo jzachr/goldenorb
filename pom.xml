@@ -86,7 +86,6 @@
 			<type>jar</type>
 			<scope>compile</scope>
 		</dependency>
-		<dependency>
 	</dependencies>
 	<build>
 		<sourceDirectory>src</sourceDirectory>
