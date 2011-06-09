@@ -9,33 +9,38 @@ import java.net.URI;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.goldenorb.conf.OrbConfigurable;
 import org.goldenorb.conf.OrbConfiguration;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.DataOutputStream;
 import org.omg.CORBA.Object;
 import org.omg.CORBA.TypeCode;
 
-public class CheckpointDataOutput implements DataOutput {
+/**
+ *
+ */
+public class CheckpointDataOutput implements DataOutput, OrbConfigurable {
   
-  private OrbConfiguration orbconf;
+  private OrbConfiguration orbConf;
   private FSDataOutputStream outstream;
   private String outpath;
   
-  //@SuppressWarnings("deprecation")
+  // @SuppressWarnings("deprecation")
   public CheckpointDataOutput(OrbConfiguration orbconf, int super_step, int partition) throws IOException {
-    this.orbconf     = orbconf;
-    outpath     = this.orbconf.
-    getFileOutputPath()+"/"+this.orbconf.getJobNumber()+
-                       "/"+super_step+"/"+partition+"/SS"+super_step+"Part"+partition;
-//    System.out.println("outpath= " + this.orbconf.getFileOutputPath()+"/"+this.orbconf.getJobNumber());
+    this.orbConf = orbconf;
+    outpath = this.orbConf.getFileOutputPath() + "/" + this.orbConf.getJobNumber() + "/" + super_step + "/"
+              + partition + "/SS" + super_step + "Part" + partition;
+    // System.out.println("outpath= " + this.orbconf.getFileOutputPath()+"/"+this.orbconf.getJobNumber());
     
-    FileSystem fs    = FileSystem.get(URI.create(outpath), orbconf);
+    FileSystem fs = FileSystem.get(URI.create(outpath), orbconf);
     OutputStream out = fs.create(new Path(outpath), true);
-    this.outstream   = new FSDataOutputStream(out, FileSystem.getStatistics(outpath, FileSystem.class));
+    this.outstream = new FSDataOutputStream(out, FileSystem.getStatistics(outpath, FileSystem.class));
     
-        
   }
   
+  /**
+   * @return
+   */
   public String getOutpath() {
     return this.outpath;
   }
@@ -96,10 +101,18 @@ public class CheckpointDataOutput implements DataOutput {
     outstream.writeUTF(s);
   }
   
-  public void close() throws IOException{
+  public void close() throws IOException {
     outstream.close();
   }
 
-  
+  @Override
+  public void setOrbConf(OrbConfiguration orbConf) {
+    this.orbConf = orbConf;
+  }
+
+  @Override
+  public OrbConfiguration getOrbConf() {
+    return orbConf;
+  }
   
 }
