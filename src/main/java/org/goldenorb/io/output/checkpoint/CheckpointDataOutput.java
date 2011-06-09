@@ -1,5 +1,6 @@
 package org.goldenorb.io.output.checkpoint;
 
+import java.io.Closeable;
 import java.io.DataOutput;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -19,31 +20,21 @@ import org.omg.CORBA.TypeCode;
 /**
  *
  */
-public class CheckpointDataOutput implements DataOutput, OrbConfigurable {
+public class CheckpointDataOutput implements DataOutput, OrbConfigurable, Closeable {
   
   private OrbConfiguration orbConf;
   private FSDataOutputStream outstream;
-  private String outpath;
   
-  // @SuppressWarnings("deprecation")
-  public CheckpointDataOutput(OrbConfiguration orbconf, int super_step, int partition) throws IOException {
-    this.orbConf = orbconf;
-    outpath = this.orbConf.getFileOutputPath() + "/" + this.orbConf.getJobNumber() + "/" + super_step + "/"
-              + partition + "/SS" + super_step + "Part" + partition;
-    // System.out.println("outpath= " + this.orbconf.getFileOutputPath()+"/"+this.orbconf.getJobNumber());
-    
-    FileSystem fs = FileSystem.get(URI.create(outpath), orbconf);
+  public CheckpointDataOutput(OrbConfiguration orbConf, int superStep, int partition) throws IOException {
+    this.setOrbConf(orbConf);
+    String outpath   = this.orbConf.getFileOutputPath() + "/" + this.orbConf.getJobNumber() + "/" + superStep + "/"
+                       + partition + "/SS" + superStep + "Part" + partition;
+    FileSystem fs    = FileSystem.get(URI.create(outpath), orbConf);
     OutputStream out = fs.create(new Path(outpath), true);
-    this.outstream = new FSDataOutputStream(out, FileSystem.getStatistics(outpath, FileSystem.class));
+    this.outstream   = new FSDataOutputStream(out, FileSystem.getStatistics(outpath, FileSystem.class));
     
   }
   
-  /**
-   * @return
-   */
-  public String getOutpath() {
-    return this.outpath;
-  }
   
   public void write(int b) throws IOException {
     outstream.write(b);

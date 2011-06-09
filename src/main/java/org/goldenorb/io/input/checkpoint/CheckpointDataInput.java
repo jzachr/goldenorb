@@ -1,5 +1,6 @@
 package org.goldenorb.io.input.checkpoint;
 
+import java.io.Closeable;
 import java.io.DataInput;
 import java.io.IOException;
 import java.net.URI;
@@ -8,28 +9,24 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.goldenorb.conf.OrbConfigurable;
 import org.goldenorb.conf.OrbConfiguration;
 
-public class CheckpointDataInput implements DataInput {
+public class CheckpointDataInput implements DataInput, Closeable, OrbConfigurable {
   
-  private OrbConfiguration orbconf;
+  private OrbConfiguration orbConf;
   private FSDataInputStream instream;
-  private String inpath;
 
   
   public CheckpointDataInput(OrbConfiguration orbconf, int super_step, int partition) throws IOException {
-    this.orbconf    = orbconf;
-    inpath     = this.orbconf.getFileOutputPath()+"/"+ this.orbconf.getJobNumber()+"/"+super_step+
-                      "/"+partition+"/SS"+super_step+"Part"+partition;
+    this.setOrbConf(orbconf);
+    String inpath = this.orbConf.getFileOutputPath()+"/"+ this.orbConf.getJobNumber()+"/"+super_step+
+                    "/"+partition+"/SS"+super_step+"Part"+partition;
     
     FileSystem fs = FileSystem.get(URI.create(inpath), orbconf);
-  
     this.instream = fs.open(new Path(inpath));
   }
   
-  public String getInpath() {
-    return this.inpath;
-  }
   
   public void readFully(byte[] b) throws IOException {
     instream.readFully(b);
@@ -95,6 +92,16 @@ public class CheckpointDataInput implements DataInput {
   
   public void close () throws IOException {
     instream.close();
+  }
+
+  @Override
+  public void setOrbConf(OrbConfiguration orbConf) {
+    this.orbConf = orbConf;
+  }
+
+  @Override
+  public OrbConfiguration getOrbConf() {
+    return orbConf;
   }
   
 }

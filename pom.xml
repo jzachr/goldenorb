@@ -86,6 +86,11 @@
             <type>jar</type>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+        	<groupId>org.apache.hadoop</groupId>
+        	<artifactId>hadoop-test</artifactId>
+        	<version>0.20.203.0</version>
+        </dependency>
     </dependencies>
     <build>
         <sourceDirectory>src</sourceDirectory>
