@@ -92,7 +92,7 @@ public class OrbConfiguration extends Configuration {
 	}
 
 	public void setJobNumber(String jobNumber) {
-		this.set(this.ORB_FILE_INPUT_FORMAT_CLASS, jobNumber);
+		this.set(this.ORB_JOB_NUMBER, jobNumber);
 	}
 
 	public Class<? extends Vertex> getVertexClass() {
