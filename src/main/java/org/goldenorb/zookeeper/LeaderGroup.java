@@ -18,7 +18,6 @@ import org.goldenorb.event.NewMemberEvent;
 import org.goldenorb.event.OrbCallback;
 import org.goldenorb.event.OrbEvent;
 import org.goldenorb.event.OrbExceptionEvent;
-import org.mortbay.log.Log;
 
 public class LeaderGroup<MEMBER_TYPE extends Member> implements OrbConfigurable {
   
@@ -27,12 +26,18 @@ public class LeaderGroup<MEMBER_TYPE extends Member> implements OrbConfigurable 
   private String basePath;
   private String myPath;
   private MEMBER_TYPE member;
+  private Class<? extends Member> memberClass;
   private ZooKeeper zk;
   private boolean processWatchedEvents = true;
   private SortedMap<String,MEMBER_TYPE> members = new TreeMap<String,MEMBER_TYPE>();
   private boolean fireEvents = false;
   
-  public LeaderGroup(ZooKeeper zk, OrbCallback orbCallback, String path, MEMBER_TYPE member) {
+  public LeaderGroup(ZooKeeper zk,
+                     OrbCallback orbCallback,
+                     String path,
+                     MEMBER_TYPE member,
+                     Class<? extends Member> memberClass) {
+    this.memberClass = memberClass;
     this.orbCallback = orbCallback;
     this.basePath = path;
     this.member = member;
@@ -58,7 +63,7 @@ public class LeaderGroup<MEMBER_TYPE extends Member> implements OrbConfigurable 
     synchronized (members) {
       int numOfMembers = getNumOfMembers();
       MEMBER_TYPE leaderMember;
-      if (numOfMembers != 0){
+      if (numOfMembers != 0) {
         leaderMember = getLeader();
       } else {
         leaderMember = null;
@@ -76,7 +81,7 @@ public class LeaderGroup<MEMBER_TYPE extends Member> implements OrbConfigurable 
       members.clear();
       for (String memberPath : memberList) {
         MEMBER_TYPE memberW = (MEMBER_TYPE) ZookeeperUtils.getNodeWritable(zk, basePath + "/" + memberPath,
-          member.getClass(), orbConf);
+          memberClass, orbConf);
         if (memberW != null) {
           members.put(memberPath, memberW);
         }
@@ -86,7 +91,7 @@ public class LeaderGroup<MEMBER_TYPE extends Member> implements OrbConfigurable 
       } else if (numOfMembers < getNumOfMembers()) {
         fireEvent(new NewMemberEvent());
       }
-      if (numOfMembers != 0 && getNumOfMembers() != 0){
+      if (numOfMembers != 0 && getNumOfMembers() != 0) {
         if (!leaderMember.equals(getLeader())) {
           fireEvent(new LeadershipChangeEvent());
         }
@@ -108,25 +113,25 @@ public class LeaderGroup<MEMBER_TYPE extends Member> implements OrbConfigurable 
   }
   
   public Collection<MEMBER_TYPE> getMembers() {
-    synchronized(members){
+    synchronized (members) {
       return members.values();
     }
   }
   
   public int getNumOfMembers() {
-    synchronized(members){
+    synchronized (members) {
       return members.size();
     }
   }
   
   public boolean isLeader() {
-    synchronized(members){
+    synchronized (members) {
       return member.equals(members.get(members.firstKey()));
     }
   }
   
   public MEMBER_TYPE getLeader() {
-    synchronized(members){
+    synchronized (members) {
       return members.get(members.firstKey());
     }
   }
