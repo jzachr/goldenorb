@@ -34,6 +34,7 @@ public class OrbConfiguration extends Configuration {
 	public static final String ORB_FILE_INPUT_DIR = "mapred.input.dir";
 	public static final String ORB_FILE_OUTPUT_DIR = "mapred.output.dir";
 	public static final String ORB_CLASS_PATHS = "orb.class.paths";
+	public static final String ORB_TRACKER_PORT = "orb.tracker.port";
 	
 	public OrbConfiguration() {
 		
@@ -224,4 +225,13 @@ public class OrbConfiguration extends Configuration {
 		// TODO Add as actual property.
 		return "eth0";
 	}
+	
+	public int getOrbTrackerPort() {
+    return Integer.parseInt( this.get(this.ORB_TRACKER_PORT) );
+  }
+
+  public void setOrbTrackerPort(
+      int numberOfPartitionsPerMachine) {
+    this.set(this.ORB_TRACKER_PORT, Integer.toString(numberOfPartitionsPerMachine));
+  }
 }
