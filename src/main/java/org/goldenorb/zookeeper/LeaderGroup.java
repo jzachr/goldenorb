@@ -57,8 +57,12 @@ public class LeaderGroup<MEMBER_TYPE extends Member> implements OrbConfigurable 
   public void updateMembers() throws OrbZKFailure {
     synchronized (members) {
       int numOfMembers = getNumOfMembers();
-      MEMBER_TYPE leaderMember = getLeader();
-      
+      MEMBER_TYPE leaderMember;
+      if (numOfMembers != 0){
+        leaderMember = getLeader();
+      } else {
+        leaderMember = null;
+      }
       List<String> memberList;
       try {
         memberList = zk.getChildren(basePath, new WatchMembers());
@@ -69,7 +73,7 @@ public class LeaderGroup<MEMBER_TYPE extends Member> implements OrbConfigurable 
         e.printStackTrace();
         throw new OrbZKFailure(e);
       }
-      members = new TreeMap<String,MEMBER_TYPE>();
+      members.clear();
       for (String memberPath : memberList) {
         MEMBER_TYPE memberW = (MEMBER_TYPE) ZookeeperUtils.getNodeWritable(zk, basePath + "/" + memberPath,
           member.getClass(), orbConf);
@@ -82,8 +86,10 @@ public class LeaderGroup<MEMBER_TYPE extends Member> implements OrbConfigurable 
       } else if (numOfMembers < getNumOfMembers()) {
         fireEvent(new NewMemberEvent());
       }
-      if (!leaderMember.equals(getLeader())) {
-        fireEvent(new LeadershipChangeEvent());
+      if (numOfMembers != 0 && getNumOfMembers() != 0){
+        if (!leaderMember.equals(getLeader())) {
+          fireEvent(new LeadershipChangeEvent());
+        }
       }
     }
   }
@@ -102,19 +108,27 @@ public class LeaderGroup<MEMBER_TYPE extends Member> implements OrbConfigurable 
   }
   
   public Collection<MEMBER_TYPE> getMembers() {
-    return members.values();
+    synchronized(members){
+      return members.values();
+    }
   }
   
   public int getNumOfMembers() {
-    return members.size();
+    synchronized(members){
+      return members.size();
+    }
   }
   
   public boolean isLeader() {
-    return member.equals(members.get(members.firstKey()));
+    synchronized(members){
+      return member.equals(members.get(members.firstKey()));
+    }
   }
   
   public MEMBER_TYPE getLeader() {
-    return members.get(members.firstKey());
+    synchronized(members){
+      return members.get(members.firstKey());
+    }
   }
   
   public void fireEvent(OrbEvent e) {
