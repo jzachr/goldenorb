@@ -36,6 +36,7 @@ public class TestLeaderGroup {
     int numOfLeaders = 0;
     int leader = -1;
     for(int i=0; i < NUM_OF_MEMBERS; i++){
+      System.out.println(trackers.get(i).getLeader().getData());
       if(trackers.get(i).isLeader()){
         leader = i;
         numOfLeaders++;
@@ -48,14 +49,18 @@ public class TestLeaderGroup {
     numOfLeaders = 0;
     for(int i=0; i < NUM_OF_MEMBERS; i++){
       if(i != leader){
+        System.out.println(trackers.get(i).getLeader().getData());
         if(trackers.get(i).isLeader()){
           numOfLeaders++;
         }
-        trackers.get(i).leave();
       }
     }
     assertTrue(numOfLeaders == 1);
-
+    for(int i=0; i < NUM_OF_MEMBERS; i++){
+      if(i != leader){
+        trackers.get(i).leave();
+      }
+    }
     leaveCdl.await();
   }
 }
