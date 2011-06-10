@@ -5,10 +5,22 @@ import java.io.DataOutput;
 import java.io.IOException;
 import org.apache.hadoop.io.Text;
 
+/*
+ * Start of non-generated import declaration code -- any code written outside of this block will be
+ * removed in subsequent code generations.
+ */
+import org.goldenorb.OrbTrackerCommunicationProtocol;
+import org.goldenorb.conf.OrbConfiguration;
+import org.apache.hadoop.ipc.RPC;
+import java.net.InetSocketAddress;
+
+/* End of non-generated import declaraction code */
+
 /**
  * This class is the proxy object for an OrbTracker into the LeaderGroup
  */
-public class OrbTrackerMember implements org.goldenorb.zookeeper.Member {
+public class OrbTrackerMember implements org.goldenorb.zookeeper.Member,
+    org.goldenorb.OrbTrackerCommunicationProtocol, org.goldenorb.conf.OrbConfigurable {
   
   /**
    * the total number of partitions that this OrbTracker can handle
@@ -50,6 +62,9 @@ public class OrbTrackerMember implements org.goldenorb.zookeeper.Member {
    * removed in subsequent code generations.
    */
 
+  private OrbTrackerCommunicationProtocol client;
+  private OrbConfiguration orbConf;
+  
   /* End of non-generated variable declaraction code */
 
   /**
@@ -61,14 +76,46 @@ public class OrbTrackerMember implements org.goldenorb.zookeeper.Member {
    * Start of non-generated method code -- any code written outside of this block will be removed in
    * subsequent code generations.
    */
-  public boolean equals(Object rhs){
-    return hostname.equals(((OrbTrackerMember)rhs).getHostname());
-  }
 
-  /* End of non-generated method code */
+  @Override
+  public void setOrbConf(OrbConfiguration orbConf) {
+    this.orbConf = orbConf;
+  }
   
+  @Override
+  public OrbConfiguration getOrbConf() {
+    return orbConf;
+  }
+  
+  public boolean equals(Object rhs) {
+    return hostname.equals(((OrbTrackerMember) rhs).getHostname());
+  }
+  
+  public void initProxy() throws IOException {
+    initProxy(this.orbConf);
+  }
+  
+  public void initProxy(OrbConfiguration orbConf) throws IOException {
+    InetSocketAddress addr = new InetSocketAddress(hostname, port);
+    client = (OrbTrackerCommunicationProtocol) RPC.waitForProxy(OrbTrackerCommunicationProtocol.class,
+      OrbTrackerCommunicationProtocol.versionID, addr, orbConf);
+  }
+  
+  @Override
+  public long getProtocolVersion(String arg0, long arg1) throws IOException {
+    return versionID;
+  }
+  
+  @Override
+  public PartitionRequestResponse requestPartitions(PartitionRequest partitionRequest) {
+    return client.requestPartitions(partitionRequest);
+  }
+  
+  /* End of non-generated method code */
+
   /**
    * gets the total number of partitions that this OrbTracker can handle
+   * 
    * @return
    */
   public int getPartitionCapacity() {
@@ -77,6 +124,7 @@ public class OrbTrackerMember implements org.goldenorb.zookeeper.Member {
   
   /**
    * sets the total number of partitions that this OrbTracker can handle
+   * 
    * @param partitionCapacity
    */
   public void setPartitionCapacity(int partitionCapacity) {
@@ -85,6 +133,7 @@ public class OrbTrackerMember implements org.goldenorb.zookeeper.Member {
   
   /**
    * gets the total number of partitions that the OrbTracker currently has available
+   * 
    * @return
    */
   public int getAvailablePartitions() {
@@ -93,6 +142,7 @@ public class OrbTrackerMember implements org.goldenorb.zookeeper.Member {
   
   /**
    * sets the total number of partitions that the OrbTracker currently has available
+   * 
    * @param availablePartitions
    */
   public void setAvailablePartitions(int availablePartitions) {
@@ -101,6 +151,7 @@ public class OrbTrackerMember implements org.goldenorb.zookeeper.Member {
   
   /**
    * gets the total number of partitions that are reserved for failures on this OrbTracker
+   * 
    * @return
    */
   public int getReservedPartitions() {
@@ -109,6 +160,7 @@ public class OrbTrackerMember implements org.goldenorb.zookeeper.Member {
   
   /**
    * sets the total number of partitions that are reserved for failures on this OrbTracker
+   * 
    * @param reservedPartitions
    */
   public void setReservedPartitions(int reservedPartitions) {
@@ -117,6 +169,7 @@ public class OrbTrackerMember implements org.goldenorb.zookeeper.Member {
   
   /**
    * gets the total number of partitions that are currently in on this OrbTracker
+   * 
    * @return
    */
   public int getInUsePartitions() {
@@ -125,6 +178,7 @@ public class OrbTrackerMember implements org.goldenorb.zookeeper.Member {
   
   /**
    * sets the total number of partitions that are currently in on this OrbTracker
+   * 
    * @param inUsePartitions
    */
   public void setInUsePartitions(int inUsePartitions) {
@@ -133,6 +187,7 @@ public class OrbTrackerMember implements org.goldenorb.zookeeper.Member {
   
   /**
    * gets the host name of the machine running this OrbTracker
+   * 
    * @return
    */
   public String getHostname() {
@@ -141,6 +196,7 @@ public class OrbTrackerMember implements org.goldenorb.zookeeper.Member {
   
   /**
    * sets the host name of the machine running this OrbTracker
+   * 
    * @param hostname
    */
   public void setHostname(String hostname) {
@@ -149,6 +205,7 @@ public class OrbTrackerMember implements org.goldenorb.zookeeper.Member {
   
   /**
    * gets whether this member is the leader
+   * 
    * @return
    */
   public boolean isLeader() {
@@ -157,6 +214,7 @@ public class OrbTrackerMember implements org.goldenorb.zookeeper.Member {
   
   /**
    * sets whether this member is the leader
+   * 
    * @param leader
    */
   public void setLeader(boolean leader) {
@@ -165,6 +223,7 @@ public class OrbTrackerMember implements org.goldenorb.zookeeper.Member {
   
   /**
    * gets the port number the OrbTracker provides RPC on
+   * 
    * @return
    */
   public int getPort() {
@@ -173,12 +232,12 @@ public class OrbTrackerMember implements org.goldenorb.zookeeper.Member {
   
   /**
    * sets the port number the OrbTracker provides RPC on
+   * 
    * @param port
    */
   public void setPort(int port) {
     this.port = port;
   }
-  
   
   // /////////////////////////////////////
   // Writable
