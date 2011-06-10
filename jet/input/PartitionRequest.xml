@@ -1,0 +1,12 @@
+<writable class="PartitionRequest" package="org.goldenorb.jet" classComment="This class is a request made from the master OrbTracker to a slave OrbTracker to apply Partitions to a Job" >
+	<field name="reservedPartitions" type="int" fieldComment="the number of reserved partitions requested" />
+	<field name="activePartitions" type="int" fieldComment="the number of partitions requested to become active" />
+	<field name="jobID" type="String" fieldComment="the jobID the partitions are requested for" />
+	<tests>
+	<defaults>
+		<field name="reservedPartitions" value="1"/>
+		<field name="activePartitions" value="2"/>
+		<field name="jobID" value="&quot;job102345678&quot;"/>
+	</defaults>
+	</tests>
+</writable>

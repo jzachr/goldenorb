@@ -1,0 +1,20 @@
+<writable class="OrbTrackerMember" package="org.goldenorb.jet" classComment="This class is the proxy object for an OrbTracker into the LeaderGroup" implements="org.goldenorb.zookeeper.Member">
+	<field name="partitionCapacity" type="int" fieldComment="the total number of partitions that this OrbTracker can handle" />
+	<field name="availablePartitions" type="int" fieldComment="the total number of partitions that the OrbTracker currently has available" />
+	<field name="reservedPartitions" type="int" fieldComment="the total number of partitions that are reserved for failures on this OrbTracker" />
+	<field name="inUsePartitions" type="int" fieldComment="the total number of partitions that are currently in on this OrbTracker" />
+	<field name="hostname" type="String" fieldComment="the host name of the machine running this OrbTracker" />
+	<field name="leader" type="boolean" fieldComment="whether this member is the leader" />
+	<field name="port" type="int" fieldComment="the port number the OrbTracker provides RPC on" />
+	<tests>
+	<defaults>
+		<field name="hostname" value="&quot;www.goldenorb.org&quot;"/>
+		<field name="availablePartitions" value="1"/>
+		<field name="inUsePartitions" value="2"/>
+		<field name="reservedPartitions" value="4"/>
+		<field name="partitionCapacity" value="3"/>
+		<field name="leader" value="false"/>
+		<field name="port" value="3696"/>
+	</defaults>
+	</tests>
+</writable>

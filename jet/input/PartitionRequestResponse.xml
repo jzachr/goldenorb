@@ -1,0 +1,12 @@
+<writable class="PartitionRequestResponse" package="org.goldenorb.jet" classComment="This class is the response made to the Master by the OrbTracker slave." >
+	<field name="reservedPartitions" type="int" fieldComment="the number of reserved partitions reserved to the job (SUCCESS) or the number available (NOT_AVAILABLE)" />
+	<field name="activePartitions" type="int" fieldComment="the number of active partitions reserved to the job (SUCCESS) or the number available (NOT_AVAILABLE)" />
+	<field name="response" type="int" fieldComment="the success criteria of the request attempt 0-SUCCESS, 1-NOT_AVAILABLE, 2-FAILURE" />
+	<tests>
+	<defaults>
+		<field name="reservedPartitions" value="1"/>
+		<field name="activePartitions" value="2"/>
+		<field name="response" value="3"/>
+	</defaults>
+	</tests>
+</writable>
