@@ -46,7 +46,7 @@ public class TTracker implements Runnable {
   
   @Override
   public void run() {
-    leaderGroup = new LeaderGroup<TMember>(zk, new OrbTTrackerCallback(), basePath, member);
+    leaderGroup = new LeaderGroup<TMember>(zk, new OrbTTrackerCallback(), basePath, member, TMember.class);
     startCdl.countDown();
   }
   
