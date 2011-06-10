@@ -9,6 +9,7 @@ import org.goldenorb.conf.OrbConfigurable;
 import org.goldenorb.conf.OrbConfiguration;
 import org.goldenorb.event.OrbCallback;
 import org.goldenorb.event.OrbEvent;
+import org.goldenorb.jet.OrbTrackerMember;
 import org.goldenorb.net.OrbDNS;
 import org.goldenorb.zookeeper.LeaderGroup;
 import org.goldenorb.zookeeper.Member;
@@ -17,18 +18,15 @@ import org.goldenorb.zookeeper.ZookeeperUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class OrbTracker implements Runnable, OrbConfigurable {
+public class OrbTracker extends OrbTrackerMember implements Runnable, OrbConfigurable {
 	
 	private static final String ZK_BASE_PATH = "/GoldenOrb";
 	
 	private OrbConfiguration orbConf;
 	
-	private String hostname;
 	private ZooKeeper zk;
 	
-	private boolean leader;
 	private LeaderGroup leaderGroup;
-	
 	
 	private Logger LOG = LoggerFactory.getLogger(OrbTracker.class);
 	
@@ -44,8 +42,8 @@ public class OrbTracker implements Runnable, OrbConfigurable {
 	public void run() {
 		//get hostname
 		try {
-			hostname = OrbDNS.getDefaultHost(orbConf);
-			LOG.info("Starting OrbTracker on: " + hostname);
+			setHostname(OrbDNS.getDefaultHost(orbConf));
+			LOG.info("Starting OrbTracker on: " + getHostname());
 		} catch (UnknownHostException e) {
 			LOG.error("Unable to get hostname.", e);
 			System.exit(-1);
@@ -73,14 +71,14 @@ public class OrbTracker implements Runnable, OrbConfigurable {
 		ZookeeperUtils.notExistCreateNode(zk, ZK_BASE_PATH + "/" + orbConf.getOrbClusterName());
 		ZookeeperUtils.notExistCreateNode(zk, ZK_BASE_PATH + "/" + orbConf.getOrbClusterName() + "/OrbTrackers");
 		
-		if(ZookeeperUtils.nodeExists(zk, ZK_BASE_PATH + "/" + orbConf.getOrbClusterName() + "/OrbTrackers/" + hostname)){
-			LOG.info("Already have an OrbTracker on " + hostname + "(Exiting)");
+		if(ZookeeperUtils.nodeExists(zk, ZK_BASE_PATH + "/" + orbConf.getOrbClusterName() + "/OrbTrackers/" + getHostname())){
+			LOG.info("Already have an OrbTracker on " + getHostname() + "(Exiting)");
 			System.exit(-1);
 		} else{
-			ZookeeperUtils.tryToCreateNode(zk, ZK_BASE_PATH + "/" + orbConf.getOrbClusterName() + "/OrbTrackers/" + hostname, CreateMode.EPHEMERAL);
+			ZookeeperUtils.tryToCreateNode(zk, ZK_BASE_PATH + "/" + orbConf.getOrbClusterName() + "/OrbTrackers/" + getHostname(), CreateMode.EPHEMERAL);
 		}
 		
-		leaderGroup = new LeaderGroup<Member>(zk, new OrbTrackerCallback(), ZK_BASE_PATH + "/" + orbConf.getOrbClusterName() + "/OrbTrackerLeaderGroup", new OrbTrackerMember());
+		leaderGroup = new LeaderGroup<Member>(zk, new OrbTrackerCallback(), ZK_BASE_PATH + "/" + orbConf.getOrbClusterName() + "/OrbTrackerLeaderGroup", this);
 	}
 
 	public class OrbTrackerCallback implements OrbCallback{
