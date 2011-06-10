@@ -1,4 +1,4 @@
-<writable class="OrbTrackerMember" package="org.goldenorb.jet" classComment="This class is the proxy object for an OrbTracker into the LeaderGroup" implements="org.goldenorb.zookeeper.Member">
+<writable class="OrbTrackerMember" package="org.goldenorb.jet" classComment="This class is the proxy object for an OrbTracker into the LeaderGroup" implements="org.goldenorb.zookeeper.Member, org.goldenorb.OrbTrackerCommunicationProtocol, org.goldenorb.conf.OrbConfigurable">
 	<field name="partitionCapacity" type="int" fieldComment="the total number of partitions that this OrbTracker can handle" />
 	<field name="availablePartitions" type="int" fieldComment="the total number of partitions that the OrbTracker currently has available" />
 	<field name="reservedPartitions" type="int" fieldComment="the total number of partitions that are reserved for failures on this OrbTracker" />
