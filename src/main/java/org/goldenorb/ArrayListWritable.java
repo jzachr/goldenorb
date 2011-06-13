@@ -7,74 +7,62 @@ import java.util.ArrayList;
 
 import org.apache.hadoop.io.Writable;
 
-public class ArrayListWritable<WritableType extends Writable> implements Writable {
-	
-	private ArrayList<WritableType> writables = new ArrayList<WritableType>(); 
-	private Class<? extends WritableType> writableType;
-
-	public int size(){
-		return writables.size();
-	}
-	
-	public ArrayListWritable(){
-		
-	}
-	
-	public ArrayList<WritableType> getArrayList(){
-		return writables;
-	}
-
-	@Override
-	public void readFields(DataInput in) throws IOException {
-		
-		String vertexClassName = in.readUTF();
-		try {
-			/*for(int i=0;i<1000;i++){
-				System.out.println(vertexClassName);
-			}*/
-			writableType = (Class<WritableType>) Class.forName(vertexClassName);
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		}
-
-		int numberOfVertices = in.readInt();
-		for(int i = 0; i < numberOfVertices; i++)
-		{
-			WritableType newVertex = null;
-			try {
-				newVertex = writableType.newInstance();
-			} catch (InstantiationException e) {
-				e.printStackTrace();
-			} catch (IllegalAccessException e) {
-				e.printStackTrace();
-			}
-			newVertex.readFields(in);
-			writables.add(newVertex);
-		}
-	}
-
-	@Override
-	public void write(DataOutput out) throws IOException {
-		
-		out.writeUTF(writableType.getName());
-		
-		out.writeInt(writables.size());
-		
-		for(WritableType vertexOut: writables)
-		{
-			vertexOut.write(out);
-		}
-	}
-	
-
-	public void setWritableType(Class<? extends WritableType> _vertexType)
-	{
-		writableType = _vertexType;
-	}
-	
-	public void add(WritableType v)
-	{
-		writables.add(v);
-	}
-
+public class ArrayListWritable<WRITABLE_TYPE extends Writable> implements Writable {
+  
+  private ArrayList<WRITABLE_TYPE> writables = new ArrayList<WRITABLE_TYPE>();
+  private Class<? extends WRITABLE_TYPE> writableType;
+  
+  public int size() {
+    return writables.size();
+  }
+  
+  public ArrayListWritable() {}
+  
+  public ArrayList<WRITABLE_TYPE> getArrayList() {
+    return writables;
+  }
+  
+  @SuppressWarnings("unchecked")
+  @Override
+  public void readFields(DataInput in) throws IOException {
+    
+    String vertexClassName = in.readUTF();
+    try {
+      writableType = (Class<WRITABLE_TYPE>) Class.forName(vertexClassName);
+    } catch (ClassNotFoundException e) {
+      throw new RuntimeException(e);
+    }
+    
+    int numberOfVertices = in.readInt();
+    for (int i = 0; i < numberOfVertices; i++) {
+      WRITABLE_TYPE newVertex = null;
+      try {
+        newVertex = writableType.newInstance();
+      } catch (InstantiationException e) {
+        throw new RuntimeException(e);
+      } catch (IllegalAccessException e) {
+        throw new RuntimeException(e);
+      }
+      newVertex.readFields(in);
+      writables.add(newVertex);
+    }
+  }
+  
+  @Override
+  public void write(DataOutput out) throws IOException {
+    out.writeUTF(writableType.getName());
+    out.writeInt(writables.size());
+    for (WRITABLE_TYPE vertexOut : writables) {
+      vertexOut.write(out);
+    }
+  }
+  
+  public void setWritableType(Class<? extends WRITABLE_TYPE> _vertexType) {
+    writableType = _vertexType;
+  }
+  
+  public void add(WRITABLE_TYPE v) {
+    writables.add(v);
+  }
+  
 }
