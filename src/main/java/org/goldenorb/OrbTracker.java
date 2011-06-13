@@ -114,11 +114,11 @@ public class OrbTracker extends OrbTrackerMember implements Runnable, OrbConfigu
       ZookeeperUtils.tryToCreateNode(zk, ZK_BASE_PATH + "/" + orbConf.getOrbClusterName() + "/OrbTrackers/"
                                          + getHostname(), CreateMode.EPHEMERAL);
     }
-    this.setAvailablePartitions(3);
+    this.setAvailablePartitions(orbConf.getNumberOfPartitionsPerMachine());
     this.setInUsePartitions(0);
     this.setReservedPartitions(0);
     this.setLeader(false);
-    this.setPartitionCapacity(3);
+    this.setPartitionCapacity(orbConf.getNumberOfPartitionsPerMachine());
     leaderGroup = new LeaderGroup<OrbTrackerMember>(zk, new OrbTrackerCallback(),
         ZK_BASE_PATH + "/" + orbConf.getOrbClusterName() + "/OrbTrackerLeaderGroup", this,
         OrbTrackerMember.class);

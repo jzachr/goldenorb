@@ -1,10 +1,11 @@
 package org.goldenorb.event;
 
-public class OrbExceptionEvent implements OrbEvent {
+public class OrbExceptionEvent extends OrbEvent {
   
   private Exception exception;
   
   public OrbExceptionEvent(Exception exception){
+    super(OrbEvent.ORB_EXCEPTION);
     this.setException(exception);
   }
 
