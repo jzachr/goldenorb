@@ -45,7 +45,6 @@ public class TestLeaderGroup {
     assertTrue(numOfLeaders == 1);
     trackers.get(leader).leave();
     leaderChangeCdl.await();
-    
     numOfLeaders = 0;
     for(int i=0; i < NUM_OF_MEMBERS; i++){
       if(i != leader){
