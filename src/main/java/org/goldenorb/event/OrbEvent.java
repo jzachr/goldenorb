@@ -7,7 +7,6 @@ public class OrbEvent {
   final static int NEW_JOB = 4;
   final static int JOB_COMPLETE = 5;
   final static int JOB_DEATH = 6;
-  final static int JOB_HEARTBEAT = 7;
   final static int ORB_EXCEPTION = 8;
 
   int type;
