@@ -9,17 +9,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.hadoop.io.Writable;
 import org.goldenorb.Message;
 import org.goldenorb.Messages;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class InboundMessageQueue {
-	Map<String, List<Message>> inboundMessageMap = new HashMap<String, List<Message>>();
+	Map<String, List<Message<? extends Writable>>> inboundMessageMap = new HashMap<String, List<Message<? extends Writable>>>();
 	Set<String> verticesWithMessages = new HashSet<String>();
 	private Logger logger;
 	
-	public Map<String, List<Message>> getInboundMessageMap() {
+	public Map<String, List<Message<? extends Writable>>> getInboundMessageMap() {
 		return inboundMessageMap;
 	}
 
@@ -30,23 +31,17 @@ public class InboundMessageQueue {
 	public InboundMessageQueue(Collection<String> ids){
 		logger = LoggerFactory.getLogger(InboundMessageQueue.class);
 		for(String id: ids){
-			inboundMessageMap.put(id, Collections.synchronizedList(new ArrayList<Message>()));
-			//logger.info(id);
+			inboundMessageMap.put(id, Collections.synchronizedList(new ArrayList<Message<? extends Writable>>()));
 		}
 	}
 	
 	public void addMessages(Messages ms){
-		for(Message m: ms.getList()){
+		for(Message<? extends Writable> m: ms.getList()){
 			addMessage(m);
 		}
 	}
 	
-	public void addMessage(Message m){
-		//logger.info(m.getDestinationVertex());
-		if(m == null){
-			System.err.println("It is null");
-		}
-				
+	public void addMessage(Message<? extends Writable> m){	
 		inboundMessageMap.get(m.getDestinationVertex()).add(m);
 		synchronized(verticesWithMessages){
 			verticesWithMessages.add(m.getDestinationVertex());
@@ -56,11 +51,11 @@ public class InboundMessageQueue {
 	
 	public void addNewVertex(String id){
 		synchronized(inboundMessageMap){
-			inboundMessageMap.put(id, Collections.synchronizedList(new ArrayList<Message>()));
+			inboundMessageMap.put(id, Collections.synchronizedList(new ArrayList<Message<? extends Writable>>()));
 		}
 	}
 	
-	public List<Message> getMessage(String vertexID){
+	public List<Message<? extends Writable>> getMessage(String vertexID){
 		return inboundMessageMap.get(vertexID);
 	}
 }

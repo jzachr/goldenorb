@@ -18,10 +18,10 @@ public class OutboundVertexQueue {
 	 private List<Integer> partitionVertexCounter;
 	 private int maxVertices;
 	 private Map<Integer, OrbPartitionCommunicationProtocol> orbClients;
-	 private Class<? extends Vertex> vertexClass;
+	 private Class<? extends Vertex<?,?,?>> vertexClass;
 	 private int partitionId;
 	 
-	 public OutboundVertexQueue(int numberOfPartitions, int maxVertices, Map<Integer, OrbPartitionCommunicationProtocol> orbClient, Class<? extends Vertex> vertexClass, int partitionId){
+	 public OutboundVertexQueue(int numberOfPartitions, int maxVertices, Map<Integer, OrbPartitionCommunicationProtocol> orbClient, Class<? extends Vertex<?,?,?>> vertexClass, int partitionId){
 		 omqLogger = LoggerFactory.getLogger(OutboundVertexQueue.class);
 		 
 		 this.numberOfPartitions = numberOfPartitions;
@@ -37,13 +37,13 @@ public class OutboundVertexQueue {
 			 partitionVertexMap.add(vs);
 		 }
 		 
-		 partitionVertexCounter = new ArrayList(numberOfPartitions);
+		 partitionVertexCounter = new ArrayList<Integer>(numberOfPartitions);
 		 for(int i=0; i < numberOfPartitions; i++){
 			 partitionVertexCounter.add(0);
 		 }
 	 }
 	 
-	 public void sendVertex(Vertex v)
+	 public void sendVertex(Vertex<?,?,?> v)
 	 {
 		int vertexHash = Math.abs(v.getVertexID().hashCode()) % numberOfPartitions ;
 		Vertices currentPartition = partitionVertexMap.get(vertexHash);
