@@ -234,4 +234,9 @@ public class OrbConfiguration extends Configuration {
       int numberOfPartitionsPerMachine) {
     this.set(this.ORB_TRACKER_PORT, Integer.toString(numberOfPartitionsPerMachine));
   }
+
+  public long getJobHeartbeatTimeout() {
+    // TODO Auto-generated method stub
+    return 0;
+  }
 }
