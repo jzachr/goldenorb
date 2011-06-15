@@ -145,10 +145,10 @@ public class OrbTracker extends OrbTrackerMember implements Runnable, OrbConfigu
   }
   
   private void collectAggregateStats() {
-    //Should get collect all of the OrbMembers from 
+    // TODO Should get collect all of the OrbMembers from 
   }
   
   private void launchProcess(){
-    //Current stub this should get passed the OrbConf and should 
+    // TODO Current stub this should get passed the OrbConf and should 
   }
 }
