@@ -45,7 +45,6 @@ public class InboundMessageQueue {
 		inboundMessageMap.get(m.getDestinationVertex()).add(m);
 		synchronized(verticesWithMessages){
 			verticesWithMessages.add(m.getDestinationVertex());
-		
 		}
 	}
 	
