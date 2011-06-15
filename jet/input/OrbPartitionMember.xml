@@ -1,0 +1,22 @@
+<writable class="OrbPartitionMember" package="org.goldenorb.jet" classComment="This class is the proxy object for an OrbPartition into the LeaderGroup" implements="org.goldenorb.zookeeper.Member, org.goldenorb.OrbPartitionCommunicationProtocol, org.goldenorb.conf.OrbConfigurable">
+	<field name="partitionID" type="int" fieldComment="the id assigned to this partition" />
+	<field name="numberOfVertices" type="int" fieldComment="the total number vertices assigned to this partition" />
+	<field name="superStep" type="int" fieldComment="the current superstep that the OrbPartition is on" />
+	<field name="messagesSent" type="int" fieldComment="the total number of messages sent so far" />
+	<field name="percentComplete" type="float" fieldComment="the percent complete for this superstep" />
+	<field name="hostname" type="String" fieldComment="the host name of the machine running this OrbTracker" />
+	<field name="leader" type="boolean" fieldComment="whether this member is the leader" />
+	<field name="port" type="int" fieldComment="the port number the OrbTracker provides RPC on" />
+	<tests>
+	<defaults>
+		<field name="partitionID" value="1"/>
+		<field name="numberOfVertices" value="10000"/>
+		<field name="superStep" value="4"/>
+		<field name="messagesSent" value="10000"/>
+		<field name="percentComplete" value="1"/>
+		<field name="hostname" value="&quot;www.goldenorb.org&quot;"/>
+		<field name="leader" value="false"/>
+		<field name="port" value="3696"/>
+	</defaults>
+	</tests>
+</writable>
