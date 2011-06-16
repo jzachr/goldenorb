@@ -94,8 +94,8 @@ public class TestOrbPartitionMember {
 
   @Test 
   public void testPercentComplete() {
-    assertEquals(orbPartitionMember.getPercentComplete(), orbPartitionMemberOut.getPercentComplete());
-    assertEquals(orbPartitionMemberOut.getPercentComplete(), FLOAT_PERCENTCOMPLETE_VALUE);
+    assertEquals(orbPartitionMember.getPercentComplete(), orbPartitionMemberOut.getPercentComplete(), FLOAT_PERCENTCOMPLETE_VALUE*.10 );
+    assertEquals(orbPartitionMemberOut.getPercentComplete(), FLOAT_PERCENTCOMPLETE_VALUE, FLOAT_PERCENTCOMPLETE_VALUE*.10);
   }
 
   @Test 
