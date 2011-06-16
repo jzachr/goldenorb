@@ -35,6 +35,7 @@ public class OrbConfiguration extends Configuration {
 	public static final String ORB_FILE_OUTPUT_DIR = "mapred.output.dir";
 	public static final String ORB_CLASS_PATHS = "orb.class.paths";
 	public static final String ORB_TRACKER_PORT = "orb.tracker.port";
+	public static final String ORB_PARTITION_MANAGEMENT_BASEPORT = "goldenOrb.orb.partitionManagement.baseport";
 	
 	public OrbConfiguration() {
 		
@@ -238,5 +239,13 @@ public class OrbConfiguration extends Configuration {
   public long getJobHeartbeatTimeout() {
     // TODO Auto-generated method stub
     return 0;
+  }
+
+  public int getOrbPartitionManagementBaseport() {
+    return this.getInt(this.ORB_PARTITION_MANAGEMENT_BASEPORT, 40616);
+  }
+  
+  public void setOrbPartitionManagementBaseport(int orbPartitionManagementBaseport) {
+    this.setInt(this.ORB_PARTITION_MANAGEMENT_BASEPORT, orbPartitionManagementBaseport);
   }
 }

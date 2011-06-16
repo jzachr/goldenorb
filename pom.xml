@@ -91,6 +91,11 @@
         	<artifactId>hadoop-test</artifactId>
         	<version>0.20.2</version>
         </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>  
+            <version>1.8.5</version> 
+        </dependency>
     </dependencies>
     <build>
         <sourceDirectory>src</sourceDirectory>
