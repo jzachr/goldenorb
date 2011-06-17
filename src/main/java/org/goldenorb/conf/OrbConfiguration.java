@@ -14,7 +14,7 @@ public class OrbConfiguration extends Configuration {
   public static final String ORB_JOB_NUMBER = "goldenOrb.jobNumber";
   public static final String ORB_ZOOKEEPER_QUORUM = "goldenOrb.zookeeper.quorum";
   public static final String ORB_ZOOKEEPER_PORT = "goldenOrb.zookeeper";
-  public static final String ORB_LAUNCER = "goldenOrb.orb.launcher";
+  public static final String ORB_LAUNCHER = "goldenOrb.orb.launcher";
   public static final String ORB_PARTITIONS_PER_MACHINE = "goldenOrb.orb.partitionsPerMachine";
   public static final String ORB_PARTITION_VERTEX_THREADS = "goldenOrb.orb.partition.vertex.threads";
   public static final String ORB_PARTITION_MESSAGEHANDLER_THREADS = "goldenOrb.orb.partition.messagehandlers.threads";
