@@ -31,6 +31,7 @@ public class LeaderGroup<MEMBER_TYPE extends Member> implements OrbConfigurable 
   private boolean processWatchedEvents = true;
   private SortedMap<String,MEMBER_TYPE> members = new TreeMap<String,MEMBER_TYPE>();
   private boolean fireEvents = false;
+
   
   public LeaderGroup(ZooKeeper zk,
                      OrbCallback orbCallback,
@@ -79,12 +80,18 @@ public class LeaderGroup<MEMBER_TYPE extends Member> implements OrbConfigurable 
         throw new OrbZKFailure(e);
       }
       members.clear();
+      MEMBER_TYPE memberW = null;
       for (String memberPath : memberList) {
-        MEMBER_TYPE memberW = (MEMBER_TYPE) ZookeeperUtils.getNodeWritable(zk, basePath + "/" + memberPath,
-          memberClass, orbConf);
+        if (members.containsKey(memberPath)) {
+          memberW = (MEMBER_TYPE) ZookeeperUtils.getNodeWritable(zk, basePath + "/" + memberPath,
+            memberClass, orbConf);
+        } else {
+          memberW = (MEMBER_TYPE) ZookeeperUtils.getNodeWritable(zk, basePath + "/"+ memberPath,
+            memberClass, orbConf, new WatchMemberData(this, basePath, memberPath, memberClass, zk, orbConf));
+        }
         if (memberW != null) {
           members.put(memberPath, memberW);
-        }
+        } 
       }
       if (numOfMembers > getNumOfMembers()) {
         fireEvent(new LostMemberEvent());
@@ -110,6 +117,11 @@ public class LeaderGroup<MEMBER_TYPE extends Member> implements OrbConfigurable 
         }
       }
     }
+  }
+  
+  public void updateMembersData(String memberPath, Member update) {
+    //if (update instanceof memberClass)
+      members.put(memberPath, (MEMBER_TYPE) update);
   }
   
   public Collection<MEMBER_TYPE> getMembers() {

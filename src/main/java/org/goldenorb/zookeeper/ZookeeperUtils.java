@@ -12,6 +12,7 @@ import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.util.ReflectionUtils;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
+import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.ZooDefs.Ids;
 import org.apache.zookeeper.ZooKeeper;
 import org.apache.zookeeper.data.Stat;
@@ -106,10 +107,13 @@ public class ZookeeperUtils {
       LOG.debug("Node " + path + " already exists!");
       System.err.println("Node " + path + " already exists!");
     } catch (KeeperException e) {
+      e.printStackTrace();
       throw new OrbZKFailure(e);
     } catch (InterruptedException e) {
+      e.printStackTrace();
       throw new OrbZKFailure(e);
     } catch (IOException e) {
+      e.printStackTrace();
       throw new OrbZKFailure(e);
     }
     return result;
@@ -152,6 +156,38 @@ public class ZookeeperUtils {
     } else {
       return null;
     }
+  }
+  
+  /**
+   * Gets data from the Znode specified by path and sets a watcher.
+   * @param zk
+   * @param path
+   * @param writableClass
+   * @param orbConf
+   * @param watcher
+   * @return
+   * @throws OrbZKFailure
+   */
+  public static Writable getNodeWritable(ZooKeeper zk,
+                                         String path,
+                                         Class<? extends Writable> writableClass,
+                                         OrbConfiguration orbConf,
+                                         Watcher watcher) throws OrbZKFailure {
+    byte[] data = null;
+    try {
+      data = zk.getData(path, watcher, null);
+    } catch (KeeperException.NoNodeException e) {
+      LOG.debug("Node " + path + " does not exist!");
+    } catch (KeeperException e) {
+      throw new OrbZKFailure(e);
+    } catch (InterruptedException e) {
+      throw new OrbZKFailure(e);
+    }
+    if (data != null) {
+      return byteArrayToWritable(data, writableClass, orbConf);
+    } 
+    return null;
+    
   }
   
   public static void deleteNodeIfEmpty(ZooKeeper zk, String path) throws OrbZKFailure {
