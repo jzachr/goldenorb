@@ -127,6 +127,12 @@ public class ZookeeperUtils {
     }
   }
   
+  public static void notExistCreateNode(ZooKeeper zk, String path, Writable node, CreateMode createMode) throws OrbZKFailure {
+    if (!nodeExists(zk, path)) {
+      tryToCreateNode(zk, path, node, createMode);
+    }
+  }
+  
   public static Writable getNodeWritable(ZooKeeper zk,
                                          String path,
                                          Class<? extends Writable> writableClass,
