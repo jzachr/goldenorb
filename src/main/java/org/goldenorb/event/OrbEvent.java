@@ -8,6 +8,7 @@ public class OrbEvent {
   final static int JOB_COMPLETE = 5;
   final static int JOB_DEATH = 6;
   final static int ORB_EXCEPTION = 8;
+  final static int MEMBER_DATA_CHANGE = 9;
 
   int type;
 

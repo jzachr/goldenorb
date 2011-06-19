@@ -1,7 +1,9 @@
 package org.goldenorb.zookeeper;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -14,6 +16,7 @@ import org.goldenorb.conf.OrbConfigurable;
 import org.goldenorb.conf.OrbConfiguration;
 import org.goldenorb.event.LeadershipChangeEvent;
 import org.goldenorb.event.LostMemberEvent;
+import org.goldenorb.event.MemberDataChangeEvent;
 import org.goldenorb.event.NewMemberEvent;
 import org.goldenorb.event.OrbCallback;
 import org.goldenorb.event.OrbEvent;
@@ -29,9 +32,9 @@ public class LeaderGroup<MEMBER_TYPE extends Member> implements OrbConfigurable 
   private Class<? extends Member> memberClass;
   private ZooKeeper zk;
   private boolean processWatchedEvents = true;
-  private SortedMap<String,MEMBER_TYPE> members = new TreeMap<String,MEMBER_TYPE>();
+  private volatile SortedMap<String,MEMBER_TYPE> members = new TreeMap<String,MEMBER_TYPE>();
+  private SortedMap<String,MemberDataWatcher> watchers = new TreeMap<String,MemberDataWatcher>();
   private boolean fireEvents = false;
-
   
   public LeaderGroup(ZooKeeper zk,
                      OrbCallback orbCallback,
@@ -79,20 +82,41 @@ public class LeaderGroup<MEMBER_TYPE extends Member> implements OrbConfigurable 
         e.printStackTrace();
         throw new OrbZKFailure(e);
       }
+      
       members.clear();
       MEMBER_TYPE memberW = null;
       for (String memberPath : memberList) {
-        if (members.containsKey(memberPath)) {
+        MemberDataWatcher watcher = null;
+        if (watchers.containsKey(memberPath)) {
           memberW = (MEMBER_TYPE) ZookeeperUtils.getNodeWritable(zk, basePath + "/" + memberPath,
             memberClass, orbConf);
-        } else {
-          memberW = (MEMBER_TYPE) ZookeeperUtils.getNodeWritable(zk, basePath + "/"+ memberPath,
-            memberClass, orbConf, new WatchMemberData(this, basePath, memberPath, memberClass, zk, orbConf));
+        } else { // set watcher for new node
+          watcher = new MemberDataWatcher(memberPath);
+          memberW = (MEMBER_TYPE) ZookeeperUtils.getNodeWritable(zk, basePath + "/" + memberPath,
+            memberClass, orbConf, watcher);
+          if (memberW != null) {
+            watchers.put(memberPath, watcher);
+          }
         }
         if (memberW != null) {
           members.put(memberPath, memberW);
-        } 
+        }
       }
+      // check for watchers that need to be made inactive and removed
+      Set<String> watcherSet = watchers.keySet();
+      ArrayList<String> toRemove = new ArrayList<String>();
+      if (watcherSet != null) {
+        for (String memberPath : watcherSet) {
+          if (!members.containsKey(memberPath)) {
+            watchers.get(memberPath).makeInactive();
+            toRemove.add(memberPath);
+          }
+        }
+      }
+      for (String memberPath : toRemove) {
+        watchers.remove(memberPath);
+      }
+      
       if (numOfMembers > getNumOfMembers()) {
         fireEvent(new LostMemberEvent());
       } else if (numOfMembers < getNumOfMembers()) {
@@ -119,9 +143,46 @@ public class LeaderGroup<MEMBER_TYPE extends Member> implements OrbConfigurable 
     }
   }
   
-  public void updateMembersData(String memberPath, Member update) {
-    //if (update instanceof memberClass)
-      members.put(memberPath, (MEMBER_TYPE) update);
+  public class MemberDataWatcher implements Watcher {
+    
+    private String nodePath;
+    private String nodeName;
+    private boolean active;
+    
+    public MemberDataWatcher(String nodeName) {
+      this.nodePath = basePath + "/" + nodeName;
+      this.nodeName = nodeName;
+      // System.err.println("Watcher Created by:  for Node : " + nodePath);
+      active = true;
+    }
+    
+    public void makeInactive() {
+      active = false;
+    }
+    
+    @Override
+    public void process(WatchedEvent event) {
+      if ((event.getType() != Event.EventType.NodeDeleted) && LeaderGroup.this.isProcessWatchedEvents()
+          && active) {
+        try {
+          MEMBER_TYPE node = (MEMBER_TYPE) ZookeeperUtils.getNodeWritable(zk, nodePath, memberClass, orbConf,
+            this);
+          if (event.getType() == Event.EventType.NodeDataChanged) {
+            LeaderGroup.this.updateMembersData(nodeName, node);
+          }
+        } catch (OrbZKFailure e) {
+          e.printStackTrace();
+          LeaderGroup.this.fireEvent(new OrbExceptionEvent(e));
+        }
+      }
+    }
+  }
+  
+  public void updateMembersData(String memberPath, MEMBER_TYPE update) {
+    if (update != null) {
+      members.put(memberPath, update);
+      fireEvent(new MemberDataChangeEvent());
+    }
   }
   
   public Collection<MEMBER_TYPE> getMembers() {
@@ -160,6 +221,19 @@ public class LeaderGroup<MEMBER_TYPE extends Member> implements OrbConfigurable 
   
   public OrbConfiguration getOrbConf() {
     return orbConf;
+  }
+  
+  public List<String> getMembersPath() {
+    ArrayList<String> paths = new ArrayList<String>();
+    Set<String> memberPaths = members.keySet();
+    for (String memberPath : memberPaths) {
+      paths.add(basePath + "/" + memberPath);
+    }
+    return paths;
+  }
+  
+  public String getMyPath() {
+    return myPath;
   }
   
   public void leave() {

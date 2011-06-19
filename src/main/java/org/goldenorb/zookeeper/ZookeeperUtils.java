@@ -192,11 +192,39 @@ public class ZookeeperUtils {
   
   public static void deleteNodeIfEmpty(ZooKeeper zk, String path) throws OrbZKFailure {
     try {
-      zk.delete(path, 0);
-    } catch (KeeperException.NoNodeException e) {} catch (KeeperException.BadVersionException e) {} catch (KeeperException.NotEmptyException e) {} catch (InterruptedException e) {
+      zk.delete(path, -1);
+    } catch (KeeperException.NoNodeException e) {
+    } catch (KeeperException.BadVersionException e) {
+      e.printStackTrace();
+    } catch (KeeperException.NotEmptyException e) {
+      e.printStackTrace();
+    } catch (InterruptedException e) {
       throw new OrbZKFailure(e);
     } catch (KeeperException e) {
       throw new OrbZKFailure(e);
     }
+  }
+  
+  /**
+   * Sets the data of an already existing node to the value of the writable.  
+   * @param zk is the zookeeper instance
+   * @param path is the path of the node
+   * @param writable is the Writable object who's data will set in the node
+   * @throws OrbZKFailure
+   */
+  public static void setNodeData(ZooKeeper zk, String path, Writable writable) throws OrbZKFailure{
+    try {
+      zk.setData(path, writableToByteArray(writable), -1);
+    } catch (KeeperException e) {
+      e.printStackTrace();
+      throw new OrbZKFailure(e);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+      throw new OrbZKFailure(e);
+    } catch (IOException e) {
+      e.printStackTrace();
+      throw new OrbZKFailure(e);
+    }
+    
   }
 }

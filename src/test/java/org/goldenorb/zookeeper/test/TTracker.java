@@ -1,25 +1,31 @@
 package org.goldenorb.zookeeper.test;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
 import org.apache.zookeeper.ZooKeeper;
 import org.goldenorb.event.LeadershipChangeEvent;
 import org.goldenorb.event.LostMemberEvent;
+import org.goldenorb.event.MemberDataChangeEvent;
 import org.goldenorb.event.NewMemberEvent;
 import org.goldenorb.event.OrbCallback;
 import org.goldenorb.event.OrbEvent;
 import org.goldenorb.event.OrbExceptionEvent;
 import org.goldenorb.zookeeper.LeaderGroup;
+import org.goldenorb.zookeeper.OrbZKFailure;
 
 public class TTracker implements Runnable {
   
-  public TTracker(ZooKeeper zk, int data, String basePath, CountDownLatch startCdl, CountDownLatch leaderChangeCdl, CountDownLatch leaveCdl) {
+  public TTracker(ZooKeeper zk, int data, String basePath, CountDownLatch startCdl,
+                  CountDownLatch leaderChangeCdl, CountDownLatch leaveCdl, CountDownLatch dataChangedCdl) {
     this.basePath = basePath;
     this.data = data;
     this.zk = zk;
     this.startCdl = startCdl;
     this.leaderChangeCdl = leaderChangeCdl;
     this.leaveCdl = leaveCdl;
+    this.dataChangedCdl = dataChangedCdl;
     member = new TMember();
     member.setData(this.data);
   }
@@ -32,10 +38,12 @@ public class TTracker implements Runnable {
   private boolean newMemberEvent = false;
   private boolean lostMemberEvent = false;
   private boolean LeadershipChangeEvent = false;
+  private boolean memberDataChangeEvent = false;
   
   private CountDownLatch startCdl;
   private CountDownLatch leaderChangeCdl;
   private CountDownLatch leaveCdl;
+  private CountDownLatch dataChangedCdl;
   
   private int data;
   private TMember member;
@@ -75,6 +83,11 @@ public class TTracker implements Runnable {
         System.out.println("Leadership has changed hands");
         leaderChangeCdl.countDown();
         orbExceptionEvent = true;
+      }
+      if (e.getClass() == MemberDataChangeEvent.class) {
+        memberDataChangeEvent = true;
+        //System.err.println("Received update on TTracker: " + data);
+        dataChangedCdl.countDown();
       }
     }
     
@@ -116,6 +129,10 @@ public class TTracker implements Runnable {
     return leaderGroup.isLeader();
   }
   
+  public boolean isMemberDataChangeEvent() {
+    return memberDataChangeEvent;
+  }
+  
   public void leave(){
     leaveCdl.countDown();
     leaderGroup.leave();
@@ -124,4 +141,21 @@ public class TTracker implements Runnable {
   public TMember getLeader(){
     return leaderGroup.getLeader();
   }
+  
+  public void changeMemberData(int newData) throws OrbZKFailure {
+    member.changeData(newData, zk, getMyPath());
+  }
+  
+  public List<String> getMembersPath() {
+    return leaderGroup.getMembersPath();
+  }
+  
+  public Collection<TMember> getMembers() {
+    return leaderGroup.getMembers();
+  }
+  
+  public String getMyPath() {
+    return leaderGroup.getMyPath();
+  }
+  
 }
