@@ -6,33 +6,22 @@ package org.goldenorb.zookeeper.test;
 import static org.junit.Assert.*;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.ZooKeeper;
-import org.goldenorb.OrbTracker;
-import org.goldenorb.conf.OrbConfiguration;
-import org.goldenorb.jet.OrbTrackerMember;
-import org.goldenorb.zookeeper.LeaderGroup;
-import org.goldenorb.zookeeper.Member;
 import org.goldenorb.zookeeper.OrbZKFailure;
 import org.goldenorb.zookeeper.ZookeeperUtils;
 import org.junit.Test;
 
 
-/**
- * @author rebanks
- *
- */
+
 public class TestWatchMemberData {
   
   private static ZooKeeper zk;
-  private static LeaderGroup<TMember> leaderGroup;
   private static String basePath = "/TestWatchMemberData"; 
-  private static OrbConfiguration orbConf = new OrbConfiguration();
   private static TMember member = new TMember();
   
   @Test
@@ -40,31 +29,26 @@ public class TestWatchMemberData {
     
     
     zk = ZookeeperUtils.connect("localhost");
-    member.setData(1);
+    int data = 1;
+    member.setData(data);
     ZookeeperUtils.tryToCreateNode(zk, basePath, CreateMode.PERSISTENT);
-    OrbTracker ot = new OrbTracker(orbConf);
-    leaderGroup = new LeaderGroup<TMember>(zk, ot.new OrbTrackerCallback(), basePath, member, (Class<? extends Member>) TMember.class);
-    Collection<TMember> trackers = leaderGroup.getMembers();
-    ArrayList<Integer> oldData = new ArrayList<Integer>();
-    for(TMember orb : trackers) {
-      oldData.add(orb.getData());
-      System.out.println("one");
-    }
-    member.changeData(9999, zk, leaderGroup.getMyPath());
-    ArrayList<Integer> newData = new ArrayList<Integer> ();
+    CountDownLatch dataChangedCdl = new CountDownLatch(1);
+    CountDownLatch startCdl = new CountDownLatch(1);
+    CountDownLatch leaderChangeCdl = new CountDownLatch(1);
+    CountDownLatch leaveCdl = new CountDownLatch(1);
+    
+    TTracker tt = new TTracker(zk, data, basePath, startCdl,leaderChangeCdl, leaveCdl, dataChangedCdl);
+    tt.run();
+    startCdl.await();
+    
+    int newData = 9999;
+    tt.changeMemberData(newData);
+    dataChangedCdl.await();
+    assertTrue(tt.getMemberData() == newData);
+    
+    tt.leave();
     List<String> children = zk.getChildren(basePath, false);
-    
-    trackers = leaderGroup.getMembers();
-    
-    
-    for(TMember orb : trackers) {
-      newData.add(orb.getData());
-      System.out.println("two");
-    }
-    assertTrue(newData.get(0) == 9999);
-    leaderGroup.leave();
     for(String node : children) {
-      System.out.println("Child : "+basePath+"/"+node);
       ZookeeperUtils.deleteNodeIfEmpty(zk, basePath+"/"+node);
     }
     ZookeeperUtils.deleteNodeIfEmpty(zk, basePath);

@@ -158,4 +158,8 @@ public class TTracker implements Runnable {
     return leaderGroup.getMyPath();
   }
   
+  public int getMemberData() {
+    return member.getData();
+  }
+  
 }
