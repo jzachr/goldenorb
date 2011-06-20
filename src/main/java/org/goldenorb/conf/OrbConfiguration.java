@@ -16,6 +16,8 @@ public class OrbConfiguration extends Configuration {
   public static final String ORB_ZOOKEEPER_PORT = "goldenOrb.zookeeper";
   public static final String ORB_LAUNCHER = "goldenOrb.orb.launcher";
   public static final String ORB_PARTITIONS_PER_MACHINE = "goldenOrb.orb.partitionsPerMachine";
+  public static final String ORB_REQUESTED_PARTITIONS = "goldenOrb.orb.requestedPartitions";
+  public static final String ORB_RESERVED_PARTITIONS = "goldenOrb.orb.reservedPartitions";
   public static final String ORB_PARTITION_VERTEX_THREADS = "goldenOrb.orb.partition.vertex.threads";
   public static final String ORB_PARTITION_MESSAGEHANDLER_THREADS = "goldenOrb.orb.partition.messagehandlers.threads";
   public static final String ORB_LAUNCHER_NETWORKDEVICE = "goldenOrb.orb.launcher.networkDevice";
@@ -143,7 +145,7 @@ public class OrbConfiguration extends Configuration {
   }
   
   public void setNumberOfVertexThreads(int numberOfVertexThreads) {
-    this.set(this.ORB_PARTITIONS_PER_MACHINE, Integer.toString(numberOfVertexThreads));
+    this.set(this.ORB_PARTITION_VERTEX_THREADS, Integer.toString(numberOfVertexThreads));
   }
   
   public int getNumberOfMessageHandlers() {
@@ -253,4 +255,19 @@ public class OrbConfiguration extends Configuration {
     this.setInt(this.ORB_PARTITION_MANAGEMENT_BASEPORT, orbPartitionManagementBaseport);
   }
   
+  public int getOrbRequestedPartitions() {
+    return this.getInt(this.ORB_REQUESTED_PARTITIONS, 0);
+  }
+  
+  public void setOrbRequestedPartitions(String requested) {
+    this.set(this.ORB_REQUESTED_PARTITIONS, requested);
+  }
+  
+  public int getOrbReservedPartitions() {
+    return this.getInt(this.ORB_RESERVED_PARTITIONS, 0);
+  }
+  
+  public void setOrbReservedPartitions(String reserved) {
+    this.set(this.ORB_RESERVED_PARTITIONS, reserved);
+  }
 }
