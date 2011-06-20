@@ -17,8 +17,8 @@ public class ResourceAllocatorTest {
   public void testEnoughCapacityWithPPM() {
     List<OrbTracker> orbTrackers = new ArrayList<OrbTracker>();
     OrbConfiguration conf = new OrbConfiguration(true);
-    conf.setOrbRequestedPartitions("6");
-    conf.setOrbReservedPartitions("2");
+    conf.setOrbRequestedPartitions(6);
+    conf.setOrbReservedPartitions(2);
     // the "PPM" part
     conf.setNumberOfPartitionsPerMachine(2);
     
@@ -52,8 +52,8 @@ public class ResourceAllocatorTest {
   public void testEnoughCapacity() {
     List<OrbTracker> orbTrackers = new ArrayList<OrbTracker>();
     OrbConfiguration conf = new OrbConfiguration(true);
-    conf.setOrbRequestedPartitions("6");
-    conf.setOrbReservedPartitions("2");
+    conf.setOrbRequestedPartitions(6);
+    conf.setOrbReservedPartitions(2);
     conf.setNumberOfPartitionsPerMachine(0);
     
     for(int i = 0; i < 4; i++) {
@@ -86,8 +86,8 @@ public class ResourceAllocatorTest {
   public void testUnbalancedAssignment() {
     List<OrbTracker> orbTrackers = new ArrayList<OrbTracker>();
     OrbConfiguration conf = new OrbConfiguration(true);
-    conf.setOrbRequestedPartitions("6");
-    conf.setOrbReservedPartitions("2");
+    conf.setOrbRequestedPartitions(6);
+    conf.setOrbReservedPartitions(2);
     conf.setNumberOfPartitionsPerMachine(0);
     
     for(int i = 0; i < 4; i++) {
@@ -126,8 +126,8 @@ public class ResourceAllocatorTest {
   public void insufficientCapacity() {
     List<OrbTracker> orbTrackers = new ArrayList<OrbTracker>();
     OrbConfiguration conf = new OrbConfiguration(true);
-    conf.setOrbRequestedPartitions("6");
-    conf.setOrbReservedPartitions("2");
+    conf.setOrbRequestedPartitions(6);
+    conf.setOrbReservedPartitions(2);
     conf.setNumberOfPartitionsPerMachine(0);
     
     for(int i = 0; i < 4; i++) {

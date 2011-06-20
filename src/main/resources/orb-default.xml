@@ -11,6 +11,48 @@
 </property>
 
 <property>
+  <name>goldenOrb.cluster.baseport</name>
+  <value>30616</value>
+  <description>The base port used by GoldenOrb
+  </description>
+</property>
+
+<property>
+  <name>goldenOrb.orb.tracker.port</name>
+  <value>40616</value>
+  <description>Port used by OrbTracker for communication
+  </description>
+</property>
+
+<property>
+  <name>goldenOrb.job.heartbeatTimeout</name>
+  <value>0</value>
+  <description>Timeout for job manager to monitor jobs
+  </description>
+</property>
+
+<property>
+  <name>goldenOrb.orb.partitionManagement.baseport</name>
+  <value>50616</value>
+  <description>Communication port for OrbPartitionManager
+  </description>
+</property>
+
+<property>
+  <name>goldenOrb.orb.requestedPartitions</name>
+  <value>0</value>
+  <description>Requested number of partitions for this job
+  </description>
+</property>
+
+<property>
+  <name>goldenOrb.orb.reservedPartitions</name>
+  <value>0</value>
+  <description>Requested number of reserve partitions for this job
+  </description>
+</property>
+
+<property>
   <name>goldenOrb.zookeeper.quorum</name>
   <value>localhost</value>
   <description>The server running zookeeper.

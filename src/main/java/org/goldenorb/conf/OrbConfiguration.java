@@ -11,36 +11,42 @@ public class OrbConfiguration extends Configuration {
   
   public static final String ORB_CLUSTER_BASEPORT = "goldenOrb.cluster.baseport";
   public static final String ORB_CLUSTER_NAME = "goldenOrb.cluster.name";
-  public static final String ORB_JOB_NUMBER = "goldenOrb.jobNumber";
+  public static final String ORB_CLASS_PATHS = "goldenOrb.orb.classpaths";
+  public static final String ORB_TRACKER_PORT = "goldenOrb.orb.tracker.port";
+
+  public static final String ORB_JOB_NUMBER = "goldenOrb.job.number";
+  public static final String ORB_JOB_NAME = "goldenOrb.job.name";
+  public static final String ORB_JOB_HEARTBEAT_TIMEOUT = "goldenOrb.job.heartbeatTimeout";
+  
   public static final String ORB_ZOOKEEPER_QUORUM = "goldenOrb.zookeeper.quorum";
   public static final String ORB_ZOOKEEPER_PORT = "goldenOrb.zookeeper";
-  public static final String ORB_LAUNCHER = "goldenOrb.orb.launcher";
+  
   public static final String ORB_PARTITIONS_PER_MACHINE = "goldenOrb.orb.partitionsPerMachine";
   public static final String ORB_REQUESTED_PARTITIONS = "goldenOrb.orb.requestedPartitions";
   public static final String ORB_RESERVED_PARTITIONS = "goldenOrb.orb.reservedPartitions";
   public static final String ORB_PARTITION_VERTEX_THREADS = "goldenOrb.orb.partition.vertex.threads";
   public static final String ORB_PARTITION_MESSAGEHANDLER_THREADS = "goldenOrb.orb.partition.messagehandlers.threads";
+  public static final String ORB_PARTITION_JAVAOPTS = "goldenOrb.orb.partition.javaopts";
+  public static final String ORB_PARTITION_MANAGEMENT_BASEPORT = "goldenOrb.orb.partitionManagement.baseport";
+  
+  public static final String ORB_LAUNCHER = "goldenOrb.orb.launcher";
   public static final String ORB_LAUNCHER_NETWORKDEVICE = "goldenOrb.orb.launcher.networkDevice";
-  public static final String ORB_VERTEX_CLASS = "goldenOrb.vertexClass";
-  public static final String ORB_MESSAGE_CLASS = "goldenOrb.messageClass";
-  public static final String ORB_VERTEX_INPUT_FORMAT_CLASS = "goldenOrb.vertexInputFormatClass";
-  public static final String ORB_VERTEX_OUTPUT_FORMAT_CLASS = "goldenOrb.vertexOutputFormatClass";
-  public static final String ORB_JOB_NAME = "goldenOrb.job.name";
+  
+  public static final String ORB_VERTEX_CLASS = "goldenOrb.orb.vertexClass";
+  public static final String ORB_MESSAGE_CLASS = "goldenOrb.orb.messageClass";
+  public static final String ORB_VERTEX_INPUT_FORMAT_CLASS = "goldenOrb.orb.vertexInputFormatClass";
+  public static final String ORB_VERTEX_OUTPUT_FORMAT_CLASS = "goldenOrb.orb.vertexOutputFormatClass";
+  
   public static final String ORB_ERROR_OUTPUT_STREAM = "goldenOrb.error.output.stream";
   public static final String ORB_SYSTEM_OUTPUT_STREAM = "goldenOrb.system.output.stream";
-  public static final String ORB_PARTITION_JAVAOPTS = "goldenOrb.partition.javaopts";
+  
   public static final String ORB_FS_DEFAULT_NAME = "fs.default.name";
   public static final String ORB_FILE_INPUT_FORMAT_CLASS = "mapreduce.inputformat.class";
   public static final String ORB_FILE_OUTPUT_FORMAT_CLASS = "mapreduce.outputformat.class";
   public static final String ORB_FILE_INPUT_DIR = "mapred.input.dir";
   public static final String ORB_FILE_OUTPUT_DIR = "mapred.output.dir";
-  public static final String ORB_CLASS_PATHS = "orb.class.paths";
-  public static final String ORB_TRACKER_PORT = "orb.tracker.port";
-  public static final String ORB_PARTITION_MANAGEMENT_BASEPORT = "goldenOrb.orb.partitionManagement.baseport";
   
-  public OrbConfiguration() {
-
-  }
+  public OrbConfiguration() {}
   
   public OrbConfiguration(boolean loadDefaults) {
     
@@ -57,6 +63,11 @@ public class OrbConfiguration extends Configuration {
     return conf;
   }
   
+  @Override
+  public boolean equals(Object rhs) {
+    return this.getJobNumber().equals(((OrbConfiguration) rhs).getJobNumber());
+  }
+
   public Class<?> getMessageClass() throws ClassNotFoundException {
     return Class.forName(this.get(this.ORB_MESSAGE_CLASS));
   }
@@ -205,7 +216,7 @@ public class OrbConfiguration extends Configuration {
   }
   
   public int getOrbBasePort() {
-    return this.getInt(this.ORB_CLUSTER_BASEPORT, 30616);
+    return Integer.parseInt(this.get(this.ORB_CLUSTER_BASEPORT));
   }
   
   public void setOrbBasePort(int orbBasePort) {
@@ -225,49 +236,42 @@ public class OrbConfiguration extends Configuration {
   }
   
   public String getNetworkInterface() {
-    // TODO Add as actual property.
-    return "eth0";
+    return this.get(ORB_LAUNCHER_NETWORKDEVICE);
   }
   
   public int getOrbTrackerPort() {
     return Integer.parseInt(this.get(this.ORB_TRACKER_PORT));
   }
   
-  public void setOrbTrackerPort(int numberOfPartitionsPerMachine) {
-    this.set(this.ORB_TRACKER_PORT, Integer.toString(numberOfPartitionsPerMachine));
+  public void setOrbTrackerPort(int trackerPort) {
+    this.set(this.ORB_TRACKER_PORT, Integer.toString(trackerPort));
   }
   
   public long getJobHeartbeatTimeout() {
-    // TODO Auto-generated method stub
-    return 0;
-  }
-  
-  @Override
-  public boolean equals(Object rhs) {
-    return this.getJobNumber().equals(((OrbConfiguration) rhs).getJobNumber());
+    return Integer.parseInt(this.get(this.ORB_JOB_HEARTBEAT_TIMEOUT));
   }
   
   public int getOrbPartitionManagementBaseport() {
-    return this.getInt(this.ORB_PARTITION_MANAGEMENT_BASEPORT, 40616);
+    return Integer.parseInt(this.get(this.ORB_PARTITION_MANAGEMENT_BASEPORT));
   }
   
-  public void setOrbPartitionManagementBaseport(int orbPartitionManagementBaseport) {
-    this.setInt(this.ORB_PARTITION_MANAGEMENT_BASEPORT, orbPartitionManagementBaseport);
+  public void setOrbPartitionManagementBaseport(int port) {
+    this.setInt(this.ORB_PARTITION_MANAGEMENT_BASEPORT, port);
   }
   
   public int getOrbRequestedPartitions() {
-    return this.getInt(this.ORB_REQUESTED_PARTITIONS, 0);
+    return Integer.parseInt(this.get(this.ORB_REQUESTED_PARTITIONS));
   }
   
-  public void setOrbRequestedPartitions(String requested) {
-    this.set(this.ORB_REQUESTED_PARTITIONS, requested);
+  public void setOrbRequestedPartitions(int requested) {
+    this.setInt(this.ORB_REQUESTED_PARTITIONS, requested);
   }
   
   public int getOrbReservedPartitions() {
-    return this.getInt(this.ORB_RESERVED_PARTITIONS, 0);
+    return Integer.parseInt(this.get(this.ORB_RESERVED_PARTITIONS));
   }
   
-  public void setOrbReservedPartitions(String reserved) {
-    this.set(this.ORB_RESERVED_PARTITIONS, reserved);
+  public void setOrbReservedPartitions(int reserved) {
+    this.setInt(this.ORB_RESERVED_PARTITIONS, reserved);
   }
 }
