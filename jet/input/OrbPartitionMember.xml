@@ -13,7 +13,7 @@
 		<field name="numberOfVertices" value="10000"/>
 		<field name="superStep" value="4"/>
 		<field name="messagesSent" value="10000"/>
-		<field name="percentComplete" value="1"/>
+		<field name="percentComplete" value="(float) 1"/>
 		<field name="hostname" value="&quot;www.goldenorb.org&quot;"/>
 		<field name="leader" value="false"/>
 		<field name="port" value="3696"/>
