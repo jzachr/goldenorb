@@ -81,6 +81,7 @@ public class OrbBarrierTest {
     
     ZookeeperUtils.deleteNodeIfEmpty(zk, "/" + barrierName + "/member1");
     ZookeeperUtils.deleteNodeIfEmpty(zk, "/" + barrierName + "/member2");
+    ZookeeperUtils.deleteNodeIfEmpty(zk, "/" + barrierName + "/member3");
     ZookeeperUtils.deleteNodeIfEmpty(zk, "/" + barrierName);
     zk.close();
   }
