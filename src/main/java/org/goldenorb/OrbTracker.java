@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
 
 public class OrbTracker extends OrbTrackerMember implements Runnable, OrbConfigurable {
   
-  private static final String ZK_BASE_PATH = "/GoldenOrb";
+  public static final String ZK_BASE_PATH = "/GoldenOrb";
   
   private OrbConfiguration orbConf;
   

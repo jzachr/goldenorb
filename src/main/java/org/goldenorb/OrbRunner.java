@@ -18,7 +18,8 @@ public class OrbRunner {
     logger = LoggerFactory.getLogger(OrbRunner.class);
   }
   
-  public void runJob(OrbConfiguration orbConf) {
+  public String runJob(OrbConfiguration orbConf) {
+    String jobNumber = null;
     try {
       try {
         ZK = ZookeeperUtils.connect(orbConf.getOrbZooKeeperQuorum());
@@ -38,12 +39,13 @@ public class OrbRunner {
         CreateMode.PERSISTENT);
       
       // create the sequential Job using orbConf
-      ZookeeperUtils.notExistCreateNode(ZK, "/GoldenOrb/" + orbConf.getOrbClusterName() + "/JobQueue/Job",
+      jobNumber = ZookeeperUtils.notExistCreateNode(ZK, "/GoldenOrb/" + orbConf.getOrbClusterName() + "/JobQueue/Job",
         orbConf, CreateMode.PERSISTENT_SEQUENTIAL);
       
     } catch (Exception e) {
       logger.info("Cluster does not exist in ZooKeeper on " + orbConf.getOrbZooKeeperQuorum());
       logger.error("Exception", e);
     }
+    return jobNumber;
   }
 }
