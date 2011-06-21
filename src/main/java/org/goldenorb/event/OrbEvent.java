@@ -1,14 +1,15 @@
 package org.goldenorb.event;
 
 public class OrbEvent {
-  final static int LOST_MEMBER = 1;
-  final static int NEW_MEMBER = 2;
-  final static int LEADERSHIP_CHANGE = 3;
-  final static int NEW_JOB = 4;
-  final static int JOB_COMPLETE = 5;
-  final static int JOB_DEATH = 6;
-  final static int ORB_EXCEPTION = 8;
-  final static int MEMBER_DATA_CHANGE = 9;
+  public final static int LOST_MEMBER = 1;
+  public final static int NEW_MEMBER = 2;
+  public final static int LEADERSHIP_CHANGE = 3;
+  public final static int NEW_JOB = 4;
+  public final static int JOB_COMPLETE = 5;
+  public final static int JOB_DEATH = 6;
+  public final static int ORB_EXCEPTION = 8;
+  public final static int MEMBER_DATA_CHANGE = 9;
+  public final static int JOB_START = 10;
 
   int type;
 
