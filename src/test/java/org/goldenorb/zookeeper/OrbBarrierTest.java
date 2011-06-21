@@ -22,13 +22,13 @@ public class OrbBarrierTest {
     CountDownLatch everyoneDoneLatch = new CountDownLatch(numOfMembers);
     ZooKeeper zk = ZookeeperUtils.connect(orbConf.getOrbZooKeeperQuorum());
     
-    OrbBarrier testReef1 = new OrbBarrier(orbConf, barrierName, numOfMembers, "member1", zk);
-    OrbBarrier testReef2 = new OrbBarrier(orbConf, barrierName, numOfMembers, "member2", zk);
-    OrbBarrier testReef3 = new OrbBarrier(orbConf, barrierName, numOfMembers, "member3", zk);
+    OrbBarrier testBarrier1 = new OrbBarrier(orbConf, barrierName, numOfMembers, "member1", zk);
+    OrbBarrier testBarrier2 = new OrbBarrier(orbConf, barrierName, numOfMembers, "member2", zk);
+    OrbBarrier testBarrier3 = new OrbBarrier(orbConf, barrierName, numOfMembers, "member3", zk);
     
-    BarrierThread bThread1 = new BarrierThread(testReef1, startLatch, everyoneDoneLatch);
-    BarrierThread bThread2 = new BarrierThread(testReef2, startLatch, everyoneDoneLatch);
-    BarrierThread bThread3 = new BarrierThread(testReef3, startLatch, everyoneDoneLatch);
+    BarrierThread bThread1 = new BarrierThread(testBarrier1, startLatch, everyoneDoneLatch);
+    BarrierThread bThread2 = new BarrierThread(testBarrier2, startLatch, everyoneDoneLatch);
+    BarrierThread bThread3 = new BarrierThread(testBarrier3, startLatch, everyoneDoneLatch);
     
     bThread1.start();
     bThread2.start();
