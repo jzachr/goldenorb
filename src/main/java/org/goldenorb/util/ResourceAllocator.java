@@ -8,12 +8,15 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.apache.hadoop.mapred.InvalidJobConfException;
 import org.goldenorb.conf.OrbConfiguration;
 import org.goldenorb.jet.OrbTrackerMember;
 
 public class ResourceAllocator<M extends OrbTrackerMember> {
+  final Logger logger = LoggerFactory.getLogger(this.getClass());
   
   public static final int TRACKER_AVAILABLE = 0;
   public static final int TRACKER_RESERVED = 1;
@@ -33,10 +36,12 @@ public class ResourceAllocator<M extends OrbTrackerMember> {
   }
   
   public Map<M,Integer[]> assignResources() throws InvalidJobConfException {
+    logger.info("ResourceAllocator: assignResources()");
     
     int requestedPartitions = conf.getOrbRequestedPartitions();
     // if no partitions are requested, the job is invalid
     if (requestedPartitions <= 0) {
+      logger.error("missing number of requested partitions for job");
       throw new InvalidJobConfException("missing number of requested partitions for job");
     }
     int reservedPartitions = conf.getOrbReservedPartitions();
@@ -45,6 +50,10 @@ public class ResourceAllocator<M extends OrbTrackerMember> {
     // the allocation process
     int partitionsPerMachine = (conf.getNumberOfPartitionsPerMachine() == 0 ? Integer.MAX_VALUE : conf
         .getNumberOfPartitionsPerMachine());
+    
+    logger.debug("requestedPartitions: {}", requestedPartitions);
+    logger.debug("reservedPartitions: {}", reservedPartitions);
+    logger.debug("partitionsPerMachine: {}", partitionsPerMachine);
     
     // some setup, organize the trackers and capture availability/reserved info
     sortTrackers();

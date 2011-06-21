@@ -8,10 +8,13 @@ import org.apache.hadoop.mapred.InvalidJobConfException;
 import org.goldenorb.OrbTracker;
 import org.goldenorb.conf.OrbConfiguration;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.junit.Assert.*;
 
 public class ResourceAllocatorTest {
+  Logger logger = LoggerFactory.getLogger(this.getClass());
   
   @Test
   public void testEnoughCapacityWithPPM() {
