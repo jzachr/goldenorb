@@ -84,5 +84,6 @@ public class TestLeaderGroup {
       }
     }
     leaveCdl.await();
+    ZookeeperUtils.deleteNodeIfEmpty(zk, basePath);
   }
 }
