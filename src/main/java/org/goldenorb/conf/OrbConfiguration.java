@@ -17,6 +17,7 @@ public class OrbConfiguration extends Configuration {
   public static final String ORB_JOB_NUMBER = "goldenOrb.job.number";
   public static final String ORB_JOB_NAME = "goldenOrb.job.name";
   public static final String ORB_JOB_HEARTBEAT_TIMEOUT = "goldenOrb.job.heartbeatTimeout";
+  public static final String ORB_JOB_MAX_TRIES = "goldenOrb.job.max.tries";
   
   public static final String ORB_ZOOKEEPER_QUORUM = "goldenOrb.zookeeper.quorum";
   public static final String ORB_ZOOKEEPER_PORT = "goldenOrb.zookeeper";
@@ -273,5 +274,13 @@ public class OrbConfiguration extends Configuration {
   
   public void setOrbReservedPartitions(int reserved) {
     this.setInt(this.ORB_RESERVED_PARTITIONS, reserved);
+  }
+  
+  public int getMaximumJobTries() {
+    return Integer.parseInt(this.get(this.ORB_JOB_MAX_TRIES));
+  }
+  
+  public void setMaximumJobTries(int maxTries) {
+    this.setInt(this.ORB_JOB_MAX_TRIES  , maxTries);
   }
 }
