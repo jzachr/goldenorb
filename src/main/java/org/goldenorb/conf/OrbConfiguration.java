@@ -252,6 +252,10 @@ public class OrbConfiguration extends Configuration {
     return Integer.parseInt(this.get(this.ORB_JOB_HEARTBEAT_TIMEOUT));
   }
   
+  public void setJobHeartbeatTimeout(int heartbeatTimeout) {
+    this.setInt(this.ORB_JOB_HEARTBEAT_TIMEOUT, heartbeatTimeout);
+  }
+  
   public int getOrbPartitionManagementBaseport() {
     return Integer.parseInt(this.get(this.ORB_PARTITION_MANAGEMENT_BASEPORT));
   }
