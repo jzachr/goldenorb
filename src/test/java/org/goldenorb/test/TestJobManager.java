@@ -33,7 +33,9 @@ public class TestJobManager extends OrbRunner{
     CountDownLatch newLeader = new CountDownLatch(1);
     OrbConfiguration orbConf = new OrbConfiguration();
     orbConf.setOrbClusterName("OrbCluster");
-    
+    orbConf.setJobHeartbeatTimeout(1000);
+    orbConf.setMaximumJobTries(3);
+    System.out.println(orbConf.getJobHeartbeatTimeout());
     // Create all of the test Trackers
     for (int i = 0; i < NUM_OF_MEMBERS; i++) {
       TJTracker tracker = new TJTracker(zk, joinLeaderGroup, exit, orbConf, i, "/GoldenOrb/OrbCluster");
@@ -49,7 +51,7 @@ public class TestJobManager extends OrbRunner{
     
     new Thread(new HeartbeatUpdater(getJobInProgressPath(path1))).start();
     new Thread(new HeartbeatUpdater(getJobInProgressPath(path2))).start();
-    jobCreated.await(5, TimeUnit.SECONDS);
+    jobCreated.await(2, TimeUnit.SECONDS);
     int leader = 0;
     for (int i = 0; i < NUM_OF_MEMBERS; i++){
       if(trackers.get(i).isLeader()){
@@ -58,16 +60,15 @@ public class TestJobManager extends OrbRunner{
     }
     trackers.get(leader).leave();
     
-    newLeader.await(15, TimeUnit.SECONDS);
+    newLeader.await(5, TimeUnit.SECONDS);
 
     //exit and shutdown
     for (int i = 0; i < NUM_OF_MEMBERS; i++) {
       trackers.get(i).leave();
     }
     exit.await();
-    ZookeeperUtils.deleteNodeIfEmpty(zk, "/GoldenOrb/OrbCluster");
+    ZookeeperUtils.recursiveDelete(zk, "/GoldenOrb");
     ZookeeperUtils.deleteNodeIfEmpty(zk, "/GoldenOrb");
-
   }
   
   private class HeartbeatUpdater implements Runnable{
