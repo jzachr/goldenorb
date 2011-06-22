@@ -9,15 +9,37 @@ import org.goldenorb.zookeeper.ZookeeperUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * This class provides a basis upon which to run a Job given a specified OrbConfiguration. It should be
+ * extended to actually run a Job within GoldenOrb.
+ * 
+ * @author long
+ * 
+ */
 public class OrbRunner {
   
   private static Logger logger;
   protected static ZooKeeper ZK;
   
+  /**
+   * Constructs an OrbRunner object.
+   */
   public OrbRunner() {
     logger = LoggerFactory.getLogger(OrbRunner.class);
   }
   
+  /**
+   * This is the runJob method that begins a Job. It first attempts to connect to the ZooKeeper server as
+   * defined in the OrbConfiguration, then tries to create the /GoldenOrb, /GoldenOrb/ClusterName, and
+   * /GoldenOrb/ClusterName/JobQueue nodes if they do not already exist. Then, it creates the Job itself as a
+   * PERSISTENT_SEQUENTIAL node in the form of JobXXXXXXXXXX.
+   * 
+   * @param orbConf
+   *          - The OrbConfiguration for a specific Job.
+   * @exception - IOException
+   * @exception - InterruptedException
+   * @return jobNumber
+   */
   public String runJob(OrbConfiguration orbConf) {
     String jobNumber = null;
     try {
@@ -39,8 +61,9 @@ public class OrbRunner {
         CreateMode.PERSISTENT);
       
       // create the sequential Job using orbConf
-      jobNumber = ZookeeperUtils.notExistCreateNode(ZK, "/GoldenOrb/" + orbConf.getOrbClusterName() + "/JobQueue/Job",
-        orbConf, CreateMode.PERSISTENT_SEQUENTIAL);
+      jobNumber = ZookeeperUtils.notExistCreateNode(ZK, "/GoldenOrb/" + orbConf.getOrbClusterName()
+                                                        + "/JobQueue/Job", orbConf,
+        CreateMode.PERSISTENT_SEQUENTIAL);
       
     } catch (Exception e) {
       logger.info("Cluster does not exist in ZooKeeper on " + orbConf.getOrbZooKeeperQuorum());

@@ -12,6 +12,13 @@ import java.util.List;
 import org.goldenorb.conf.OrbConfiguration;
 import org.goldenorb.zookeeper.ZookeeperUtils;
 
+/**
+ * Tests OrbRunner by first running a Job with the default OrbConfiguration. Then, the test looks for Jobs
+ * under the JobQueue and looks to see if the OrbConfiguration cluster name property is the same coming out as it is going in.
+ * 
+ * @author long
+ * 
+ */
 public class OrbRunnerTest extends OrbRunner {
   
   OrbConfiguration orbConf = new OrbConfiguration(true); // default configuration, also assuming ZooKeeper is
@@ -29,11 +36,6 @@ public class OrbRunnerTest extends OrbRunner {
             OrbConfiguration.class, orbConf);
       assertEquals(compareOrbConf.getOrbClusterName(), orbConf.getOrbClusterName());
     }
-    
-    System.out.println(ZK.getChildren("/GoldenOrb/" + orbConf.getOrbClusterName() + "/JobQueue", false));
-    
-    assertThat(OrbRunner.class, notNullValue());
-    assertThat(orbConf, notNullValue());
   }
   
   @After

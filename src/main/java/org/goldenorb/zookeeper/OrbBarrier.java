@@ -9,6 +9,13 @@ import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.ZooKeeper;
 import org.goldenorb.conf.OrbConfiguration;
 
+/**
+ * This class provides the implementation of a ZooKeeper Barrier for the GoldenOrb project. It can be used to
+ * sync its constituent members before and after a computation or can be used at startup to wait for all
+ * members to initialize and enter.
+ * 
+ * @author long
+ */
 public class OrbBarrier implements Barrier {
   
   private OrbConfiguration orbConf;
@@ -17,11 +24,25 @@ public class OrbBarrier implements Barrier {
   String member;
   ZooKeeper zk;
   
+  /**
+   * Constructs an OrbBarrier object.
+   * 
+   * @param orbConf
+   *          - OrbConfiguration
+   * @param barrierName
+   *          - The barrier's name
+   * @param numOfMembers
+   *          - The total number of expected members to join under the barrier node
+   * @param member
+   *          - A member node's name
+   * @param zk
+   *          - ZooKeeper object
+   */
   public OrbBarrier(OrbConfiguration orbConf,
-                        String barrierName,
-                        int numOfMembers,
-                        String member,
-                        ZooKeeper zk) {
+                    String barrierName,
+                    int numOfMembers,
+                    String member,
+                    ZooKeeper zk) {
     this.orbConf = orbConf;
     this.barrierName = barrierName;
     this.numOfMembers = numOfMembers;
@@ -29,6 +50,15 @@ public class OrbBarrier implements Barrier {
     this.zk = zk;
   }
   
+  /**
+   * This method creates a new member node under the barrier node if it does not already exist. It currently
+   * is implemented with an O(n^2) algorithm where all members periodically check if the others have joined.
+   * 
+   * @exception InterruptedException
+   *              throws OrbZKFailure
+   * @exception KeeperException
+   *              throws OrbZKFailure
+   */
   @Override
   public void enter() throws OrbZKFailure {
     // general path looks like: "/barrierName/member"
@@ -68,13 +98,26 @@ public class OrbBarrier implements Barrier {
     return orbConf;
   }
   
+  /**
+   * This class implements a Watcher for usage in the barrier mechanism for ZooKeeper.
+   * 
+   * @author long
+   */
   class BarrierWait implements Watcher {
     OrbBarrier ob;
     
+    /**
+     * This constructs a BarrierWait object given a configured OrbBarrier object.
+     * 
+     * @param ob
+     */
     public BarrierWait(OrbBarrier ob) {
       this.ob = ob;
     }
     
+    /**
+     * This method processes notifications triggered by Watchers.
+     */
     @Override
     public void process(WatchedEvent event) {
       synchronized (ob) {

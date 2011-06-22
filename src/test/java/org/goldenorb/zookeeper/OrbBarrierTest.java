@@ -9,6 +9,12 @@ import org.apache.zookeeper.ZooKeeper;
 import org.goldenorb.conf.OrbConfiguration;
 import org.junit.Test;
 
+/**
+ * Tests OrbBarrier by using Threads to simulate multiple members joining under a barrier in ZooKeeper.
+ * 
+ * @author long
+ * 
+ */
 public class OrbBarrierTest {
   
   OrbConfiguration orbConf = new OrbConfiguration(true);
@@ -16,6 +22,11 @@ public class OrbBarrierTest {
   CountDownLatch startLatch = new CountDownLatch(1);
   int numOfMembers;
   
+  /**
+   * Tests the behavior of the barrier if all expected member nodes join in a timely manner.
+   * 
+   * @throws Exception
+   */
   @Test
   public void allMembersJoin() throws Exception {
     numOfMembers = 3;
@@ -49,6 +60,11 @@ public class OrbBarrierTest {
     zk.close();
   }
   
+  /**
+   * Tests the behavior of the barrier if only some of the member nodes join.
+   * 
+   * @throws Exception
+   */
   @Test
   public void someMembersJoin() throws Exception {
     numOfMembers = 3;
@@ -70,7 +86,8 @@ public class OrbBarrierTest {
     
     startLatch.countDown(); // start first 2 threads
     
-    everyoneDoneLatch.await(500, TimeUnit.MILLISECONDS); // wait on the threads with 500ms timeout, expect to timeout
+    everyoneDoneLatch.await(500, TimeUnit.MILLISECONDS); // wait on the threads with 500ms timeout, expect to
+                                                         // timeout
     lastMemberLatch.countDown(); // start the last member
     
     everyoneDoneLatch.await();
@@ -86,18 +103,38 @@ public class OrbBarrierTest {
     zk.close();
   }
   
+  /**
+   * This class defines a Thread that is used to start a member and have it enter the barrier.
+   * 
+   * @author long
+   * 
+   */
   class BarrierThread extends Thread {
     
     private OrbBarrier testBarrier;
     private CountDownLatch startLatch;
     private CountDownLatch everyoneDoneLatch;
     
+    /**
+     * Constructs the BarrierThread.
+     * 
+     * @param barrier
+     *          - name of the OrbBarrier
+     * @param startLatch
+     *          - Used in conjunction with countDown within the calling block of code to start Threads
+     * @param everyoneDoneLatch
+     *          - Used to wait for all Threads to finish
+     */
     public BarrierThread(OrbBarrier barrier, CountDownLatch startLatch, CountDownLatch everyoneDoneLatch) {
       this.testBarrier = barrier;
       this.startLatch = startLatch;
       this.everyoneDoneLatch = everyoneDoneLatch;
     }
     
+    /**
+     * Runs the Thread to enter the barrier. It first awaits the latch to start, then enters, and finally
+     * counts down the everyoneDoneLatch once it is finished.
+     */
     public void run() {
       try {
         startLatch.await(); // wait for CountDown signal
