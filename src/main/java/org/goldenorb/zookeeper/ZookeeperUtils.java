@@ -7,6 +7,7 @@ import java.io.DataInputStream;
 import java.io.DataOutput;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.List;
 
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.util.ReflectionUtils;
@@ -119,22 +120,28 @@ public class ZookeeperUtils {
     return result;
   }
   
-  public static void notExistCreateNode(ZooKeeper zk, String path) throws OrbZKFailure {
+  public static String notExistCreateNode(ZooKeeper zk, String path) throws OrbZKFailure {
+    String nodePath = null;
     if (!nodeExists(zk, path)) {
-      tryToCreateNode(zk, path);
+      nodePath = tryToCreateNode(zk, path);
     }
+    return nodePath;
   }
   
-  public static void notExistCreateNode(ZooKeeper zk, String path, CreateMode createMode) throws OrbZKFailure {
+  public static String notExistCreateNode(ZooKeeper zk, String path, CreateMode createMode) throws OrbZKFailure {
+    String nodePath = null;
     if (!nodeExists(zk, path)) {
-      tryToCreateNode(zk, path, createMode);
+      nodePath = tryToCreateNode(zk, path, createMode);
     }
+    return nodePath;
   }
   
-  public static void notExistCreateNode(ZooKeeper zk, String path, Writable node, CreateMode createMode) throws OrbZKFailure {
+  public static String notExistCreateNode(ZooKeeper zk, String path, Writable node, CreateMode createMode) throws OrbZKFailure {
+    String nodePath = null;
     if (!nodeExists(zk, path)) {
-      tryToCreateNode(zk, path, node, createMode);
+      nodePath = tryToCreateNode(zk, path, node, createMode);
     }
+    return nodePath;
   }
   
   public static Writable getNodeWritable(ZooKeeper zk,
@@ -185,9 +192,9 @@ public class ZookeeperUtils {
     }
     if (data != null) {
       return byteArrayToWritable(data, writableClass, orbConf);
-    } 
-    return null;
-    
+    } else {
+      return null;
+    }
   }
   
   public static void deleteNodeIfEmpty(ZooKeeper zk, String path) throws OrbZKFailure {
@@ -202,6 +209,44 @@ public class ZookeeperUtils {
       throw new OrbZKFailure(e);
     } catch (KeeperException e) {
       throw new OrbZKFailure(e);
+    }
+  }
+  
+  public static void recursiveDelete(ZooKeeper zk, String path) throws OrbZKFailure {
+    
+    try {
+      List<String> children = zk.getChildren(path, false);
+      if (children != null) {
+        for (String child : children) {
+          recursiveDelete(zk, path + "/" + child);
+        }
+        for (String child : children) {
+          zk.delete(path + "/" + child, -1);
+        }
+      }
+    } catch (KeeperException.NoNodeException e) {} catch (KeeperException e) {
+      throw new OrbZKFailure(e);
+    } catch (InterruptedException e) {
+      throw new OrbZKFailure(e);
+    }
+    
+  }
+  
+  public static void updateNodeData(ZooKeeper zk, String path, Writable writable) throws OrbZKFailure {
+    try {
+      zk.setData(path, writableToByteArray(writable), -1);
+    } catch (KeeperException.NoNodeException e) {} catch (KeeperException e) {
+      throw new OrbZKFailure(e);
+    } catch (InterruptedException e) {
+      throw new OrbZKFailure(e);
+    } catch (IOException e) {
+      throw new OrbZKFailure(e);
+    }
+  }
+  
+  public static void existsUpdateNodeData(ZooKeeper zk, String path, Writable writable) throws OrbZKFailure {
+    if (nodeExists(zk, path)) {
+      updateNodeData(zk, path, writable);
     }
   }
   
