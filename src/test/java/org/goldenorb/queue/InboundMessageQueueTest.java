@@ -11,6 +11,8 @@ import java.util.concurrent.CountDownLatch;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
 import org.goldenorb.Message;
+import org.goldenorb.Messages;
+import org.goldenorb.types.message.TextMessage;
 import org.junit.Test;
 
 public class InboundMessageQueueTest {
@@ -41,23 +43,28 @@ public class InboundMessageQueueTest {
   }
   
   /**
-   * Tests mapping messages to many Vertices using threads.
+   * Tests mapping many messages to many Vertices using threads.
    * 
    * @throws Exception
    */
   @Test
   public void testInboundMessageQueue() throws Exception {
     int numOfThreads = 100;
+    int numOfMessages = 10000;
     InboundMessageQueue imq = new InboundMessageQueue();
     CountDownLatch startLatch = new CountDownLatch(1);
     CountDownLatch everyoneDoneLatch = new CountDownLatch(numOfThreads);
     
     // create new MessageThreads that add the passed message to the inbound message queue
     for (int i = 0; i < numOfThreads; i++) {
-      Message<Text> msg = new Message<Text>(Text.class);
-      msg.setDestinationVertex(Integer.toString(i));
-      msg.setMessageValue(new Text("test message " + Integer.toString(i)));
-      MessageThread mThread = new MessageThread(msg, imq, startLatch, everyoneDoneLatch);
+      Messages msgs = new Messages(TextMessage.class);
+      for (int p = 0; p < numOfMessages; p++) {
+        TextMessage txtmsg = new TextMessage(Integer.toString(i), new Text("test message "
+                                                                           + Integer.toString(p)));
+        msgs.add(txtmsg);
+      }
+      
+      MessageThread mThread = new MessageThread(msgs, imq, startLatch, everyoneDoneLatch);
       mThread.start();
     }
     
@@ -72,8 +79,17 @@ public class InboundMessageQueueTest {
       count++;
     }
     
+    int randomVertex = (int) (Math.random() * (numOfThreads)); // check a random Vertex
+    Iterator<Message<? extends Writable>> iter2 = imq.getMessage(Integer.toString(randomVertex)).iterator();
+    int count2 = 0;
+    while (iter2.hasNext()) {
+      iter2.next();
+      count2++;
+    }
+    
     assertTrue(count == numOfThreads);
-    assertThat(InboundMessageQueue.class, notNullValue());
+    assertTrue(count2 == numOfMessages);
+    assertThat(imq.getMessage(Integer.toString(randomVertex)), notNullValue());
   }
 }
 
@@ -85,7 +101,7 @@ public class InboundMessageQueueTest {
  */
 class MessageThread extends Thread {
   
-  private Message<? extends Writable> msg;
+  private Messages msgs;
   private InboundMessageQueue imq;
   private CountDownLatch startLatch;
   private CountDownLatch everyoneDoneLatch;
@@ -93,16 +109,16 @@ class MessageThread extends Thread {
   /**
    * Constructs a MessageThread.
    * 
-   * @param msg
+   * @param msgs
    * @param imq
    * @param startLatch
    * @param everyoneDoneLatch
    */
-  public MessageThread(Message<? extends Writable> msg,
+  public MessageThread(Messages msgs,
                        InboundMessageQueue imq,
                        CountDownLatch startLatch,
                        CountDownLatch everyoneDoneLatch) {
-    this.msg = msg;
+    this.msgs = msgs;
     this.imq = imq;
     this.startLatch = startLatch;
     this.everyoneDoneLatch = everyoneDoneLatch;
@@ -114,7 +130,7 @@ class MessageThread extends Thread {
   public void run() {
     try {
       startLatch.await();
-      imq.addMessage(msg);
+      imq.addMessages(msgs);
       everyoneDoneLatch.countDown();
     } catch (InterruptedException e) {
       e.printStackTrace();
