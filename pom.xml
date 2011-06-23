@@ -171,6 +171,10 @@
             	<groupId>com.atlassian.maven.plugins</groupId>
             	<artifactId>maven-clover2-plugin</artifactId>
             	<version>3.1.0</version>
+            	<configuration>
+                	<licenseLocation>/home/bamboo/bamboo-agent-home/xml-data/build-dir</licenseLocation>
+                </configuration>
+            	
             </plugin>
         </plugins>
     </build>
