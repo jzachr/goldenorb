@@ -97,6 +97,13 @@
         	<groupId>org.apache.hadoop</groupId>
         	<artifactId>hadoop-test</artifactId>
         	<version>0.20.2</version>
+        	<exclusions>
+       			<!-- Excluding so GWT will compile -->
+       			<exclusion>
+					<groupId>org.eclipse.jdt</groupId>
+					<artifactId>core</artifactId>
+				</exclusion>
+    		</exclusions>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>

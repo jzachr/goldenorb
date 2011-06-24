@@ -197,6 +197,41 @@ public class ZookeeperUtils {
     }
   }
   
+  
+  /**
+   * Gets data from the Znode specified by the path, reads it into the Writable and
+   * sets a watcher
+   * @param zk
+   * @param path is the path to the node
+   * @param writable is the Writable object the node data will be read into
+   * @param watcher is the Watcher object to set upon reading the node data
+   * @return 
+   * @throws OrbZKFailure
+   */
+  public static Writable getNodeWritable(ZooKeeper zk,
+                                         String path,
+                                         Writable writable,
+                                         Watcher watcher) throws OrbZKFailure {
+    byte[] data = null;
+    try {
+      data = zk.getData(path, watcher, null);
+    } catch (KeeperException.NoNodeException e) {
+      LOG.debug("Node " + path + " does not exist!");
+    } catch (KeeperException e) {
+      throw new OrbZKFailure(e);
+    } catch (InterruptedException e) {
+      throw new OrbZKFailure(e);
+    }
+    if (data != null) {
+      try {
+        return byteArrayToWritable(data, writable);
+      } catch (IOException e) {
+        throw new OrbZKFailure(e);
+      }
+    } 
+    return null;
+  }
+  
   public static void deleteNodeIfEmpty(ZooKeeper zk, String path) throws OrbZKFailure {
     try {
       zk.delete(path, -1);
@@ -272,4 +307,16 @@ public class ZookeeperUtils {
     }
     
   }
+  
+  public static List<String> getChildren(ZooKeeper zk, String path, Watcher watcher) throws OrbZKFailure {
+    try {
+      return zk.getChildren(path, watcher);
+    } catch (KeeperException e) {
+      throw new OrbZKFailure(e);
+    } catch (InterruptedException e) {
+      throw new OrbZKFailure(e);
+    }
+  }
+  
+  
 }
