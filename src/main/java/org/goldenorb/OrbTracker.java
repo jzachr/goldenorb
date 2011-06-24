@@ -3,7 +3,6 @@ package org.goldenorb;
 import java.io.IOException;
 import java.net.UnknownHostException;
 
-import org.apache.hadoop.io.BooleanWritable;
 import org.apache.hadoop.ipc.RPC;
 import org.apache.hadoop.ipc.RPC.Server;
 import org.apache.zookeeper.CreateMode;
@@ -12,14 +11,14 @@ import org.goldenorb.conf.OrbConfigurable;
 import org.goldenorb.conf.OrbConfiguration;
 import org.goldenorb.event.OrbCallback;
 import org.goldenorb.event.OrbEvent;
+import org.goldenorb.event.OrbExceptionEvent;
 import org.goldenorb.jet.OrbTrackerMember;
 import org.goldenorb.jet.PartitionRequest;
 import org.goldenorb.jet.PartitionRequestResponse;
 import org.goldenorb.net.OrbDNS;
-import org.goldenorb.types.message.BooleanMessage;
-import org.goldenorb.types.message.RPCServer;
+import org.goldenorb.util.MockPartitionThread;
+import org.goldenorb.util.ResourceAllocator;
 import org.goldenorb.zookeeper.LeaderGroup;
-import org.goldenorb.zookeeper.Member;
 import org.goldenorb.zookeeper.OrbZKFailure;
 import org.goldenorb.zookeeper.ZookeeperUtils;
 import org.slf4j.Logger;
@@ -29,19 +28,21 @@ public class OrbTracker extends OrbTrackerMember implements Runnable, OrbConfigu
   
   public static final String ZK_BASE_PATH = "/GoldenOrb";
   
+  private final Logger logger = LoggerFactory.getLogger(OrbTracker.class);
+  
   private OrbConfiguration orbConf;
-  
   private ZooKeeper zk;
-  
-  private LeaderGroup leaderGroup;
-  
-  private Logger LOG = LoggerFactory.getLogger(OrbTracker.class);
-  
+  private LeaderGroup<OrbTrackerMember> leaderGroup;
   private Server server = null;
+  private boolean leader = false;
+  private JobManager<OrbTrackerMember> jobManager;
+  private OrbCallback orbCallback;
+  private boolean runTracker = true;
+  private ResourceAllocator<OrbTrackerMember> resourceAllocator;
+  private OrbPartitionManager<MockPartitionThread> partitionManager;
   
   public static void main(String[] args) {
-    OrbConfiguration orbConf = new OrbConfiguration(true);
-    new Thread(new OrbTracker(orbConf)).start();
+    new Thread(new OrbTracker(new OrbConfiguration(true))).start();
   }
   
   public OrbTracker(OrbConfiguration orbConf) {
@@ -52,19 +53,24 @@ public class OrbTracker extends OrbTrackerMember implements Runnable, OrbConfigu
     // get hostname
     try {
       setHostname(OrbDNS.getDefaultHost(orbConf));
-      LOG.info("Starting OrbTracker on: " + getHostname());
+      setPort(orbConf.getOrbTrackerPort());
+      logger.info("Starting OrbTracker on: " + getHostname() + getPort());
     } catch (UnknownHostException e) {
-      LOG.error("Unable to get hostname.", e);
+      logger.error("Unable to get hostname.", e);
       System.exit(-1);
     }
     
     // startServer
     try {
+      logger.info("starting RPC server on " + getHostname() + ":" + getPort());
       server = RPC.getServer(this, getHostname(), getPort(), orbConf);
       server.start();
       
+      logger.info("starting OrbPartitionManager");
+      // TODO change from MockPartitionThread to OrbPartitionProcess
+      partitionManager = new OrbPartitionManager<MockPartitionThread>(orbConf, MockPartitionThread.class);
     } catch (IOException e) {
-      LOG.error("Unable to get hostname.", e);
+      logger.error("Unable to get hostname.", e);
       System.exit(-1);
     }
     
@@ -72,7 +78,7 @@ public class OrbTracker extends OrbTrackerMember implements Runnable, OrbConfigu
     try {
       establishZookeeperConnection();
     } catch (Exception e) {
-      LOG.error("Failed to connect to Zookeeper", e);
+      logger.error("Failed to connect to Zookeeper", e);
       System.exit(-1);
     }
     
@@ -80,7 +86,7 @@ public class OrbTracker extends OrbTrackerMember implements Runnable, OrbConfigu
     try {
       establishZookeeperTree();
     } catch (OrbZKFailure e) {
-      LOG.error("Major Zookeeper Error: ", e);
+      logger.error("Major Zookeeper Error: ", e);
       System.exit(-1);
     }
     
@@ -92,13 +98,40 @@ public class OrbTracker extends OrbTrackerMember implements Runnable, OrbConfigu
   }
   
   private void executeAsSlave() {
-    // TODO Auto-generated method stub
-    
+    synchronized (this) {
+      leader = false;
+      if (jobManager != null) {
+        jobManager.shutdown();
+      }
+    }
+    waitLoop();
   }
   
   private void executeAsLeader() {
-    // TODO Auto-generated method stub
-    
+    synchronized (this) {
+      resourceAllocator = new ResourceAllocator<OrbTrackerMember>(orbConf, leaderGroup.getMembers());
+      leader = true;
+      jobManager = new JobManager<OrbTrackerMember>(orbCallback, orbConf, zk, resourceAllocator,
+          leaderGroup.getMembers());
+    }
+    waitLoop();
+  }
+  
+  private void waitLoop() {
+    while (runTracker) {
+      synchronized (this) {
+        try {
+          wait();
+        } catch (InterruptedException e) {
+          logger.error(e.getMessage());
+        }
+      }
+      if (leaderGroup.isLeader()) {
+        executeAsLeader();
+      } else {
+        executeAsSlave();
+      }
+    }
   }
   
   private void establishZookeeperTree() throws OrbZKFailure {
@@ -108,7 +141,7 @@ public class OrbTracker extends OrbTrackerMember implements Runnable, OrbConfigu
     
     if (ZookeeperUtils.nodeExists(zk, ZK_BASE_PATH + "/" + orbConf.getOrbClusterName() + "/OrbTrackers/"
                                       + getHostname())) {
-      LOG.info("Already have an OrbTracker on " + getHostname() + "(Exiting)");
+      logger.info("Already have an OrbTracker on " + getHostname() + "(Exiting)");
       System.exit(-1);
     } else {
       ZookeeperUtils.tryToCreateNode(zk, ZK_BASE_PATH + "/" + orbConf.getOrbClusterName() + "/OrbTrackers/"
@@ -125,11 +158,27 @@ public class OrbTracker extends OrbTrackerMember implements Runnable, OrbConfigu
   }
   
   public class OrbTrackerCallback implements OrbCallback {
-    
+    @Override
     public void process(OrbEvent e) {
-
+      int eventCode = e.getType();
+      if (eventCode == OrbEvent.ORB_EXCEPTION) {
+        ((OrbExceptionEvent) e).getException().printStackTrace();
+      } else if (eventCode == OrbEvent.LEADERSHIP_CHANGE) {
+        synchronized (OrbTracker.this) {
+          if ((leaderGroup.isLeader() && !leader) || (!leaderGroup.isLeader() && leader)) {
+            OrbTracker.this.notify();
+          }
+        }
+      }
     }
-    
+  }
+  
+  public void leave() {
+    runTracker = false;
+    leaderGroup.leave();
+    if (jobManager != null) {
+      jobManager.shutdown();
+    }
   }
   
   private void establishZookeeperConnection() throws IOException, InterruptedException {
@@ -144,11 +193,19 @@ public class OrbTracker extends OrbTrackerMember implements Runnable, OrbConfigu
     return orbConf;
   }
   
-  private void collectAggregateStats() {
-    // TODO Should get collect all of the OrbMembers from 
-  }
-  
-  private void launchProcess(){
-    // TODO Current stub this should get passed the OrbConf and should 
+  @Override
+  public PartitionRequestResponse requestPartitions(PartitionRequest request) {
+    logger.info("requestPartitions");
+    PartitionRequestResponse response = null;
+    try {
+      /* response = */partitionManager.launchPartitions(request.getActivePartitions(),
+        request.getReservedPartitions());
+    } catch (InstantiationException e) {
+      logger.error(e.getMessage());
+    } catch (IllegalAccessException e) {
+      logger.error(e.getMessage());
+    }
+    
+    return response;
   }
 }

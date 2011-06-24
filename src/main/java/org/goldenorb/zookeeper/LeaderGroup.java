@@ -160,6 +160,7 @@ public class LeaderGroup<MEMBER_TYPE extends Member> implements OrbConfigurable 
       active = false;
     }
     
+    @SuppressWarnings("unchecked")
     @Override
     public void process(WatchedEvent event) {
       if ((event.getType() != Event.EventType.NodeDeleted) && LeaderGroup.this.isProcessWatchedEvents()

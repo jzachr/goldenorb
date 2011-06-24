@@ -11,11 +11,30 @@
   </description>
 </property>
 
-<configuration>
+<property>
+  <name>goldenOrb.orb.requestedPartitions</name>
+  <value>2</value>
+  <description>Requested number of partitions for this job
+  </description>
+</property>
+
+<property>
+  <name>goldenOrb.orb.reservedPartitions</name>
+  <value>0</value>
+  <description>Requested number of reserve partitions for this job
+  </description>
+</property>
+
+<property>
+  <name>goldenOrb.orb.partitionsPerMachine</name>
+  <value>3</value>
+  <description>Number of partitions per machine.
+  </description>
+</property>
+
   <property>
     <name>fs.default.name</name>
     <value>hdfs://localhost:9000</value>
   </property>
-</configuration>
 
 </configuration>

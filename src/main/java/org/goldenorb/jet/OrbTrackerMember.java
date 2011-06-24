@@ -11,6 +11,8 @@ import org.apache.hadoop.io.Text;
  */
 import org.goldenorb.OrbTrackerCommunicationProtocol;
 import org.goldenorb.conf.OrbConfiguration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.hadoop.ipc.RPC;
 import java.net.InetSocketAddress;
 
@@ -63,6 +65,7 @@ public class OrbTrackerMember implements org.goldenorb.zookeeper.Member, org.gol
 
   private OrbTrackerCommunicationProtocol client;
   private OrbConfiguration orbConf;
+  private final Logger logger = LoggerFactory.getLogger(OrbTrackerMember.class);
   
   /* End of non-generated variable declaraction code */
 
@@ -107,6 +110,7 @@ public class OrbTrackerMember implements org.goldenorb.zookeeper.Member, org.gol
   
   @Override
   public PartitionRequestResponse requestPartitions(PartitionRequest partitionRequest) {
+    logger.info("requestPartitions");
     return client.requestPartitions(partitionRequest);
   }
   

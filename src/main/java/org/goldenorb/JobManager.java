@@ -1,13 +1,18 @@
 package org.goldenorb;
 
+import java.io.IOException;
 import java.util.ArrayList;
+
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
 import org.apache.hadoop.io.LongWritable;
+import org.apache.hadoop.mapred.InvalidJobConfException;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
@@ -19,40 +24,58 @@ import org.goldenorb.event.OrbCallback;
 import org.goldenorb.event.OrbEvent;
 import org.goldenorb.event.OrbExceptionEvent;
 import org.goldenorb.event.job.JobDeathEvent;
+import org.goldenorb.jet.OrbTrackerMember;
+import org.goldenorb.jet.PartitionRequest;
+import org.goldenorb.util.ResourceAllocator;
 import org.goldenorb.zookeeper.OrbZKFailure;
 import org.goldenorb.zookeeper.ZookeeperUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class JobManager implements OrbConfigurable {
+public class JobManager<M extends OrbTrackerMember> implements OrbConfigurable {
+  
+  private final Logger logger = LoggerFactory.getLogger(JobManager.class);
   
   private String basePath;
   private String jobQueuePath;
   private String jobsInProgressPath;
+  
   private OrbCallback orbCallback;
   private OrbConfiguration orbConf;
   private ZooKeeper zk;
-  private JobsInQueueWatcher jobsInQueueWatcher;
-  private SortedMap<String,OrbJob> jobs;
-  private Set<String> activeJobs;
+  private ResourceAllocator<M> resourceAllocator;
+  private Collection<M> orbTrackerMembers;
+  
+  private JobsInQueueWatcher jobsInQueueWatcher = new JobsInQueueWatcher();
+  private SortedMap<String,OrbJob> jobs = new TreeMap<String,OrbJob>();
+  private Set<String> activeJobs = new HashSet<String>();
+  
   private boolean activeManager = true;
-  private String trackerID;
-  public JobManager(OrbCallback orbCallback, OrbConfiguration orbConf, ZooKeeper zk) {
-    activeJobs = new HashSet<String>();
-    jobs = new TreeMap<String,OrbJob>();
-    jobsInQueueWatcher = new JobsInQueueWatcher();
+  
+  public JobManager(OrbCallback orbCallback,
+                    OrbConfiguration orbConf,
+                    ZooKeeper zk,
+                    ResourceAllocator<M> resourceAllocator,
+                    Collection<M> orbTrackers) {
+    logger.info("Initializing JobManager");
+    
     this.orbConf = orbConf;
     this.orbCallback = orbCallback;
+    this.zk = zk;
+    this.resourceAllocator = resourceAllocator;
+    this.orbTrackerMembers = orbTrackers;
+    
     basePath = OrbTracker.ZK_BASE_PATH + "/" + orbConf.getOrbClusterName();
     jobQueuePath = basePath + "/JobQueue";
     jobsInProgressPath = basePath + "/JobsInProgress";
-    this.zk = zk;
-    System.err.println("Initializing JobManager");
+    
     buildJobManagerPaths();
     getJobsInQueue();
   }
   
-  public int getJobTries(String jobNumber){
-    synchronized(jobs){
-      if(jobs.containsKey(jobNumber)){
+  public int getJobTries(String jobNumber) {
+    synchronized (jobs) {
+      if (jobs.containsKey(jobNumber)) {
         return jobs.get(jobNumber).getTries();
       } else {
         return -1;
@@ -60,14 +83,14 @@ public class JobManager implements OrbConfigurable {
     }
   }
   
-  public boolean isJobActive(String jobNumber){
-    synchronized(activeJobs){
+  public boolean isJobActive(String jobNumber) {
+    synchronized (activeJobs) {
       return activeJobs.contains(jobNumber);
     }
   }
   
   private void getJobsInQueue() {
-    System.out.println("getting jobs in queue.");
+    logger.info("getting jobs in queue.");
     synchronized (jobs) {
       List<String> jobQueueChildren = null;
       try {
@@ -86,8 +109,8 @@ public class JobManager implements OrbConfigurable {
           // In reality does an event really even need to be thrown?
         }
       }
-      for(String job: jobsToRemove){
-        System.err.println("Removing job: " + job);
+      for (String job : jobsToRemove) {
+        logger.debug("Removing job: " + job);
         jobs.remove(job);
         activeJobs.remove(job);
       }
@@ -98,13 +121,13 @@ public class JobManager implements OrbConfigurable {
             OrbConfiguration.class, orbConf);
           if (jobConf != null) {
             if (!jobs.containsKey(jobPath)) {
-              System.err.println("Adding job: " + jobPath);
+              logger.debug("Adding job: " + jobPath);
               jobs.put(jobPath, new OrbJob(jobPath, jobConf));
               // Here we have a new job--once again an event should be fired.
               // Although I am not sure that an event really needs to be fired at this point. We will see.
             }
           } else {
-            System.err.println("Job is not a valid job.");
+            logger.debug("Job is not a valid job.");
           }
         } catch (OrbZKFailure e) {
           fireEvent(new OrbExceptionEvent(e));
@@ -118,7 +141,7 @@ public class JobManager implements OrbConfigurable {
     synchronized (jobs) {
       if (!jobs.isEmpty()) {
         for (OrbJob job : jobs.values()) {
-          System.err.println("Active Jobs: " + activeJobs);
+          logger.debug("Active Jobs: " + activeJobs);
           if (!activeJobs.contains(job.getJobNumber())) {
             if (resourcesAvailable(job)) {
               launchJob(job);
@@ -137,16 +160,49 @@ public class JobManager implements OrbConfigurable {
       ZookeeperUtils.notExistCreateNode(zk, jobsInProgressPath + "/" + job.getJobNumber() + "/messages");
       ZookeeperUtils.tryToCreateNode(zk, jobsInProgressPath + "/" + job.getJobNumber()
                                          + "/messages/heartbeat", new LongWritable(0), CreateMode.PERSISTENT);
+      
       JobStillActiveCheck jobStillActiveCheck = new JobStillActiveCheck(job);
       job.setJobStillActiveInterface(jobStillActiveCheck);
       new Thread(jobStillActiveCheck).start();
+      
       activeJobs.add(job.getJobNumber());
       checkForDeathComplete(job);
       heartbeat(job);
-      // TODO Allocate Resources to the job.
-      System.err.println("Starting Job");
+      
+      // allocate resources and if enough, start the job
+      logger.info("checking for available OrbTracker resources");
+      Map<M,Integer[]> assignments = null;
+      try {
+        assignments = resourceAllocator.assignResources();
+      } catch (InvalidJobConfException e) {
+        logger.error(e.getMessage());
+      }
+      logger.info("Starting Job");
+      if (assignments != null) {
+        logger.info("Allocating partitions");
+        for (M tracker : orbTrackerMembers) {
+          logger.debug("OrbTracker - " + tracker.getHostname() + ":" + tracker.getPort());
+          Integer[] assignment = assignments.get(tracker);
+          
+          PartitionRequest request = new PartitionRequest();
+          request.setActivePartitions(assignment[ResourceAllocator.TRACKER_AVAILABLE]);
+          request.setReservedPartitions(assignment[ResourceAllocator.TRACKER_RESERVED]);
+          request.setJobID(job.getJobNumber());
+          
+          logger.debug("launching partitions");
+          tracker.initProxy(getOrbConf());
+          tracker.requestPartitions(request);
+          logger.debug("launch finished");
+        }
+      } else {
+        logger.error("not enough capacity for this job");
+        jobComplete(job);
+      }
     } catch (OrbZKFailure e) {
+      logger.error(e.getMessage());
       fireEvent(new OrbExceptionEvent(e));
+    } catch (IOException e) {
+      logger.error(e.getMessage());
     }
   }
   
@@ -178,7 +234,7 @@ public class JobManager implements OrbConfigurable {
     private OrbJob job;
     
     public DeathAndCompleteWatcher(OrbJob job) {
-      System.err.println("Creating DeathAndCompleteWatcher for: " + job.getJobNumber());
+      logger.info("Creating DeathAndCompleteWatcher for: " + job.getJobNumber());
       this.job = job;
     }
     
@@ -186,7 +242,7 @@ public class JobManager implements OrbConfigurable {
     public void process(WatchedEvent event) {
       if (active && activeManager) {
         try {
-          System.err.println("DeathAndCompleteWatcher processing event for: " + job.getJobNumber());
+          logger.debug("DeathAndCompleteWatcher processing event for: " + job.getJobNumber());
           checkForDeathComplete(job);
         } catch (OrbZKFailure e) {
           fireEvent(new OrbExceptionEvent(e));
@@ -208,8 +264,8 @@ public class JobManager implements OrbConfigurable {
     private OrbJob job;
     private boolean active = true;
     
-    public HeartbeatWatcher(OrbJob job) {      
-      System.err.println("Creating HeartbeatWatcher for: " + job.getJobNumber());
+    public HeartbeatWatcher(OrbJob job) {
+      logger.debug("Creating HeartbeatWatcher for: " + job.getJobNumber());
       this.job = job;
     }
     
@@ -217,7 +273,7 @@ public class JobManager implements OrbConfigurable {
     public void process(WatchedEvent event) {
       if (active && activeManager) {
         try {
-          System.err.println("HearbeatWatcher processing event for: " + job.getJobNumber());
+          logger.debug("HearbeatWatcher processing event for: " + job.getJobNumber());
           heartbeat(job);
         } catch (OrbZKFailure e) {
           fireEvent(new OrbExceptionEvent(e));
@@ -229,7 +285,7 @@ public class JobManager implements OrbConfigurable {
       active = false;
     }
     
-    public void restart(){
+    public void restart() {
       active = true;
     }
   }
@@ -242,11 +298,13 @@ public class JobManager implements OrbConfigurable {
     Long newHeartbeat = ((LongWritable) ZookeeperUtils.getNodeWritable(zk,
       jobsInProgressPath + "/" + job.getJobNumber() + "/messages/heartbeat", LongWritable.class, orbConf,
       (Watcher) job.getHeartbeatWatcher())).get();
-    System.out.println("Getting new heartbeat for: " + job.getJobNumber() + " has new heartbeat: " + newHeartbeat);
+    logger.debug("Getting new heartbeat for: " + job.getJobNumber() + " has new heartbeat: " + newHeartbeat);
     job.setHeartbeat(newHeartbeat);
   }
   
   private boolean resourcesAvailable(OrbJob job) {
+    // TODO what do we need to examine in order to actually check whether
+    // resources are available?
     return true;
   }
   
@@ -255,7 +313,7 @@ public class JobManager implements OrbConfigurable {
   }
   
   private void jobDeath(OrbJob job) throws OrbZKFailure {
-    synchronized(job){
+    synchronized (job) {
       fireEvent(new JobDeathEvent(job.getJobNumber()));
       job.getJobStillActiveInterface().kill();
       job.getDeathAndCompleteWatcher().kill();
@@ -264,8 +322,8 @@ public class JobManager implements OrbConfigurable {
     }
     
     // TODO tell other OrbTrackers to shut down their partition instances.
-    System.err.println("Shutting down partition instances");
-    System.err.println("Number of tries: " + job.getTries());
+    logger.info("Shutting down partition instances");
+    logger.info("Number of tries: " + job.getTries());
     if (job.getTries() > orbConf.getMaximumJobTries()) {
       ZookeeperUtils.recursiveDelete(zk, jobsInProgressPath + "/" + job.getJobNumber());
       ZookeeperUtils.deleteNodeIfEmpty(zk, jobsInProgressPath + "/" + job.getJobNumber());
@@ -274,17 +332,17 @@ public class JobManager implements OrbConfigurable {
       ZookeeperUtils.recursiveDelete(zk, jobsInProgressPath + "/" + job.getJobNumber());
       ZookeeperUtils.deleteNodeIfEmpty(zk, jobsInProgressPath + "/" + job.getJobNumber());
       job.incrementTries();
-      System.err.println("Incrementing tries for: " + job.getJobNumber());
+      logger.info("Incrementing tries for: " + job.getJobNumber());
     }
-    synchronized(activeJobs){
+    synchronized (activeJobs) {
       activeJobs.remove(job.getJobNumber());
-      System.err.println("Removing job: " + job.getJobNumber() + " from activeJobs.");
+      logger.info("Removing job: " + job.getJobNumber() + " from activeJobs.");
     }
     tryToLaunchJob();
   }
   
   private void jobComplete(OrbJob job) throws OrbZKFailure {
-    synchronized(job){
+    synchronized (job) {
       job.getJobStillActiveInterface().kill();
       job.getDeathAndCompleteWatcher().kill();
       job.getHeartbeatWatcher().kill();
@@ -327,7 +385,7 @@ public class JobManager implements OrbConfigurable {
     private Long lastHeartbeat = -1L;
     
     public JobStillActiveCheck(OrbJob job) {
-      System.err.println("Creating JobStillActiveChecker for: " + job.getJobNumber());
+      logger.info("Creating JobStillActiveChecker for: " + job.getJobNumber());
       this.job = job;
       active = true;
     }
@@ -341,7 +399,8 @@ public class JobManager implements OrbConfigurable {
           } catch (InterruptedException e) {
             fireEvent(new OrbExceptionEvent(e));
           }
-          System.err.println("Checking heartbeat for: " + job.getJobNumber() + " Heartbeat is: " + job.getHeartbeat());
+          logger.debug("Checking heartbeat for: " + job.getJobNumber() + " Heartbeat is: "
+                       + job.getHeartbeat());
           if (job.getHeartbeat() <= lastHeartbeat) {
             try {
               jobDeath(job);

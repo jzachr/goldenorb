@@ -9,6 +9,8 @@ import org.goldenorb.conf.OrbConfiguration;
 import org.goldenorb.event.OrbCallback;
 import org.goldenorb.event.OrbEvent;
 import org.goldenorb.event.OrbExceptionEvent;
+import org.goldenorb.jet.OrbTrackerMember;
+import org.goldenorb.util.ResourceAllocator;
 import org.goldenorb.zookeeper.LeaderGroup;
 
 public class TJTracker implements Runnable, OrbConfigurable {
@@ -24,6 +26,7 @@ public class TJTracker implements Runnable, OrbConfigurable {
   private OrbCallback orbCallback;
   private boolean runTracker = true;
   private boolean leader = false;
+  private ResourceAllocator allocator;
   
   public TJTracker(ZooKeeper zk,
                    CountDownLatch joinLeaderGroup,
@@ -66,7 +69,8 @@ public class TJTracker implements Runnable, OrbConfigurable {
   private void leader() {
     synchronized (this) {
       leader = true;
-      jobManager = new JobManager(orbCallback, orbConf, zk);
+      allocator = new ResourceAllocator(orbConf, leaderGroup.getMembers());
+      jobManager = new JobManager(orbCallback, orbConf, zk, allocator, leaderGroup.getMembers());
     }
     waitLoop();
   }
