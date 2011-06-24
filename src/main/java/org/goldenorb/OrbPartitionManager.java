@@ -13,32 +13,45 @@ import org.apache.hadoop.ipc.RPC;
 import org.apache.hadoop.net.DNS;
 import org.goldenorb.conf.OrbConfigurable;
 import org.goldenorb.conf.OrbConfiguration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class OrbPartitionManager implements OrbConfigurable {
+public class OrbPartitionManager<M extends PartitionProcess> implements OrbConfigurable {
   
-  private List<OrbPartitionProcess> childProcesses = new ArrayList<OrbPartitionProcess>();
+  private final Logger logger = LoggerFactory.getLogger(OrbPartitionManager.class);
+  
+  private List<M> childProcesses = new ArrayList<M>();
+  private Class<M> processClass;
   private OrbConfiguration conf;
   private String ipAddress;
   
   // RPC client to be used for soft-killing OrbPartition processes
   private OrbPartitionManagerProtocol partitionClient;
   
-  public OrbPartitionManager(OrbConfiguration conf) {
+  public OrbPartitionManager(OrbConfiguration conf, Class<M> clazz) {
     this.conf = conf;
+    this.processClass = clazz;
     
     try {
       ipAddress = DNS.getDefaultHost(this.conf.getOrbLauncherNetworkDevice());
       if (ipAddress.endsWith(".")) {
         ipAddress = ipAddress.substring(0, ipAddress.length() - 1);
       }
+      logger.debug("setting ipAddress to " + ipAddress);
     } catch (UnknownHostException e) {
-      e.printStackTrace();
+      logger.error(e.getMessage());
     }
   }
   
-  public void launchPartitions() {
-    for (int i = 0; i < conf.getNumberOfPartitionsPerMachine(); i++) {
-      OrbPartitionProcess partitionProcess = new OrbPartitionProcess(conf, i, ipAddress);
+  public void launchPartitions(int requested, int reserved) throws InstantiationException, IllegalAccessException {
+    logger.info("requested " + requested + ", reserved " + reserved);
+    for (int i = 0; i < (requested + reserved); i++) {
+      M partition = processClass.newInstance();
+      partition.setConf(conf);
+      partition.setIpAddress(ipAddress);
+      partition.setProcessNum(i);
+//      partition.setRequestedPartitions(requested);
+//      partition.setReservedPartitions(reserved);
       
       FileOutputStream outStream = null;
       FileOutputStream errStream = null;
@@ -47,17 +60,17 @@ public class OrbPartitionManager implements OrbConfigurable {
         outStream = new FileOutputStream(new File(ipAddress + Integer.toString(3000 + i) + ".out"));
         errStream = new FileOutputStream(new File(ipAddress + Integer.toString(3000 + i) + ".err"));
       } catch (IOException e) {
-        e.printStackTrace();
+        logger.error(e.getMessage());
       }
-      partitionProcess.launch(outStream, errStream);
-      
-      childProcesses.add(partitionProcess);
+      logger.debug("launching partition process " + i + " on " + ipAddress);
+      partition.launch(outStream, errStream);
+      childProcesses.add(partition);
     }
   }
   
   public void stop() {
     Configuration rpcConf = new Configuration();
-    for (OrbPartitionProcess p : childProcesses) {
+    for (M p : childProcesses) {
       int rpcPort = conf.getOrbPartitionManagementBaseport() + p.getProcessNum();
       InetSocketAddress addr = new InetSocketAddress(ipAddress, rpcPort);
       try {
@@ -76,15 +89,15 @@ public class OrbPartitionManager implements OrbConfigurable {
         }
         
       } catch (IOException e) {
-        e.printStackTrace();
+        logger.error(e.getMessage());
       } catch (InterruptedException e) {
-        e.printStackTrace();
+        logger.error(e.getMessage());
       }
     }
   }
   
   public void kill() {
-    for (OrbPartitionProcess p : childProcesses) {
+    for (M p : childProcesses) {
       p.kill();
     }
   }
@@ -99,11 +112,19 @@ public class OrbPartitionManager implements OrbConfigurable {
     return conf;
   }
   
-  public List<OrbPartitionProcess> getChildProcesses() {
+  public List<M> getChildProcesses() {
     return childProcesses;
   }
 
   public String getIpAddress() {
     return ipAddress;
+  }
+
+  public void setPartitionProcessClass(Class<M> partitionProcessClass) {
+    this.processClass = partitionProcessClass;
+  }
+
+  public Class<M> getPartitionProcessClass() {
+    return processClass;
   }
 }
