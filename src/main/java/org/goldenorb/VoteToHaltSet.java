@@ -36,4 +36,8 @@ public class VoteToHaltSet {
 	public void clear(){
 	  vths.clear();
 	}
+	
+	public void addVertices(Collection<String> vertices){
+	  vths.addAll(vertices);
+	}
 }
