@@ -26,10 +26,14 @@ public class VoteToHaltSet {
 	}
 	
 	public boolean isEmpty(){
-		return vths.size() == 0;
+		return vths.isEmpty();
 	}
 	
 	public int size(){
 		return vths.size();
+	}
+	
+	public void clear(){
+	  vths.clear();
 	}
 }
