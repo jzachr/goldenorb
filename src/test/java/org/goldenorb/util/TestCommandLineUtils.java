@@ -94,25 +94,26 @@ public class TestCommandLineUtils {
   /**
    * Test method for {@link org.goldenorb.util.CommandLineUtils#job(java.lang.String[])}.
    */
- // @Test
+  @Test
   public void testJob1() {
 	  String[] args = {"Job", "-kill", "Test_CLU", "Job2"}; // Job1 is set up as in progress
 	  CommandLineUtils.job(args);
 	  assertTrue(ZookeeperUtils.nodeExists(zk, baseJIP+"/Job2/messages/Kill"));
   }
-  
+  @Test
   public void testJob2() throws OrbZKFailure {
 	  String[] args = {"Job", "-kill", "Test_CLU", "Job5"};
 	  CommandLineUtils.job(args);
 	  assertTrue(!ZookeeperUtils.nodeExists(zk, baseJIQ+"/Job5"));
 	  addNodeToJobQueue("Job5");
   }
-  
+  @Test
   public void testJob3() {
 	  String[] args = {"Job", "-status", "Test_CLU", "Job3"};
 	  CommandLineUtils.job(args);
 	  assertTrue(!ZookeeperUtils.nodeExists(zk, baseJIP+"/Job3/messages/Kill"));
 	  assertTrue(ZookeeperUtils.nodeExists(zk, baseJIP+"/Job3"));
+	  assertTrue(outContent.toString().equalsIgnoreCase(args[3]+" is in progress.\n"));
   }
   
   
@@ -139,33 +140,33 @@ public class TestCommandLineUtils {
   /**
    * Test method for {@link org.goldenorb.util.CommandLineUtils#jobStatus(java.lang.String[], org.apache.zookeeper.ZooKeeper)}.
    */
- // @Test
+  @Test
   public void testJobStatus1() {
     String[] args = {"Job", "-status", "Test_CLU", "Job1"};
     CommandLineUtils.jobStatus(args, zk);
     System.err.println(outContent.toString());
-    assertTrue(!outContent.toString().equals(""));
+    assertTrue(outContent.toString().equals(args[3]+" is in progress.\n"));
   }
-  
+  @Test
   public void testJobStatus2() {
 	    String[] args = {"Job", "-status", "Test_CLU", "Job6"};
 	    CommandLineUtils.jobStatus(args, zk);
 	    System.err.println(outContent.toString());
-	    assertTrue(!outContent.toString().equals(""));
+	    assertTrue(outContent.toString().equals("Job6 is 3rd in the JobQueue.\n"));
 	  }
-  
+  @Test
   public void testJobStatus3() {
 	    String[] args = {"Job", "-status", "Test", "Job1"};
 	    CommandLineUtils.jobStatus(args, zk);
 	    System.err.println(outContent.toString());
-	    assertTrue(!outContent.toString().equals(""));
+	    assertTrue(outContent.toString().equals("Cluster Test does not exist.\n"));
   }
-  
+  @Test
   public void testJobStatus4() {
 	    String[] args = {"Job", "-status", "Test_CLU", "Job9"};
 	    CommandLineUtils.jobStatus(args, zk);
 	    System.err.println(outContent.toString());
-	    assertTrue(!outContent.toString().equals(""));
+	    assertTrue(outContent.toString().equals("Job "+args[3]+ " does not exist on cluster "+args[2]+".\n"));
   }
   
   private static void addNodeToJobsInProgress(String nodeName) throws OrbZKFailure {

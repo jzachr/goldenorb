@@ -142,7 +142,6 @@ public class CommandLineUtils {
       System.out.println("No cluster name provided.");
     } else if (!ZookeeperUtils.nodeExists(zk, "/GoldenOrb/"+args[2])) {
       System.out.println("Cluster "+args[2]+" does not exist.");
-      System.exit(-1);
     } else if (args.length == 3) { //display status of all jobs on cluster
       try {
         List<String> jobsInQueue = zk.getChildren("/GoldenOrb/"+args[2]+"/JobQueue", false);
@@ -180,7 +179,7 @@ public class CommandLineUtils {
       } else if (ZookeeperUtils.nodeExists(zk, "/GoldenOrb/"+args[2]+"/JobsInProgress/"+args[3])) {
     	  System.out.println(args[3]+" is in progress.");
       } else {
-    	  System.out.println("Job "+args[3]+ " does not exist.");
+    	  System.out.println("Job "+args[3]+ " does not exist on cluster "+args[2]+".");
       }
     }
   }
