@@ -115,4 +115,18 @@
   </description>
 </property>
 
+<property>
+  <name>goldenOrb.orb.verticesPerBlock</name>
+  <value>2500</value>
+  <description>Number of vertices per block
+  </description>
+</property>
+
+<property>
+  <name>goldenOrb.orb.messagesPerBlock</name>
+  <value>10000</value>
+  <description>Number of messages per block
+  </description>
+</property>
+
 </configuration>

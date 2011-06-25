@@ -37,6 +37,8 @@ public class OrbConfiguration extends Configuration {
   public static final String ORB_MESSAGE_CLASS = "goldenOrb.orb.messageClass";
   public static final String ORB_VERTEX_INPUT_FORMAT_CLASS = "goldenOrb.orb.vertexInputFormatClass";
   public static final String ORB_VERTEX_OUTPUT_FORMAT_CLASS = "goldenOrb.orb.vertexOutputFormatClass";
+  public static final String ORB_NUMBER_VERTICES_BLOCK = "goldenOrb.orb.verticesPerBlock";
+  public static final String ORB_NUMBER_MESSAGES_BLOCK = "goldenOrb.orb.messagesPerBlock";
   
   public static final String ORB_ERROR_OUTPUT_STREAM = "goldenOrb.error.output.stream";
   public static final String ORB_SYSTEM_OUTPUT_STREAM = "goldenOrb.system.output.stream";
@@ -286,5 +288,21 @@ public class OrbConfiguration extends Configuration {
   
   public void setMaximumJobTries(int maxTries) {
     this.setInt(this.ORB_JOB_MAX_TRIES  , maxTries);
+  }
+  
+  public void setVerticesPerBlock(int verticesPerBlock) {
+    this.setInt(this.ORB_NUMBER_VERTICES_BLOCK, verticesPerBlock);
+  }
+  
+  public int getVerticesPerBlock() {
+    return Integer.parseInt(this.get(this.ORB_NUMBER_VERTICES_BLOCK));
+  }
+
+  public void setMessagesPerBlock(int messagesPerBlock) {
+    this.setInt(this.ORB_NUMBER_MESSAGES_BLOCK, messagesPerBlock);
+  }
+  
+  public int getMessagesPerBlock() {
+    return Integer.parseInt(this.get(this.ORB_NUMBER_MESSAGES_BLOCK));
   }
 }
