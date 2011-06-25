@@ -13,7 +13,9 @@ import org.goldenorb.Messages;
 import org.goldenorb.OrbPartitionCommunicationProtocol;
 import org.goldenorb.Vertices;
 import org.goldenorb.conf.OrbConfiguration;
+import org.goldenorb.io.input.RawSplit;
 import org.apache.hadoop.ipc.RPC;
+
 import java.net.InetSocketAddress;
 
 /* End of non-generated import declaraction code */
@@ -21,7 +23,8 @@ import java.net.InetSocketAddress;
 /**
  * This class is the proxy object for an OrbPartition into the LeaderGroup
  */
-public class OrbPartitionMember implements org.goldenorb.zookeeper.Member, org.goldenorb.OrbPartitionCommunicationProtocol, org.goldenorb.conf.OrbConfigurable {
+public class OrbPartitionMember implements org.goldenorb.zookeeper.Member,
+    org.goldenorb.OrbPartitionCommunicationProtocol, org.goldenorb.conf.OrbConfigurable {
   
   /**
    * the id assigned to this partition
@@ -110,6 +113,16 @@ public class OrbPartitionMember implements org.goldenorb.zookeeper.Member, org.g
     initProxy(this.orbConf);
   }
   
+  @Override
+  public void becomeActive() {
+    client.becomeActive();
+  }
+  
+  @Override
+  public void loadVerticesFromInputSplit(RawSplit rawsplit) {
+    client.loadVerticesFromInputSplit(rawsplit);
+  }
+  
   public void initProxy(OrbConfiguration orbConf) throws IOException {
     InetSocketAddress addr = new InetSocketAddress(hostname, port);
     client = (OrbPartitionCommunicationProtocol) RPC.waitForProxy(OrbPartitionCommunicationProtocol.class,
@@ -117,9 +130,10 @@ public class OrbPartitionMember implements org.goldenorb.zookeeper.Member, org.g
   }
   
   /* End of non-generated method code */
-  
+
   /**
    * gets the id assigned to this partition
+   * 
    * @return
    */
   public int getPartitionID() {
@@ -128,6 +142,7 @@ public class OrbPartitionMember implements org.goldenorb.zookeeper.Member, org.g
   
   /**
    * sets the id assigned to this partition
+   * 
    * @param partitionID
    */
   public void setPartitionID(int partitionID) {
@@ -136,6 +151,7 @@ public class OrbPartitionMember implements org.goldenorb.zookeeper.Member, org.g
   
   /**
    * gets the total number vertices assigned to this partition
+   * 
    * @return
    */
   public int getNumberOfVertices() {
@@ -144,6 +160,7 @@ public class OrbPartitionMember implements org.goldenorb.zookeeper.Member, org.g
   
   /**
    * sets the total number vertices assigned to this partition
+   * 
    * @param numberOfVertices
    */
   public void setNumberOfVertices(int numberOfVertices) {
@@ -152,6 +169,7 @@ public class OrbPartitionMember implements org.goldenorb.zookeeper.Member, org.g
   
   /**
    * gets the current superstep that the OrbPartition is on
+   * 
    * @return
    */
   public int getSuperStep() {
@@ -160,6 +178,7 @@ public class OrbPartitionMember implements org.goldenorb.zookeeper.Member, org.g
   
   /**
    * sets the current superstep that the OrbPartition is on
+   * 
    * @param superStep
    */
   public void setSuperStep(int superStep) {
@@ -168,6 +187,7 @@ public class OrbPartitionMember implements org.goldenorb.zookeeper.Member, org.g
   
   /**
    * gets the total number of messages sent so far
+   * 
    * @return
    */
   public int getMessagesSent() {
@@ -176,6 +196,7 @@ public class OrbPartitionMember implements org.goldenorb.zookeeper.Member, org.g
   
   /**
    * sets the total number of messages sent so far
+   * 
    * @param messagesSent
    */
   public void setMessagesSent(int messagesSent) {
@@ -184,6 +205,7 @@ public class OrbPartitionMember implements org.goldenorb.zookeeper.Member, org.g
   
   /**
    * gets the percent complete for this superstep
+   * 
    * @return
    */
   public float getPercentComplete() {
@@ -192,6 +214,7 @@ public class OrbPartitionMember implements org.goldenorb.zookeeper.Member, org.g
   
   /**
    * sets the percent complete for this superstep
+   * 
    * @param percentComplete
    */
   public void setPercentComplete(float percentComplete) {
@@ -200,6 +223,7 @@ public class OrbPartitionMember implements org.goldenorb.zookeeper.Member, org.g
   
   /**
    * gets the host name of the machine running this OrbTracker
+   * 
    * @return
    */
   public String getHostname() {
@@ -208,6 +232,7 @@ public class OrbPartitionMember implements org.goldenorb.zookeeper.Member, org.g
   
   /**
    * sets the host name of the machine running this OrbTracker
+   * 
    * @param hostname
    */
   public void setHostname(String hostname) {
@@ -216,6 +241,7 @@ public class OrbPartitionMember implements org.goldenorb.zookeeper.Member, org.g
   
   /**
    * gets whether this member is the leader
+   * 
    * @return
    */
   public boolean isLeader() {
@@ -224,6 +250,7 @@ public class OrbPartitionMember implements org.goldenorb.zookeeper.Member, org.g
   
   /**
    * sets whether this member is the leader
+   * 
    * @param leader
    */
   public void setLeader(boolean leader) {
@@ -232,6 +259,7 @@ public class OrbPartitionMember implements org.goldenorb.zookeeper.Member, org.g
   
   /**
    * gets the port number the OrbTracker provides RPC on
+   * 
    * @return
    */
   public int getPort() {
@@ -240,12 +268,12 @@ public class OrbPartitionMember implements org.goldenorb.zookeeper.Member, org.g
   
   /**
    * sets the port number the OrbTracker provides RPC on
+   * 
    * @param port
    */
   public void setPort(int port) {
     this.port = port;
   }
-  
   
   // /////////////////////////////////////
   // Writable
