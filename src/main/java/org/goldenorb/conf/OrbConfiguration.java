@@ -39,7 +39,8 @@ public class OrbConfiguration extends Configuration {
   public static final String ORB_VERTEX_OUTPUT_FORMAT_CLASS = "goldenOrb.orb.vertexOutputFormatClass";
   public static final String ORB_NUMBER_VERTICES_BLOCK = "goldenOrb.orb.verticesPerBlock";
   public static final String ORB_NUMBER_MESSAGES_BLOCK = "goldenOrb.orb.messagesPerBlock";
-  
+  public static final String ORB_HANDLERS_PER_RPC_SERVER = "goldenOrb.orb.handlersPerServer";
+
   public static final String ORB_ERROR_OUTPUT_STREAM = "goldenOrb.error.output.stream";
   public static final String ORB_SYSTEM_OUTPUT_STREAM = "goldenOrb.system.output.stream";
   
@@ -304,5 +305,13 @@ public class OrbConfiguration extends Configuration {
   
   public int getMessagesPerBlock() {
     return Integer.parseInt(this.get(this.ORB_NUMBER_MESSAGES_BLOCK));
+  }
+  
+  public void setHandlersPerServer(int handlersPerServer) {
+    this.setInt(this.ORB_HANDLERS_PER_RPC_SERVER, handlersPerServer);
+  }
+  
+  public int getHandlersPerServer() {
+    return Integer.parseInt(this.get(this.ORB_HANDLERS_PER_RPC_SERVER));
   }
 }

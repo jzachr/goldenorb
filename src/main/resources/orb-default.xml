@@ -129,4 +129,11 @@
   </description>
 </property>
 
+<property>
+  <name>goldenOrb.orb.handlersPerServer</name>
+  <value>10</value>
+  <description>Number of handlers to use for RPC servers when splitting input
+  </description>
+</property>
+
 </configuration>
