@@ -1,6 +1,8 @@
 package org.goldenorb.util;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.SortedMap;
@@ -146,7 +148,8 @@ public class CommandLineUtils {
         List<String> jobsInQueue = zk.getChildren("/GoldenOrb/"+args[2]+"/JobQueue", false);
         List<String> jobsInProgress = zk.getChildren("/GoldenOrb/"+args[2]+"/JobsInProgress", false);
         System.out.println(jobsInQueue.size()+" jobs in JobQueue :");
-        for(String job : jobsInQueue) {
+        Collections.sort(jobsInQueue);
+        for(String job : jobsInQueue) {	
           System.out.println("\t"+job);
         }
         System.out.println("\n"+jobsInProgress.size()+" jobs in progress :");
@@ -159,7 +162,26 @@ public class CommandLineUtils {
         System.exit(-1);
       }
     } else { // JobID is provided
-      //TO-DO 
+      if (ZookeeperUtils.nodeExists(zk, "/GoldenOrb/"+args[2]+"/JobQueue/"+args[3])) {
+    	 try {
+	    	 List<String> children = zk.getChildren("/GoldenOrb/"+args[2]+"/JobQueue", false);
+	    	 Collections.sort(children);
+	    	 int place = children.indexOf(args[3]) +1;
+	    	 String placeInQueue;
+	    	 if (place ==1 ) { placeInQueue = "1st"; }
+	    	 else if (place == 2) { placeInQueue = "2nd"; }
+	    	 else if (place == 3) { placeInQueue = "3rd"; }
+	    	 else { placeInQueue = place+"th"; }
+	    	 System.out.println(args[3]+" is "+placeInQueue+" in the JobQueue.");
+    	 } catch ( Exception e) {
+    		 System.err.println("Error occurred while looking up job status : ");
+    		 e.printStackTrace();
+    	 }
+      } else if (ZookeeperUtils.nodeExists(zk, "/GoldenOrb/"+args[2]+"/JobsInProgress/"+args[3])) {
+    	  System.out.println(args[3]+" is in progress.");
+      } else {
+    	  System.out.println("Job "+args[3]+ " does not exist.");
+      }
     }
   }
   
