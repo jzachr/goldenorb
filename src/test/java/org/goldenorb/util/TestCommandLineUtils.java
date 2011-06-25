@@ -1,5 +1,19 @@
 /**
- * 
+ * Licensed to Ravel, Inc. under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  Ravel, Inc. licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.goldenorb.util;
 
@@ -98,7 +112,7 @@ public class TestCommandLineUtils {
   public void testJob1() {
 	  String[] args = {"Job", "-kill", "Test_CLU", "Job2"}; // Job1 is set up as in progress
 	  CommandLineUtils.job(args);
-	  assertTrue(ZookeeperUtils.nodeExists(zk, baseJIP+"/Job2/messages/Kill"));
+	  assertTrue(ZookeeperUtils.nodeExists(zk, baseJIP+"/Job2/messages/death"));
   }
   @Test
   public void testJob2() throws OrbZKFailure {
@@ -111,7 +125,7 @@ public class TestCommandLineUtils {
   public void testJob3() {
 	  String[] args = {"Job", "-status", "Test_CLU", "Job3"};
 	  CommandLineUtils.job(args);
-	  assertTrue(!ZookeeperUtils.nodeExists(zk, baseJIP+"/Job3/messages/Kill"));
+	  assertTrue(!ZookeeperUtils.nodeExists(zk, baseJIP+"/Job3/messages/death"));
 	  assertTrue(ZookeeperUtils.nodeExists(zk, baseJIP+"/Job3"));
 	  assertTrue(outContent.toString().equalsIgnoreCase(args[3]+" is in progress.\n"));
   }
@@ -127,7 +141,7 @@ public class TestCommandLineUtils {
   public void testJobKill1() throws IOException, InterruptedException, OrbZKFailure {
     String[] args1 = {"Job", "-kill", "Test_CLU", "Job1"}; // Job1 is set up as in progress
     CommandLineUtils.jobKill(args1, zk);
-    assertTrue(ZookeeperUtils.nodeExists(zk, baseJIP+"/Job1/messages/Kill"));
+    assertTrue(ZookeeperUtils.nodeExists(zk, baseJIP+"/Job1/messages/death"));
   }
   @Test
   public void testJobKill2() throws OrbZKFailure {
