@@ -136,4 +136,24 @@
   </description>
 </property>
 
+<property>
+  <name>goldenOrb.orb.inputSplitHandlerThreads</name>
+  <value>1</value>
+  <description>Number of threads to use when splitting input
+  </description>
+</property>
+
+<property>
+  <name>goldenOrb.orb.messageHandlerThreads</name>
+  <value>10</value>
+  <description>Number of threads to use when handling messages
+  </description>
+</property>
+
+<property>
+  <name>goldenOrb.orb.computeThreads</name>
+  <value>10</value>
+  <description>Number of threads used for computation per vertex
+  </description>
+</property>
 </configuration>

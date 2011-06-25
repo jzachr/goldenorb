@@ -41,6 +41,10 @@ public class OrbConfiguration extends Configuration {
   public static final String ORB_NUMBER_MESSAGES_BLOCK = "goldenOrb.orb.messagesPerBlock";
   public static final String ORB_HANDLERS_PER_RPC_SERVER = "goldenOrb.orb.handlersPerServer";
 
+  public static final String ORB_INPUT_SPLIT_HANDLER_THREADS = "goldenOrb.orb.inputSplitHandlerThreads";
+  public static final String ORB_MESSAGE_HANDLER_THREADS = "goldenOrb.orb.messageHandlerThreads";
+  public static final String ORB_COMPUTE_THREADS = "goldenOrb.orb.computeThreads";
+  
   public static final String ORB_ERROR_OUTPUT_STREAM = "goldenOrb.error.output.stream";
   public static final String ORB_SYSTEM_OUTPUT_STREAM = "goldenOrb.system.output.stream";
   
@@ -314,4 +318,29 @@ public class OrbConfiguration extends Configuration {
   public int getHandlersPerServer() {
     return Integer.parseInt(this.get(this.ORB_HANDLERS_PER_RPC_SERVER));
   }
+
+  public void setInputSplitHandlerThreads(int inputSplitHandlerThreads) {
+    this.setInt(this.ORB_INPUT_SPLIT_HANDLER_THREADS, inputSplitHandlerThreads);
+  }
+  
+  public int getInputSplitHandlerThreads() {
+    return Integer.parseInt(this.get(this.ORB_INPUT_SPLIT_HANDLER_THREADS));
+  }
+
+  public void setMessageHandlerThreads(int messageHandlerThreads) {
+    this.setInt(this.ORB_MESSAGE_HANDLER_THREADS, messageHandlerThreads);
+  }
+  
+  public int getMessageHandlerThreads() {
+    return Integer.parseInt(this.get(this.ORB_MESSAGE_HANDLER_THREADS));
+  }
+
+  public void setComputeThreads(int computeThreads) {
+    this.setInt(this.ORB_COMPUTE_THREADS, computeThreads);
+  }
+  
+  public int getComputeThreads() {
+    return Integer.parseInt(this.get(this.ORB_COMPUTE_THREADS));
+  }
+
 }
