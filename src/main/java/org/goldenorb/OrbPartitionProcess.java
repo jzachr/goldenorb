@@ -1,3 +1,20 @@
+/**
+ * Licensed to Ravel, Inc. under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  Ravel, Inc. licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.goldenorb;
 
 import java.io.FileOutputStream;
@@ -10,31 +27,24 @@ public class OrbPartitionProcess implements PartitionProcess {
   private Process process;
   private OrbConfiguration conf;
   private int processNum;
-  private String ipAddress;
   private boolean reserved = false;
-  private int requestedPartitions = 0;
-  private int reservedPartitions = 0;
   
   public OrbPartitionProcess() {}
   
-  public OrbPartitionProcess(OrbConfiguration conf, int processNum, String ipAddress) {
+  public OrbPartitionProcess(OrbConfiguration conf, int processNum, boolean reserved) {
     this.conf = conf;
     this.processNum = processNum;
-    this.ipAddress = ipAddress;
+    this.reserved = reserved;
   }
   
-  /* (non-Javadoc)
-   * @see org.goldenorb.PartitionProcess#launch(java.io.FileOutputStream, java.io.FileOutputStream)
-   */
   @Override
   public void launch(FileOutputStream outStream, FileOutputStream errStream) {
     // TODO Need to update Process launch arguments once OrbPartition is completed
     try {
       ProcessBuilder builder = new ProcessBuilder("java", conf.getOrbPartitionJavaopts(), "-cp",
           "goldenorb-0.0.1-SNAPSHOT-jar-with-dependencies.jar" + buildClassPathPart(),
-          "org.goldenorb.OrbPartition", conf.getOrbJobName().toString(), conf.getOrbClusterName(), ipAddress,
-          Integer.toString(conf.getOrbBasePort() + processNum), Integer.toString(requestedPartitions),
-          Integer.toString(reservedPartitions));
+          "org.goldenorb.OrbPartition", conf.getOrbJobName().toString(), Integer.toString(processNum),
+          Boolean.toString(reserved), Integer.toString(conf.getOrbBasePort() + processNum));
       
       process = builder.start();
       new StreamWriter(process.getErrorStream(), errStream);
@@ -53,65 +63,31 @@ public class OrbPartitionProcess implements PartitionProcess {
     return sb.toString();
   }
   
-  /* (non-Javadoc)
-   * @see org.goldenorb.PartitionProcess#kill()
-   */
   @Override
   public void kill() {
     process.destroy();
   }
 
-   /* (non-Javadoc)
-   * @see org.goldenorb.PartitionProcess#getConf()
-   */
   @Override
   public OrbConfiguration getConf() {
     return conf;
   }
 
-  /* (non-Javadoc)
-   * @see org.goldenorb.PartitionProcess#setConf(org.goldenorb.conf.OrbConfiguration)
-   */
   @Override
   public void setConf(OrbConfiguration conf) {
     this.conf = conf;
   }
 
-  /* (non-Javadoc)
-   * @see org.goldenorb.PartitionProcess#getIpAddress()
-   */
-  @Override
-  public String getIpAddress() {
-    return ipAddress;
-  }
-
-  /* (non-Javadoc)
-   * @see org.goldenorb.PartitionProcess#setIpAddress(java.lang.String)
-   */
-  @Override
-  public void setIpAddress(String ipAddress) {
-    this.ipAddress = ipAddress;
-  }
-
-  /* (non-Javadoc)
-   * @see org.goldenorb.PartitionProcess#getProcessNum()
-   */
   @Override
   public int getProcessNum() {
     return processNum;
   }
 
-  /* (non-Javadoc)
-   * @see org.goldenorb.PartitionProcess#setProcessNum(int)
-   */
   @Override
   public void setProcessNum(int processNum) {
     this.processNum = processNum;
   }
 
-  /* (non-Javadoc)
-   * @see org.goldenorb.PartitionProcess#isRunning()
-   */
   @Override
   public boolean isRunning() {
     boolean ret = false;
@@ -125,19 +101,13 @@ public class OrbPartitionProcess implements PartitionProcess {
     return ret;
   }
 
-  /* (non-Javadoc)
-   * @see org.goldenorb.PartitionProcess#setRequestedPartitions(int)
-   */
   @Override
-  public void setRequestedPartitions(int requestedPartitions) {
-    this.requestedPartitions = requestedPartitions;
+  public void setReserved(boolean reserved) {
+    this.reserved = reserved;
   }
 
-  /* (non-Javadoc)
-   * @see org.goldenorb.PartitionProcess#setReservedPartitions(int)
-   */
   @Override
-  public void setReservedPartitions(int reservedPartitions) {
-    this.reservedPartitions = reservedPartitions;
+  public boolean isReserved() {
+    return reserved;
   }
 }
