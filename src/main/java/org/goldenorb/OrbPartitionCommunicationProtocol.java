@@ -10,7 +10,7 @@ public interface OrbPartitionCommunicationProtocol extends VersionedProtocol {
 	
 	public void sendMessages(Messages messages);
 	
-	public void becomeActive();
+	public void becomeActive(int partitionID);
 	
 	public void loadVerticesFromInputSplit(RawSplit rawsplit);
 }
