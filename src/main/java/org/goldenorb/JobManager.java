@@ -1,3 +1,20 @@
+/**
+ * Licensed to Ravel, Inc. under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  Ravel, Inc. licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.goldenorb;
 
 import java.io.IOException;
@@ -161,13 +178,7 @@ public class JobManager<M extends OrbTrackerMember> implements OrbConfigurable {
       ZookeeperUtils.tryToCreateNode(zk, jobsInProgressPath + "/" + job.getJobNumber()
                                          + "/messages/heartbeat", new LongWritable(0), CreateMode.PERSISTENT);
       
-      JobStillActiveCheck jobStillActiveCheck = new JobStillActiveCheck(job);
-      job.setJobStillActiveInterface(jobStillActiveCheck);
-      new Thread(jobStillActiveCheck).start();
       
-      activeJobs.add(job.getJobNumber());
-      checkForDeathComplete(job);
-      heartbeat(job);
       
       // allocate resources and if enough, start the job
       logger.info("checking for available OrbTracker resources");
@@ -180,6 +191,8 @@ public class JobManager<M extends OrbTrackerMember> implements OrbConfigurable {
       logger.info("Starting Job");
       if (assignments != null) {
         logger.info("Allocating partitions");
+        
+        int basePartitionID = 0;
         for (M tracker : orbTrackerMembers) {
           logger.debug("OrbTracker - " + tracker.getHostname() + ":" + tracker.getPort());
           Integer[] assignment = assignments.get(tracker);
@@ -188,11 +201,20 @@ public class JobManager<M extends OrbTrackerMember> implements OrbConfigurable {
           request.setActivePartitions(assignment[ResourceAllocator.TRACKER_AVAILABLE]);
           request.setReservedPartitions(assignment[ResourceAllocator.TRACKER_RESERVED]);
           request.setJobID(job.getJobNumber());
+          request.setBasePartitionID(basePartitionID);
+          basePartitionID += assignment[ResourceAllocator.TRACKER_AVAILABLE];
           
-          logger.debug("launching partitions");
+          logger.debug("requesting partitions");
           tracker.initProxy(getOrbConf());
           tracker.requestPartitions(request);
-          logger.debug("launch finished");
+          
+          JobStillActiveCheck jobStillActiveCheck = new JobStillActiveCheck(job);
+          job.setJobStillActiveInterface(jobStillActiveCheck);
+          new Thread(jobStillActiveCheck).start();
+          
+          activeJobs.add(job.getJobNumber());
+          checkForDeathComplete(job);
+          heartbeat(job);
         }
       } else {
         logger.error("not enough capacity for this job");
@@ -313,6 +335,7 @@ public class JobManager<M extends OrbTrackerMember> implements OrbConfigurable {
   }
   
   private void jobDeath(OrbJob job) throws OrbZKFailure {
+    logger.info("jobDeath " + job.getJobNumber());
     synchronized (job) {
       fireEvent(new JobDeathEvent(job.getJobNumber()));
       job.getJobStillActiveInterface().kill();

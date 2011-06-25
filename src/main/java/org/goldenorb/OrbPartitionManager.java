@@ -60,26 +60,31 @@ public class OrbPartitionManager<M extends PartitionProcess> implements OrbConfi
     }
   }
   
-  public void launchPartitions(int requested, int reserved) throws InstantiationException, IllegalAccessException {
+  public void launchPartitions(int requested, int reserved, int basePartitionID) throws InstantiationException, IllegalAccessException {
     logger.info("requested " + requested + ", reserved " + reserved);
     for (int i = 0; i < (requested + reserved); i++) {
       M partition = processClass.newInstance();
       partition.setConf(conf);
       partition.setProcessNum(i);
-      if (i >= requested) {
+      if (i < requested) {
+        partition.setPartitionID(basePartitionID + i);
+      }
+      else {
         partition.setReserved(true);
+        partition.setPartitionID(-1);
       }
       
       FileOutputStream outStream = null;
       FileOutputStream errStream = null;
       
       try {
-        outStream = new FileOutputStream(new File(ipAddress + Integer.toString(3000 + i) + ".out"));
-        errStream = new FileOutputStream(new File(ipAddress + Integer.toString(3000 + i) + ".err"));
+        outStream = new FileOutputStream(new File(ipAddress + Integer.toString(3000 + partition.getPartitionID()) + ".out"));
+        errStream = new FileOutputStream(new File(ipAddress + Integer.toString(3000 + partition.getPartitionID()) + ".err"));
       } catch (IOException e) {
         logger.error(e.getMessage());
       }
-      logger.debug("launching partition process " + i + " on " + ipAddress);
+      
+      logger.debug("launching partition process " + partition.getPartitionID() + " on " + ipAddress);
       partition.launch(outStream, errStream);
       childProcesses.add(partition);
     }

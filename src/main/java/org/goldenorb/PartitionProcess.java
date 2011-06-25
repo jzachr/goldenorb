@@ -31,4 +31,6 @@ public interface PartitionProcess {
   public int getProcessNum();
   public void setProcessNum(int processNum);
   public boolean isRunning();
+  public void setPartitionID(int partitionID);
+  public int getPartitionID();
 }

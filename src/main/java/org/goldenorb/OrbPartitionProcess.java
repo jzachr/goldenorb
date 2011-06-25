@@ -28,13 +28,15 @@ public class OrbPartitionProcess implements PartitionProcess {
   private OrbConfiguration conf;
   private int processNum;
   private boolean reserved = false;
+  private int partitionID;
   
   public OrbPartitionProcess() {}
   
-  public OrbPartitionProcess(OrbConfiguration conf, int processNum, boolean reserved) {
+  public OrbPartitionProcess(OrbConfiguration conf, int processNum, boolean reserved, int partitionID) {
     this.conf = conf;
     this.processNum = processNum;
     this.reserved = reserved;
+    this.partitionID = partitionID;
   }
   
   @Override
@@ -43,7 +45,7 @@ public class OrbPartitionProcess implements PartitionProcess {
     try {
       ProcessBuilder builder = new ProcessBuilder("java", conf.getOrbPartitionJavaopts(), "-cp",
           "goldenorb-0.0.1-SNAPSHOT-jar-with-dependencies.jar" + buildClassPathPart(),
-          "org.goldenorb.OrbPartition", conf.getOrbJobName().toString(), Integer.toString(processNum),
+          "org.goldenorb.OrbPartition", conf.getOrbJobName().toString(), Integer.toString(partitionID),
           Boolean.toString(reserved), Integer.toString(conf.getOrbBasePort() + processNum));
       
       process = builder.start();
@@ -109,5 +111,15 @@ public class OrbPartitionProcess implements PartitionProcess {
   @Override
   public boolean isReserved() {
     return reserved;
+  }
+
+  @Override
+  public void setPartitionID(int partitionID) {
+    this.partitionID = partitionID;
+  }
+
+  @Override
+  public int getPartitionID() {
+    return partitionID;
   }
 }

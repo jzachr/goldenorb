@@ -6,6 +6,13 @@ import java.io.IOException;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
 
+/*
+ * Start of non-generated import declaration code -- any code written outside of this block will be
+ * removed in subsequent code generations.
+ */
+
+/* End of non-generated import declaraction code */
+
 /**
  * This class is a request made from the master OrbTracker to a slave OrbTracker to apply Partitions to a Job
  */
@@ -25,6 +32,11 @@ public class PartitionRequest implements Writable {
    * the jobID the partitions are requested for
    */
   private String jobID;
+  
+  /**
+   * the base ID used by partition manager to launch partitions
+   */
+  private int basePartitionID;
   
   /*
    * Start of non-generated variable declaration code -- any code written outside of this block will be
@@ -93,6 +105,22 @@ public class PartitionRequest implements Writable {
     this.jobID = jobID;
   }
   
+  /**
+   * gets the base ID used by partition manager to launch partitions
+   * @return
+   */
+  public int getBasePartitionID() {
+    return basePartitionID;
+  }
+  
+  /**
+   * sets the base ID used by partition manager to launch partitions
+   * @param basePartitionID
+   */
+  public void setBasePartitionID(int basePartitionID) {
+    this.basePartitionID = basePartitionID;
+  }
+  
   
   // /////////////////////////////////////
   // Writable
@@ -101,12 +129,14 @@ public class PartitionRequest implements Writable {
     reservedPartitions = in.readInt();
     activePartitions = in.readInt();
     jobID = Text.readString(in);
+    basePartitionID = in.readInt();
   }
   
   public void write(DataOutput out) throws IOException {
     out.writeInt(reservedPartitions);
     out.writeInt(activePartitions);
     Text.writeString(out, jobID);
+    out.writeInt(basePartitionID);
   }
   
 }

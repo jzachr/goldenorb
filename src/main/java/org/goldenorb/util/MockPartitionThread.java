@@ -86,4 +86,16 @@ public class MockPartitionThread implements PartitionProcess, Runnable {
   public boolean isReserved() {
     return reserved;
   }
+
+  @Override
+  public void setPartitionID(int partitionID) {
+    // TODO Auto-generated method stub
+    
+  }
+
+  @Override
+  public int getPartitionID() {
+    // TODO Auto-generated method stub
+    return 0;
+  }
 }
