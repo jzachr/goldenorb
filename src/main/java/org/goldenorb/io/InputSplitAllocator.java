@@ -6,12 +6,17 @@ import java.util.Map;
 import org.goldenorb.conf.OrbConfigurable;
 import org.goldenorb.conf.OrbConfiguration;
 import org.goldenorb.io.input.RawSplit;
+import org.goldenorb.jet.OrbTrackerMember;
 
-public class InputSplitAllocator<M> implements OrbConfigurable {
+public class InputSplitAllocator implements OrbConfigurable {
   
   private OrbConfiguration orbConf;
-  
-  public Map<M,List<RawSplit>> assignInputSplits() {
+  private List<OrbTrackerMember> orbTrackerMembers;
+  public InputSplitAllocator(OrbConfiguration orbConf, List<OrbTrackerMember> orbTrackerMembers ){
+    this.orbConf = orbConf;
+    this.orbTrackerMembers = orbTrackerMembers;
+  }
+  public Map<OrbTrackerMember,List<RawSplit>> assignInputSplits() {
     return null;
   }
   
