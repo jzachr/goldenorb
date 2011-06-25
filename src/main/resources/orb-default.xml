@@ -26,7 +26,7 @@
 
 <property>
   <name>goldenOrb.job.heartbeatTimeout</name>
-  <value>0</value>
+  <value>60000</value>
   <description>Timeout for job manager to monitor jobs
   </description>
 </property>
@@ -108,5 +108,11 @@
   </description>
 </property>
 
+<property>
+  <name>goldenOrb.job.max.tries</name>
+  <value>5</value>
+  <description>Number of attempts JobManager makes before killing job
+  </description>
+</property>
 
 </configuration>

@@ -56,7 +56,7 @@ public class OrbTracker extends OrbTrackerMember implements Runnable, OrbConfigu
   private OrbCallback orbCallback;
   private boolean runTracker = true;
   private ResourceAllocator<OrbTrackerMember> resourceAllocator;
-  private OrbPartitionManager<OrbPartitionProcess> partitionManager;
+  private OrbPartitionManager<MockPartitionThread> partitionManager;
   
   public static void main(String[] args) {
     new Thread(new OrbTracker(new OrbConfiguration(true))).start();
@@ -85,7 +85,7 @@ public class OrbTracker extends OrbTrackerMember implements Runnable, OrbConfigu
       
       logger.info("starting OrbPartitionManager");
       // TODO change from MockPartitionThread to OrbPartitionProcess
-      partitionManager = new OrbPartitionManager<OrbPartitionProcess>(orbConf, OrbPartitionProcess.class);
+      partitionManager = new OrbPartitionManager<MockPartitionThread>(orbConf, MockPartitionThread.class);
     } catch (IOException e) {
       logger.error("Unable to get hostname.", e);
       System.exit(-1);
@@ -128,6 +128,7 @@ public class OrbTracker extends OrbTrackerMember implements Runnable, OrbConfigu
     synchronized (this) {
       resourceAllocator = new ResourceAllocator<OrbTrackerMember>(orbConf, leaderGroup.getMembers());
       leader = true;
+      orbCallback = new OrbTrackerCallback();
       jobManager = new JobManager<OrbTrackerMember>(orbCallback, orbConf, zk, resourceAllocator,
           leaderGroup.getMembers());
     }
@@ -216,7 +217,7 @@ public class OrbTracker extends OrbTrackerMember implements Runnable, OrbConfigu
     PartitionRequestResponse response = null;
     try {
       /* response = */partitionManager.launchPartitions(request.getActivePartitions(),
-        request.getReservedPartitions());
+        request.getReservedPartitions(), request.getBasePartitionID());
     } catch (InstantiationException e) {
       logger.error(e.getMessage());
     } catch (IllegalAccessException e) {

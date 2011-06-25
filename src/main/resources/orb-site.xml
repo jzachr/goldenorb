@@ -32,9 +32,23 @@
   </description>
 </property>
 
-  <property>
-    <name>fs.default.name</name>
-    <value>hdfs://localhost:9000</value>
-  </property>
+<property>
+  <name>fs.default.name</name>
+  <value>hdfs://localhost:9000</value>
+</property>
+
+<property>
+  <name>goldenOrb.job.heartbeatTimeout</name>
+  <value>1000</value>
+  <description>Timeout for job manager to monitor jobs
+  </description>
+</property>
+
+<property>
+  <name>goldenOrb.job.max.tries</name>
+  <value>0</value>
+  <description>Number of attempts JobManager makes before killing job
+  </description>
+</property>
 
 </configuration>
