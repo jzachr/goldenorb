@@ -10,6 +10,7 @@ import org.goldenorb.Messages;
 import org.goldenorb.OrbPartitionCommunicationProtocol;
 import org.goldenorb.Vertex;
 import org.goldenorb.Vertices;
+import org.goldenorb.io.input.RawSplit;
 
 public class QueueInfoCollector implements OrbPartitionCommunicationProtocol {
   
@@ -31,6 +32,18 @@ public class QueueInfoCollector implements OrbPartitionCommunicationProtocol {
   @Override
   public long getProtocolVersion(String arg0, long arg1) throws IOException {
     return versionID;
+  }
+
+  @Override
+  public void becomeActive() {
+    // TODO Auto-generated method stub
+    
+  }
+
+  @Override
+  public void loadVerticesFromInputSplit(RawSplit rawsplit) {
+    // TODO Auto-generated method stub
+    
   }
   
 }
