@@ -18,10 +18,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-/**
- * @author rebanks
- *
- */
+
 public class TestCommandLineUtils {
   
   private final ByteArrayOutputStream outContent = new ByteArrayOutputStream();
@@ -64,11 +61,16 @@ public class TestCommandLineUtils {
   
   /**
    * Test method for {@link org.goldenorb.util.CommandLineUtils#main(java.lang.String[])}.
+ * @throws OrbZKFailure 
    */
  // @Test
-  public void testMain() {
-    fail("Not yet implemented");
+  public void testMain() throws OrbZKFailure {
+	  String[] args = {"Job", "-kill", "Test_CLU", "Job5"};
+	  CommandLineUtils.job(args);
+	  assertTrue(!ZookeeperUtils.nodeExists(zk, baseJIQ+"/Job5"));
+	  addNodeToJobQueue("Job5");
   }
+  
   
   /**
    * Test method for {@link org.goldenorb.util.CommandLineUtils#help(java.lang.String[])}.
@@ -93,9 +95,26 @@ public class TestCommandLineUtils {
    * Test method for {@link org.goldenorb.util.CommandLineUtils#job(java.lang.String[])}.
    */
  // @Test
-  public void testJob() {
-    fail("Not yet implemented");
+  public void testJob1() {
+	  String[] args = {"Job", "-kill", "Test_CLU", "Job2"}; // Job1 is set up as in progress
+	  CommandLineUtils.job(args);
+	  assertTrue(ZookeeperUtils.nodeExists(zk, baseJIP+"/Job2/messages/Kill"));
   }
+  
+  public void testJob2() throws OrbZKFailure {
+	  String[] args = {"Job", "-kill", "Test_CLU", "Job5"};
+	  CommandLineUtils.job(args);
+	  assertTrue(!ZookeeperUtils.nodeExists(zk, baseJIQ+"/Job5"));
+	  addNodeToJobQueue("Job5");
+  }
+  
+  public void testJob3() {
+	  String[] args = {"Job", "-status", "Test_CLU", "Job3"};
+	  CommandLineUtils.job(args);
+	  assertTrue(!ZookeeperUtils.nodeExists(zk, baseJIP+"/Job3/messages/Kill"));
+	  assertTrue(ZookeeperUtils.nodeExists(zk, baseJIP+"/Job3"));
+  }
+  
   
   /**
    * Test method for {@link org.goldenorb.util.CommandLineUtils#jobKill(java.lang.String[], org.apache.zookeeper.ZooKeeper)}.
@@ -110,10 +129,11 @@ public class TestCommandLineUtils {
     assertTrue(ZookeeperUtils.nodeExists(zk, baseJIP+"/Job1/messages/Kill"));
   }
   @Test
-  public void testJobKill2() {
+  public void testJobKill2() throws OrbZKFailure {
     String[] args2 = {"Job", "-kill", "Test_CLU", "Job4"}; // Job4 is set up in JobQueue
     CommandLineUtils.jobKill(args2, zk);
     assertTrue(!ZookeeperUtils.nodeExists(zk, baseJIQ+"/Job4"));
+    addNodeToJobQueue("Job4");
   }
    
   /**
@@ -121,7 +141,31 @@ public class TestCommandLineUtils {
    */
  // @Test
   public void testJobStatus1() {
-    fail("Not yet implemented");
+    String[] args = {"Job", "-status", "Test_CLU", "Job1"};
+    CommandLineUtils.jobStatus(args, zk);
+    System.err.println(outContent.toString());
+    assertTrue(!outContent.toString().equals(""));
+  }
+  
+  public void testJobStatus2() {
+	    String[] args = {"Job", "-status", "Test_CLU", "Job6"};
+	    CommandLineUtils.jobStatus(args, zk);
+	    System.err.println(outContent.toString());
+	    assertTrue(!outContent.toString().equals(""));
+	  }
+  
+  public void testJobStatus3() {
+	    String[] args = {"Job", "-status", "Test", "Job1"};
+	    CommandLineUtils.jobStatus(args, zk);
+	    System.err.println(outContent.toString());
+	    assertTrue(!outContent.toString().equals(""));
+  }
+  
+  public void testJobStatus4() {
+	    String[] args = {"Job", "-status", "Test_CLU", "Job9"};
+	    CommandLineUtils.jobStatus(args, zk);
+	    System.err.println(outContent.toString());
+	    assertTrue(!outContent.toString().equals(""));
   }
   
   private static void addNodeToJobsInProgress(String nodeName) throws OrbZKFailure {
