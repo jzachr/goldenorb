@@ -114,8 +114,8 @@ public class OrbPartitionMember implements org.goldenorb.zookeeper.Member,
   }
   
   @Override
-  public void becomeActive() {
-    client.becomeActive();
+  public void becomeActive(int partitionID) {
+    client.becomeActive(partitionID);
   }
   
   @Override
@@ -124,9 +124,15 @@ public class OrbPartitionMember implements org.goldenorb.zookeeper.Member,
   }
   
   public void initProxy(OrbConfiguration orbConf) throws IOException {
-    InetSocketAddress addr = new InetSocketAddress(hostname, port);
-    client = (OrbPartitionCommunicationProtocol) RPC.waitForProxy(OrbPartitionCommunicationProtocol.class,
-      OrbPartitionCommunicationProtocol.versionID, addr, orbConf);
+    if(client == null){
+      InetSocketAddress addr = new InetSocketAddress(hostname, port);
+      client = (OrbPartitionCommunicationProtocol) RPC.waitForProxy(OrbPartitionCommunicationProtocol.class,
+        OrbPartitionCommunicationProtocol.versionID, addr, orbConf);
+    }
+  }
+  
+  public boolean equals(Object rhs) {
+    return hostname.equals(((OrbPartitionMember) rhs).getHostname()) && (port == (((OrbPartitionMember) rhs).getPort()));
   }
   
   /* End of non-generated method code */
