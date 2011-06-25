@@ -15,31 +15,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.goldenorb;
+package org.goldenorb.queue;
 
-/**
- * This class is used to aggregate Vertex objects and is an extension of ArrayListWritable, where most of the
- * methods and data structures for Vertices exist.
- * 
- * @author longcao
- * 
- */
-@SuppressWarnings("rawtypes")
-public class Vertices extends ArrayListWritable<Vertex> {
+import java.util.Collection;
+import java.util.List;
+
+import org.apache.hadoop.io.IntWritable;
+import org.goldenorb.Edge;
+import org.goldenorb.Vertex;
+import org.goldenorb.types.message.TextMessage;
+
+public class TestVertex extends Vertex<IntWritable,IntWritable,TextMessage> {
   
-  /**
-   * Creates a Vertices object and sets its type to the given Vertex class.
-   * @param vertexType
-   */
-  public Vertices(Class<? extends Vertex> vertexType) {
-    this.setWritableType(vertexType);
+  public TestVertex() {
+    super(IntWritable.class, IntWritable.class, TextMessage.class);
   }
   
-  /**
-   * Sets the vertexType of the Vertices object to the given Vertex class.
-   * @param vertexType
-   */
-  public void setVertexType(Class<? extends Vertex> vertexType) {
-    this.setWritableType(vertexType);
+  public TestVertex(String _vertexID, IntWritable _value, List<Edge<IntWritable>> _edges){
+    super(_vertexID, _value, _edges);
   }
+
+  @Override
+  public void compute(Collection<TextMessage> messages) {
+    this.voteToHalt();
+  }
+
 }

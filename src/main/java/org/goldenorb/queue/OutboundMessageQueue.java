@@ -1,14 +1,28 @@
+/**
+ * Licensed to Ravel, Inc. under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  Ravel, Inc. licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.goldenorb.queue;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.hadoop.io.Writable;
 import org.goldenorb.Message;
@@ -17,6 +31,13 @@ import org.goldenorb.OrbPartitionCommunicationProtocol;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * This class constructs an OutboundMessageQueue which collects Messages to be sent out to other partitions
+ * once a certain number has been collected.
+ * 
+ * @author longcao
+ * 
+ */
 public class OutboundMessageQueue {
   private Logger omqLogger;
   
@@ -28,13 +49,28 @@ public class OutboundMessageQueue {
   
   PartitionMessagingObject pmo;
   
+  /**
+   * This constructs the OutboundMessageQueue and creates the underlying data structures to be sent to a
+   * PartitionMessagingObject.
+   * 
+   * @param numberOfPartitions
+   *          - The number of partitions to be used in the Job.
+   * @param maxMessages
+   *          - The maximum number of messages to be queued up before a send operation.
+   * @param orbClients
+   *          - a Map of the communication protocol used by each Orb client.
+   * @param messageClass
+   *          - The type of Message to be queued. User-defined by extension of Message.
+   * @param partitionId
+   *          - The ID of the partition that creates and owns this OutboundMessageQueue.
+   */
   public OutboundMessageQueue(int numberOfPartitions,
                               int maxMessages,
                               Map<Integer,OrbPartitionCommunicationProtocol> orbClients,
                               Class<? extends Message<? extends Writable>> messageClass,
                               int partitionId) {
     omqLogger = LoggerFactory.getLogger(OutboundMessageQueue.class);
-
+    
     this.numberOfPartitions = numberOfPartitions;
     this.maxMessages = maxMessages;
     this.orbClients = orbClients;
@@ -61,11 +97,19 @@ public class OutboundMessageQueue {
     this.pmo = new PartitionMessagingObject(partitionMessageMapsList, partitionMessageCounter);
   }
   
+  /**
+   * This method queues up a Message to be sent. Once the Message count reaches the maximum number, it sends the
+   * vertices via Hadoop RPC.
+   * 
+   * @param m
+   *          - A Message to be sent.
+   */
   public void sendMessage(Message<? extends Writable> m) {
     synchronized (pmo) {
       // get the HashMap bin that is unique to the DestinationVertex
       int messageHash = Math.abs(m.getDestinationVertex().hashCode()) % numberOfPartitions;
-      Map<String,List<Message<? extends Writable>>> currentPartition = pmo.partitionMessageMapsList.get(messageHash);
+      Map<String,List<Message<? extends Writable>>> currentPartition = pmo.partitionMessageMapsList
+          .get(messageHash);
       
       Integer messageCounter;
       synchronized (pmo.partitionMessageCounter) {
@@ -114,6 +158,9 @@ public class OutboundMessageQueue {
     }
   }
   
+  /**
+   * Sends any remaining messages if the maximum number of messages is not met.
+   */
   public void sendRemainingMessages() {
     
     for (int partitionID = 0; partitionID < numberOfPartitions; partitionID++) {
@@ -131,6 +178,13 @@ public class OutboundMessageQueue {
     }
   }
   
+  /**
+   * This class defines a PartitionMessagingObject, which is used strictly to encapsulate partitionMessageMapsList and
+   * partitionMessageCounter into one object for synchronization purposes.
+   * 
+   * @author longcao
+   * 
+   */
   class PartitionMessagingObject {
     
     List<Map<String,List<Message<? extends Writable>>>> partitionMessageMapsList;
