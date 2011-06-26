@@ -129,15 +129,25 @@ public class OrbFastBarrier implements Barrier {
     }
   }
   
+/**
+ * 
+ */
   public void makeInactive() {
     this.active = false;
   }
   
+/**
+ * Set the orbConf
+ * @param  OrbConfiguration orbConf
+ */
   @Override
   public void setOrbConf(OrbConfiguration orbConf) {
     this.orbConf = orbConf;
   }
   
+/**
+ * Return the orbConf
+ */
   @Override
   public OrbConfiguration getOrbConf() {
     return orbConf;

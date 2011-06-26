@@ -41,6 +41,9 @@ public class TestCommandLineUtils {
   private String baseJIP = "/GoldenOrb/"+clusterName+"/JobsInProgress";
   private String baseJIQ = "/GoldenOrb"+clusterName+"/JobQueue";
   
+/**
+ * Set the upZooKeeperNodes
+ */
   @BeforeClass
   public static void setupZooKeeperNodes() throws OrbZKFailure, IOException, InterruptedException {
     zk = ZookeeperUtils.connect("localhost");
@@ -56,17 +59,26 @@ public class TestCommandLineUtils {
     addNodeToJobQueue("Job6");
   }
   
+/**
+ * 
+ */
   @AfterClass
   public static void tearDownTestNodes() throws OrbZKFailure {
     ZookeeperUtils.recursiveDelete(zk, "/GoldenOrb/"+clusterName);
     ZookeeperUtils.deleteNodeIfEmpty(zk, "/GoldenOrb/"+clusterName);
   }
 
+/**
+ * Set the upStreams
+ */
   @Before
   public void setUpStreams() {
       System.setOut(new PrintStream(outContent));
   }
 
+/**
+ * 
+ */
   @After
   public void cleanUpStreams() {
       System.setOut(null);
@@ -183,12 +195,20 @@ public class TestCommandLineUtils {
 	    assertTrue(outContent.toString().equals("Job "+args[3]+ " does not exist on cluster "+args[2]+".\n"));
   }
   
+/**
+ * 
+ * @param  String nodeName
+ */
   private static void addNodeToJobsInProgress(String nodeName) throws OrbZKFailure {
     String basePath = "/GoldenOrb/"+clusterName+"/JobsInProgress";
     ZookeeperUtils.tryToCreateNode(zk, basePath+"/"+nodeName);
     ZookeeperUtils.tryToCreateNode(zk, basePath+"/"+nodeName+"/messages");
   }
   
+/**
+ * 
+ * @param  String nodeName
+ */
   private static void addNodeToJobQueue(String nodeName) throws OrbZKFailure {
     ZookeeperUtils.tryToCreateNode(zk, "/GoldenOrb/"+clusterName+"/JobQueue/"+nodeName);
   }

@@ -173,10 +173,17 @@ public class OutboundVertexQueue {
       this.partitionVertexCounter = partitionVertexCounter;
     }
     
+/**
+ * Return the verticesList
+ */
     public List<Vertices> getVerticesList() {
       return partitionVertexList;
     }
     
+/**
+ * 
+ * @returns List<Integer>
+ */
     public List<Integer> partitionVertexCounter() {
       return partitionVertexCounter;
     }

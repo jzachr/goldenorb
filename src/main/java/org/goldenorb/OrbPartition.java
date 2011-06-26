@@ -100,6 +100,14 @@ public class OrbPartition extends OrbPartitionMember implements Runnable, OrbPar
   
   Map<Integer,OrbPartitionCommunicationProtocol> orbClients;
   
+/**
+ * Constructor
+ *
+ * @param  String jobNumber
+ * @param  int partitionID
+ * @param  boolean standby
+ * @param  int partitionBasePort
+ */
   public OrbPartition(String jobNumber, int partitionID, boolean standby, int partitionBasePort) {
     this.setOrbConf(new OrbConfiguration(true));
     this.standby = standby;
@@ -134,6 +142,10 @@ public class OrbPartition extends OrbPartitionMember implements Runnable, OrbPar
     }
   }
   
+/**
+ * 
+ * @param  String[] args
+ */
   public static void main(String[] args) {
     if (args.length != 4) {
       LOG.error("OrbPartition cannot start unless it is passed both the partitionID and the jobNumber to the Jobs OrbConfiguration");
@@ -145,6 +157,9 @@ public class OrbPartition extends OrbPartitionMember implements Runnable, OrbPar
     new OrbPartition(jobNumber, partitionID, standby, partitionBasePort);
   }
   
+/**
+ * 
+ */
   @Override
   public void run() {
     
@@ -218,6 +233,9 @@ public class OrbPartition extends OrbPartitionMember implements Runnable, OrbPar
     }
   }
   
+/**
+ * 
+ */
   private void initializeOrbClients() {
     orbClients = new HashMap<Integer,OrbPartitionCommunicationProtocol>();
     for (OrbPartitionMember orbPartitionMember : leaderGroup.getMembers()) {
@@ -231,6 +249,9 @@ public class OrbPartition extends OrbPartitionMember implements Runnable, OrbPar
     }
   }
   
+/**
+ * 
+ */
   private void executeAsSlave() {
     synchronized (this) {
       leader = false;
@@ -241,6 +262,9 @@ public class OrbPartition extends OrbPartitionMember implements Runnable, OrbPar
     waitLoop();
   }
   
+/**
+ * 
+ */
   private void executeAsLeader() {
     synchronized (this) {
       leader = true;
@@ -252,6 +276,9 @@ public class OrbPartition extends OrbPartitionMember implements Runnable, OrbPar
     waitLoop();
   }
   
+/**
+ * 
+ */
   private void loadVerticesSlave() {
     enterBarrier("startLoadVerticesBarrier");
     enterBarrier("sentInputSplitsBarrier");
@@ -291,6 +318,9 @@ public class OrbPartition extends OrbPartitionMember implements Runnable, OrbPar
     System.exit(1);
   }
   
+/**
+ * 
+ */
   private void loadVerticesLeader() {
     enterBarrier("startLoadVerticesBarrier");
     // TODO start sending inputsplits to the machines that need to process them
@@ -307,6 +337,9 @@ public class OrbPartition extends OrbPartitionMember implements Runnable, OrbPar
     System.exit(1);
   }
   
+/**
+ * 
+ */
   private void waitLoop() {
     while (runPartition) {
       synchronized (this) {
@@ -326,6 +359,10 @@ public class OrbPartition extends OrbPartitionMember implements Runnable, OrbPar
   
   private class OrbPartitionCallback implements OrbCallback {
     
+/**
+ * 
+ * @param  OrbEvent e
+ */
     @Override
     public void process(OrbEvent e) {
       int eventCode = e.getType();
@@ -349,38 +386,68 @@ public class OrbPartition extends OrbPartitionMember implements Runnable, OrbPar
   }
   
   public class OrbCommunicationInterface {
+/**
+ * 
+ * @returns int
+ */
     public int superStep() {
       return 0;
     }
     
+/**
+ * 
+ * @param  String vertexID
+ */
     public void voteToHalt(String vertexID) {}
     
+/**
+ * 
+ * @param  Message<? extends Writable> message
+ */
     public void sendMessage(Message<? extends Writable> message) {}
   }
   
+/**
+ * Return the protocolVersion
+ */
   @Override
   public long getProtocolVersion(String arg0, long arg1) throws IOException {
     return 0L;
   }
   
+/**
+ * 
+ * @returns int
+ */
   @Override
   public int stop() {
     // TODO Shutdown stuff
     return 0;
   }
   
+/**
+ * Return the unning
+ */
   @Override
   public boolean isRunning() {
     // TODO what constitutes that it is no longer running?
     return true;
   }
   
+/**
+ * 
+ * @param  Messages messages
+ */
   @Override
   public void sendMessages(Messages messages) {
     // TODO this should create a new handler to handle the inbound messages.
     
   }
   
+/**
+ * 
+ * @param  Vertices vertices
+ */
   @Override
   public void sendVertices(Vertices vertices) {
     LoadVerticesHandler loadVerticesHandler = new LoadVerticesHandler(vertices, this);
@@ -391,10 +458,19 @@ public class OrbPartition extends OrbPartitionMember implements Runnable, OrbPar
   class LoadVerticesHandler implements Runnable {
     private Vertices vertices;
     
+/**
+ * Constructor
+ *
+ * @param  Vertices vertices
+ * @param  OrbPartition orbPartition
+ */
     public LoadVerticesHandler(Vertices vertices, OrbPartition orbPartition) {
       this.vertices = vertices;
     }
     
+/**
+ * 
+ */
     public void run() {
       synchronized (vertices) {
         for (Vertex<?,?,?> vertex : vertices.getArrayList()) {
@@ -411,6 +487,10 @@ public class OrbPartition extends OrbPartitionMember implements Runnable, OrbPar
     }
   }
   
+/**
+ * 
+ * @param  int partitionID
+ */
   @Override
   public void becomeActive(int partitionID) {
     if (standby) {
@@ -422,6 +502,10 @@ public class OrbPartition extends OrbPartitionMember implements Runnable, OrbPar
     }
   }
   
+/**
+ * 
+ * @param  RawSplit rawsplit
+ */
   @Override
   public void loadVerticesFromInputSplit(RawSplit rawsplit) {
     InputSplitLoaderHandler inputSplitLoaderHandler = new InputSplitLoaderHandler(rawsplit);
@@ -432,10 +516,18 @@ public class OrbPartition extends OrbPartitionMember implements Runnable, OrbPar
   class InputSplitLoaderHandler implements Runnable {
     private RawSplit rawsplit;
     
+/**
+ * Constructor
+ *
+ * @param  RawSplit rawsplit
+ */
     public InputSplitLoaderHandler(RawSplit rawsplit) {
       this.rawsplit = rawsplit;
     }
     
+/**
+ * 
+ */
     @SuppressWarnings("unchecked")
     @Override
     public void run() {
@@ -479,6 +571,9 @@ public class OrbPartition extends OrbPartitionMember implements Runnable, OrbPar
     private boolean active = true;
     private Long heartbeat = 1L;
     
+/**
+ * 
+ */
     @Override
     public void run() {
       while (active) {
@@ -500,11 +595,17 @@ public class OrbPartition extends OrbPartitionMember implements Runnable, OrbPar
       }
     }
     
+/**
+ * 
+ */
     @Override
     public void kill() {
       active = false;
     }
     
+/**
+ * 
+ */
     @Override
     public void restart() {
       active = true;
@@ -512,10 +613,19 @@ public class OrbPartition extends OrbPartitionMember implements Runnable, OrbPar
     
   }
   
+/**
+ * 
+ * @param  String barrierName
+ * @param  int superStep
+ */
   private void enterBarrier(String barrierName, int superStep) {
     enterBarrier(barrierName + Integer.toString(superStep));
   }
   
+/**
+ * 
+ * @param  String barrierName
+ */
   private void enterBarrier(String barrierName) {
     Barrier barrier = new OrbBarrier(getOrbConf(), jobInProgressPath + "/" + barrierName,
         leaderGroup.getNumOfMembers(), Integer.toString(partitionID), zk);

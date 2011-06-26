@@ -1,3 +1,21 @@
+/**
+ * Licensed to Ravel, Inc. under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  Ravel, Inc. licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ * 
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ */
 package org.goldenorb.types.message;
 
 import java.io.IOException;
@@ -15,6 +33,11 @@ public class RPCServer<M extends Message<W>, W extends Writable> implements RPCP
   
   private M message;
   
+/**
+ * Constructor
+ *
+ * @param  int port
+ */
   public RPCServer(int port) {
     this.port = port;
     Configuration conf = new Configuration();
@@ -25,6 +48,9 @@ public class RPCServer<M extends Message<W>, W extends Writable> implements RPCP
     }
   }
   
+/**
+ * 
+ */
   @Override
   public void start() {
     try {
@@ -34,6 +60,13 @@ public class RPCServer<M extends Message<W>, W extends Writable> implements RPCP
     }
   }
     
+/**
+ * 
+ * @param  M msg
+ * @param  String dst
+ * @param  W wrt
+ * @returns M
+ */
   @SuppressWarnings("unchecked")
   @Override
   public M sendAndReceiveMessage(M msg, String dst, W wrt) {
@@ -51,15 +84,24 @@ public class RPCServer<M extends Message<W>, W extends Writable> implements RPCP
     return retVal;
   }
   
+/**
+ * Return the message
+ */
   public M getMessage() {
     return message;
   }
   
+/**
+ * Return the protocolVersion
+ */
   @Override
   public long getProtocolVersion(String arg0, long arg1) throws IOException {
     return versionID;
   }
 
+/**
+ * 
+ */
   @Override
   public void stop() {
     server.stop();

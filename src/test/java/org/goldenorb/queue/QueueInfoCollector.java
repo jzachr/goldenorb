@@ -41,28 +41,47 @@ public class QueueInfoCollector implements OrbPartitionCommunicationProtocol {
   List<Message> mList = Collections.synchronizedList(new ArrayList<Message>());
   List<Vertex> vList = Collections.synchronizedList(new ArrayList<Vertex>());
   
+/**
+ * 
+ * @param  Messages messages
+ */
   @Override
   public void sendMessages(Messages messages) {
     // add all outgoing Messages to a synchronizedList to check if any Messages are lost
     mList.addAll(messages.getList());
   }
   
+/**
+ * 
+ * @param  Vertices vertices
+ */
   @Override
   public void sendVertices(Vertices vertices) {
     // add all outgoing Vertices to a synchronizedList to check if any messages are lost
     vList.addAll(vertices.getArrayList());
   }
   
+/**
+ * Return the protocolVersion
+ */
   @Override
   public long getProtocolVersion(String arg0, long arg1) throws IOException {
     return versionID;
   }
 
+/**
+ * 
+ * @param  int partitionID
+ */
   @Override
   public void becomeActive(int partitionID) {
     
   }
 
+/**
+ * 
+ * @param  RawSplit rawsplit
+ */
   @Override
   public void loadVerticesFromInputSplit(RawSplit rawsplit) {
     

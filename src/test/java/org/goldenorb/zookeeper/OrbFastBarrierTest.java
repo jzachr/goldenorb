@@ -148,6 +148,9 @@ public class OrbFastBarrierTest {
     assertTrue(allBarriersCreated);
   }
   
+/**
+ * 
+ */
   private void deleteThreads() throws InterruptedException, OrbZKFailure, IOException {
     ZooKeeper zk = ZookeeperUtils.connect(orbConf.getOrbZooKeeperQuorum());
     for(int i=0; i < 100; i++) {

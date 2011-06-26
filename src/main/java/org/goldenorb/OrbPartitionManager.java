@@ -45,6 +45,12 @@ public class OrbPartitionManager<M extends PartitionProcess> implements OrbConfi
   // RPC client to be used for soft-killing OrbPartition processes
   private OrbPartitionManagerProtocol partitionClient;
   
+/**
+ * Constructor
+ *
+ * @param  OrbConfiguration conf
+ * @param  Class<M> clazz
+ */
   public OrbPartitionManager(OrbConfiguration conf, Class<M> clazz) {
     this.conf = conf;
     this.processClass = clazz;
@@ -60,6 +66,12 @@ public class OrbPartitionManager<M extends PartitionProcess> implements OrbConfi
     }
   }
   
+/**
+ * 
+ * @param  int requested
+ * @param  int reserved
+ * @param  int basePartitionID
+ */
   public void launchPartitions(int requested, int reserved, int basePartitionID) throws InstantiationException, IllegalAccessException {
     logger.info("requested " + requested + ", reserved " + reserved);
     for (int i = 0; i < (requested + reserved); i++) {
@@ -90,6 +102,9 @@ public class OrbPartitionManager<M extends PartitionProcess> implements OrbConfi
     }
   }
   
+/**
+ * 
+ */
   public void stop() {
     Configuration rpcConf = new Configuration();
     for (M p : childProcesses) {
@@ -118,34 +133,57 @@ public class OrbPartitionManager<M extends PartitionProcess> implements OrbConfi
     }
   }
   
+/**
+ * 
+ */
   public void kill() {
     for (M p : childProcesses) {
       p.kill();
     }
   }
   
+/**
+ * Set the orbConf
+ * @param  OrbConfiguration orbConf
+ */
   @Override
   public void setOrbConf(OrbConfiguration orbConf) {
     this.conf = orbConf;
   }
   
+/**
+ * Return the orbConf
+ */
   @Override
   public OrbConfiguration getOrbConf() {
     return conf;
   }
   
+/**
+ * Return the childProcesses
+ */
   public List<M> getChildProcesses() {
     return childProcesses;
   }
 
+/**
+ * Return the ipAddress
+ */
   public String getIpAddress() {
     return ipAddress;
   }
 
+/**
+ * Set the partitionProcessClass
+ * @param  Class<M> partitionProcessClass
+ */
   public void setPartitionProcessClass(Class<M> partitionProcessClass) {
     this.processClass = partitionProcessClass;
   }
 
+/**
+ * Return the partitionProcessClass
+ */
   public Class<M> getPartitionProcessClass() {
     return processClass;
   }

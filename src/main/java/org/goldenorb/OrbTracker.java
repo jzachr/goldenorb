@@ -58,14 +58,26 @@ public class OrbTracker extends OrbTrackerMember implements Runnable, OrbConfigu
   private ResourceAllocator<OrbTrackerMember> resourceAllocator;
   private OrbPartitionManager<MockPartitionThread> partitionManager;
   
+/**
+ * 
+ * @param  String[] args
+ */
   public static void main(String[] args) {
     new Thread(new OrbTracker(new OrbConfiguration(true))).start();
   }
   
+/**
+ * Constructor
+ *
+ * @param  OrbConfiguration orbConf
+ */
   public OrbTracker(OrbConfiguration orbConf) {
     this.orbConf = orbConf;
   }
   
+/**
+ * 
+ */
   public void run() {
     // get hostname
     try {
@@ -114,6 +126,9 @@ public class OrbTracker extends OrbTrackerMember implements Runnable, OrbConfigu
     }
   }
   
+/**
+ * 
+ */
   private void executeAsSlave() {
     synchronized (this) {
       leader = false;
@@ -124,6 +139,9 @@ public class OrbTracker extends OrbTrackerMember implements Runnable, OrbConfigu
     waitLoop();
   }
   
+/**
+ * 
+ */
   private void executeAsLeader() {
     synchronized (this) {
       resourceAllocator = new ResourceAllocator<OrbTrackerMember>(orbConf, leaderGroup.getMembers());
@@ -135,6 +153,9 @@ public class OrbTracker extends OrbTrackerMember implements Runnable, OrbConfigu
     waitLoop();
   }
   
+/**
+ * 
+ */
   private void waitLoop() {
     while (runTracker) {
       synchronized (this) {
@@ -152,6 +173,9 @@ public class OrbTracker extends OrbTrackerMember implements Runnable, OrbConfigu
     }
   }
   
+/**
+ * 
+ */
   private void establishZookeeperTree() throws OrbZKFailure {
     ZookeeperUtils.notExistCreateNode(zk, ZK_BASE_PATH);
     ZookeeperUtils.notExistCreateNode(zk, ZK_BASE_PATH + "/" + orbConf.getOrbClusterName());
@@ -176,6 +200,10 @@ public class OrbTracker extends OrbTrackerMember implements Runnable, OrbConfigu
   }
   
   public class OrbTrackerCallback implements OrbCallback {
+/**
+ * 
+ * @param  OrbEvent e
+ */
     @Override
     public void process(OrbEvent e) {
       int eventCode = e.getType();
@@ -191,6 +219,9 @@ public class OrbTracker extends OrbTrackerMember implements Runnable, OrbConfigu
     }
   }
   
+/**
+ * 
+ */
   public void leave() {
     runTracker = false;
     leaderGroup.leave();
@@ -199,18 +230,33 @@ public class OrbTracker extends OrbTrackerMember implements Runnable, OrbConfigu
     }
   }
   
+/**
+ * 
+ */
   private void establishZookeeperConnection() throws IOException, InterruptedException {
     zk = ZookeeperUtils.connect(orbConf.getOrbZooKeeperQuorum());
   }
   
+/**
+ * Set the orbConf
+ * @param  OrbConfiguration orbConf
+ */
   public void setOrbConf(OrbConfiguration orbConf) {
     this.orbConf = orbConf;
   }
   
+/**
+ * Return the orbConf
+ */
   public OrbConfiguration getOrbConf() {
     return orbConf;
   }
   
+/**
+ * 
+ * @param  PartitionRequest request
+ * @returns PartitionRequestResponse
+ */
   @Override
   public PartitionRequestResponse requestPartitions(PartitionRequest request) {
     logger.info("requestPartitions");

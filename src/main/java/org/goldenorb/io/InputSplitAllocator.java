@@ -50,6 +50,12 @@ public class InputSplitAllocator implements OrbConfigurable {
   
   private Logger LOG;
   
+/**
+ * Constructor
+ *
+ * @param  OrbConfiguration orbConf
+ * @param  List<OrbPartitionMember> orbPartitionMembers
+ */
   public InputSplitAllocator(OrbConfiguration orbConf, List<OrbPartitionMember> orbPartitionMembers) {
     this.orbConf = orbConf;
     this.orbPartitionMembers = orbPartitionMembers;
@@ -70,6 +76,10 @@ public class InputSplitAllocator implements OrbConfigurable {
     }
   }
   
+/**
+ * 
+ * @returns Map<OrbPartitionMember,List<RawSplit>>
+ */
   @SuppressWarnings({"deprecation", "rawtypes", "unchecked"})
   public Map<OrbPartitionMember,List<RawSplit>> assignInputSplits() {
     List<RawSplit> rawSplits = null;
@@ -109,6 +119,11 @@ public class InputSplitAllocator implements OrbConfigurable {
     return assignInputSplits(rawSplits);
   }
   
+/**
+ * 
+ * @param  Collection<RawSplit> rawSplits
+ * @returns Map<OrbPartitionMember,List<RawSplit>>
+ */
   public Map<OrbPartitionMember,List<RawSplit>> assignInputSplits(Collection<RawSplit> rawSplits) {
     
     Map<OrbPartitionMember,List<RawSplit>> mapOfSplitsToPartitions = new HashMap<OrbPartitionMember,List<RawSplit>>();
@@ -150,6 +165,9 @@ public class InputSplitAllocator implements OrbConfigurable {
     return mapOfSplitsToPartitions;
   }
   
+/**
+ * Return the viableHosts
+ */
   private List<String> getViableHosts(String[] hosts) {
     List<String> viableHosts = new ArrayList<String>();
     for (String host : hosts) {
@@ -160,6 +178,9 @@ public class InputSplitAllocator implements OrbConfigurable {
     return viableHosts;
   }
   
+/**
+ * Return the lightestHost
+ */
   private String getLightestHost(List<String> hosts) {
     String lightestHost = null;
     int lightestCount = Integer.MAX_VALUE;
@@ -173,6 +194,9 @@ public class InputSplitAllocator implements OrbConfigurable {
     return lightestHost;
   }
   
+/**
+ * Return the lightestPort
+ */
   private int getLightestPort(String host) {
     int lightestPort = 0;
     int lightestCount = Integer.MAX_VALUE;
@@ -187,6 +211,9 @@ public class InputSplitAllocator implements OrbConfigurable {
     return lightestPort;
   }
   
+/**
+ * Return the lightestHostAll
+ */
   private String getLightestHostAll() {
     String lightestHost = null;
     int lightestCount = Integer.MAX_VALUE;
@@ -200,11 +227,18 @@ public class InputSplitAllocator implements OrbConfigurable {
     return lightestHost;
   }
   
+/**
+ * Set the orbConf
+ * @param  OrbConfiguration orbConf
+ */
   @Override
   public void setOrbConf(OrbConfiguration orbConf) {
     this.orbConf = orbConf;
   }
   
+/**
+ * Return the orbConf
+ */
   @Override
   public OrbConfiguration getOrbConf() {
     return orbConf;

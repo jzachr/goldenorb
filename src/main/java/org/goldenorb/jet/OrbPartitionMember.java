@@ -1,3 +1,21 @@
+/**
+ * Licensed to Ravel, Inc. under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  Ravel, Inc. licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ * 
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ */
 package org.goldenorb.jet;
 
 import java.io.DataInput;
@@ -84,45 +102,78 @@ public class OrbPartitionMember implements org.goldenorb.zookeeper.Member,
    * Start of non-generated method code -- any code written outside of this block will be removed in
    * subsequent code generations.
    */
+/**
+ * Return the protocolVersion
+ */
   @Override
   public long getProtocolVersion(String arg0, long arg1) throws IOException {
     return this.versionID;
   }
   
+/**
+ * Set the orbConf
+ * @param  OrbConfiguration orbConf
+ */
   @Override
   public void setOrbConf(OrbConfiguration orbConf) {
     this.orbConf = orbConf;
   }
   
+/**
+ * Return the orbConf
+ */
   @Override
   public OrbConfiguration getOrbConf() {
     return orbConf;
   }
   
+/**
+ * 
+ * @param  Vertices vertices
+ */
   @Override
   public void sendVertices(Vertices vertices) {
     client.sendVertices(vertices);
   }
   
+/**
+ * 
+ * @param  Messages messages
+ */
   @Override
   public void sendMessages(Messages messages) {
     client.sendMessages(messages);
   }
   
+/**
+ * 
+ */
   public void initProxy() throws IOException {
     initProxy(this.orbConf);
   }
   
+/**
+ * 
+ * @param  int partitionID
+ */
   @Override
   public void becomeActive(int partitionID) {
     client.becomeActive(partitionID);
   }
   
+/**
+ * 
+ * @param  RawSplit rawsplit
+ */
   @Override
   public void loadVerticesFromInputSplit(RawSplit rawsplit) {
     client.loadVerticesFromInputSplit(rawsplit);
   }
   
+/**
+ * 
+ * @param  OrbConfiguration orbConf
+ */
   public void initProxy(OrbConfiguration orbConf) throws IOException {
     if(client == null){
       InetSocketAddress addr = new InetSocketAddress(hostname, port);
@@ -131,6 +182,11 @@ public class OrbPartitionMember implements org.goldenorb.zookeeper.Member,
     }
   }
   
+/**
+ * 
+ * @param  Object rhs
+ * @returns boolean
+ */
   public boolean equals(Object rhs) {
     return hostname.equals(((OrbPartitionMember) rhs).getHostname()) && (port == (((OrbPartitionMember) rhs).getPort()));
   }
@@ -284,6 +340,10 @@ public class OrbPartitionMember implements org.goldenorb.zookeeper.Member,
   // /////////////////////////////////////
   // Writable
   // /////////////////////////////////////
+/**
+ * 
+ * @param  DataInput in
+ */
   public void readFields(DataInput in) throws IOException {
     partitionID = in.readInt();
     numberOfVertices = in.readInt();
@@ -295,6 +355,10 @@ public class OrbPartitionMember implements org.goldenorb.zookeeper.Member,
     port = in.readInt();
   }
   
+/**
+ * 
+ * @param  DataOutput out
+ */
   public void write(DataOutput out) throws IOException {
     out.writeInt(partitionID);
     out.writeInt(numberOfVertices);

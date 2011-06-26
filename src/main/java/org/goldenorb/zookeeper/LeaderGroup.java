@@ -1,3 +1,21 @@
+/**
+ * Licensed to Ravel, Inc. under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  Ravel, Inc. licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ * 
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ */
 package org.goldenorb.zookeeper;
 
 import java.util.ArrayList;
@@ -41,6 +59,15 @@ public class LeaderGroup<MEMBER_TYPE extends Member> implements OrbConfigurable 
   private SortedMap<String,MemberDataWatcher> watchers = new TreeMap<String,MemberDataWatcher>();
   private boolean fireEvents = false;
   
+/**
+ * Constructor
+ *
+ * @param  ZooKeeper zk
+ * @param  OrbCallback orbCallback
+ * @param  String path
+ * @param  MEMBER_TYPE member
+ * @param  Class<? extends Member> memberClass
+ */
   public LeaderGroup(ZooKeeper zk,
                      OrbCallback orbCallback,
                      String path,
@@ -54,6 +81,9 @@ public class LeaderGroup<MEMBER_TYPE extends Member> implements OrbConfigurable 
     init();
   }
   
+/**
+ * 
+ */
   public void init() {
     try {
       ZookeeperUtils.notExistCreateNode(zk, basePath);
@@ -67,6 +97,9 @@ public class LeaderGroup<MEMBER_TYPE extends Member> implements OrbConfigurable 
     }
   }
   
+/**
+ * 
+ */
   @SuppressWarnings("unchecked")
   public void updateMembers() throws OrbZKFailure {
     synchronized (members) {
@@ -137,6 +170,10 @@ public class LeaderGroup<MEMBER_TYPE extends Member> implements OrbConfigurable 
   
   public class WatchMembers implements Watcher {
     
+/**
+ * 
+ * @param  WatchedEvent event
+ */
     public void process(WatchedEvent event) {
       if (LeaderGroup.this.isProcessWatchedEvents()) {
         try {
@@ -154,6 +191,11 @@ public class LeaderGroup<MEMBER_TYPE extends Member> implements OrbConfigurable 
     private String nodeName;
     private boolean active;
     
+/**
+ * Constructor
+ *
+ * @param  String nodeName
+ */
     public MemberDataWatcher(String nodeName) {
       this.nodePath = basePath + "/" + nodeName;
       this.nodeName = nodeName;
@@ -161,10 +203,17 @@ public class LeaderGroup<MEMBER_TYPE extends Member> implements OrbConfigurable 
       active = true;
     }
     
+/**
+ * 
+ */
     public void makeInactive() {
       active = false;
     }
     
+/**
+ * 
+ * @param  WatchedEvent event
+ */
     @SuppressWarnings("unchecked")
     @Override
     public void process(WatchedEvent event) {
@@ -184,6 +233,11 @@ public class LeaderGroup<MEMBER_TYPE extends Member> implements OrbConfigurable 
     }
   }
   
+/**
+ * 
+ * @param  String memberPath
+ * @param  MEMBER_TYPE update
+ */
   public void updateMembersData(String memberPath, MEMBER_TYPE update) {
     if (update != null) {
       members.put(memberPath, update);
@@ -191,44 +245,70 @@ public class LeaderGroup<MEMBER_TYPE extends Member> implements OrbConfigurable 
     }
   }
   
+/**
+ * Return the members
+ */
   public Collection<MEMBER_TYPE> getMembers() {
     synchronized (members) {
       return members.values();
     }
   }
   
+/**
+ * Return the numOfMembers
+ */
   public int getNumOfMembers() {
     synchronized (members) {
       return members.size();
     }
   }
   
+/**
+ * Return the eader
+ */
   public boolean isLeader() {
     synchronized (members) {
       return member.equals(members.get(members.firstKey()));
     }
   }
   
+/**
+ * Return the leader
+ */
   public MEMBER_TYPE getLeader() {
     synchronized (members) {
       return members.get(members.firstKey());
     }
   }
   
+/**
+ * 
+ * @param  OrbEvent e
+ */
   public void fireEvent(OrbEvent e) {
     if (fireEvents) {
       orbCallback.process(e);
     }
   }
   
+/**
+ * Set the orbConf
+ * @param  OrbConfiguration orbConf
+ */
   public void setOrbConf(OrbConfiguration orbConf) {
     this.orbConf = orbConf;
   }
   
+/**
+ * Return the orbConf
+ */
   public OrbConfiguration getOrbConf() {
     return orbConf;
   }
   
+/**
+ * Return the membersPath
+ */
   public List<String> getMembersPath() {
     ArrayList<String> paths = new ArrayList<String>();
     Set<String> memberPaths = members.keySet();
@@ -238,10 +318,16 @@ public class LeaderGroup<MEMBER_TYPE extends Member> implements OrbConfigurable 
     return paths;
   }
   
+/**
+ * Return the myPath
+ */
   public String getMyPath() {
     return myPath;
   }
   
+/**
+ * 
+ */
   public void leave() {
     this.processWatchedEvents = false;
     try {
@@ -251,10 +337,17 @@ public class LeaderGroup<MEMBER_TYPE extends Member> implements OrbConfigurable 
     }
   }
   
+/**
+ * Return the rocessWatchedEvents
+ */
   protected boolean isProcessWatchedEvents() {
     return processWatchedEvents;
   }
   
+/**
+ * Set the processWatchedEvents
+ * @param  boolean processWatchedEvents
+ */
   protected void setProcessWatchedEvents(boolean processWatchedEvents) {
     this.processWatchedEvents = processWatchedEvents;
   }

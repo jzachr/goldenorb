@@ -69,6 +69,15 @@ public class JobManager<M extends OrbTrackerMember> implements OrbConfigurable {
   
   private boolean activeManager = true;
   
+/**
+ * Constructor
+ *
+ * @param  OrbCallback orbCallback
+ * @param  OrbConfiguration orbConf
+ * @param  ZooKeeper zk
+ * @param  ResourceAllocator<M> resourceAllocator
+ * @param  Collection<M> orbTrackers
+ */
   public JobManager(OrbCallback orbCallback,
                     OrbConfiguration orbConf,
                     ZooKeeper zk,
@@ -90,6 +99,9 @@ public class JobManager<M extends OrbTrackerMember> implements OrbConfigurable {
     getJobsInQueue();
   }
   
+/**
+ * Return the jobTries
+ */
   public int getJobTries(String jobNumber) {
     synchronized (jobs) {
       if (jobs.containsKey(jobNumber)) {
@@ -100,12 +112,18 @@ public class JobManager<M extends OrbTrackerMember> implements OrbConfigurable {
     }
   }
   
+/**
+ * Return the obActive
+ */
   public boolean isJobActive(String jobNumber) {
     synchronized (activeJobs) {
       return activeJobs.contains(jobNumber);
     }
   }
   
+/**
+ * Return the jobsInQueue
+ */
   private void getJobsInQueue() {
     logger.info("getting jobs in queue.");
     synchronized (jobs) {
@@ -154,6 +172,9 @@ public class JobManager<M extends OrbTrackerMember> implements OrbConfigurable {
     tryToLaunchJob();
   }
   
+/**
+ * 
+ */
   private void tryToLaunchJob() {
     synchronized (jobs) {
       if (!jobs.isEmpty()) {
@@ -169,6 +190,10 @@ public class JobManager<M extends OrbTrackerMember> implements OrbConfigurable {
     }
   }
   
+/**
+ * 
+ * @param  OrbJob job
+ */
   private void launchJob(OrbJob job) {
     try {
       ZookeeperUtils.notExistCreateNode(zk, jobsInProgressPath + "/" + job.getJobNumber());
@@ -228,6 +253,10 @@ public class JobManager<M extends OrbTrackerMember> implements OrbConfigurable {
     }
   }
   
+/**
+ * 
+ * @param  OrbJob job
+ */
   private void checkForDeathComplete(OrbJob job) throws OrbZKFailure {
     if (job.getDeathAndCompleteWatcher() == null) {
       job.setDeathAndCompleteWatcher(new DeathAndCompleteWatcher(job));
@@ -255,11 +284,20 @@ public class JobManager<M extends OrbTrackerMember> implements OrbConfigurable {
     private boolean active = true;
     private OrbJob job;
     
+/**
+ * Constructor
+ *
+ * @param  OrbJob job
+ */
     public DeathAndCompleteWatcher(OrbJob job) {
       logger.info("Creating DeathAndCompleteWatcher for: " + job.getJobNumber());
       this.job = job;
     }
     
+/**
+ * 
+ * @param  WatchedEvent event
+ */
     @Override
     public void process(WatchedEvent event) {
       if (active && activeManager) {
@@ -272,10 +310,16 @@ public class JobManager<M extends OrbTrackerMember> implements OrbConfigurable {
       }
     }
     
+/**
+ * 
+ */
     public void kill() {
       active = false;
     }
     
+/**
+ * 
+ */
     public void restart() {
       active = true;
     }
@@ -286,11 +330,20 @@ public class JobManager<M extends OrbTrackerMember> implements OrbConfigurable {
     private OrbJob job;
     private boolean active = true;
     
+/**
+ * Constructor
+ *
+ * @param  OrbJob job
+ */
     public HeartbeatWatcher(OrbJob job) {
       logger.debug("Creating HeartbeatWatcher for: " + job.getJobNumber());
       this.job = job;
     }
     
+/**
+ * 
+ * @param  WatchedEvent event
+ */
     @Override
     public void process(WatchedEvent event) {
       if (active && activeManager) {
@@ -303,15 +356,25 @@ public class JobManager<M extends OrbTrackerMember> implements OrbConfigurable {
       }
     }
     
+/**
+ * 
+ */
     public void kill() {
       active = false;
     }
     
+/**
+ * 
+ */
     public void restart() {
       active = true;
     }
   }
   
+/**
+ * 
+ * @param  OrbJob job
+ */
   private void heartbeat(OrbJob job) throws OrbZKFailure {
     if (job.getHeartbeatWatcher() == null) {
       job.setHeartbeatWatcher(new HeartbeatWatcher(job));
@@ -324,16 +387,29 @@ public class JobManager<M extends OrbTrackerMember> implements OrbConfigurable {
     job.setHeartbeat(newHeartbeat);
   }
   
+/**
+ * 
+ * @param  OrbJob job
+ * @returns boolean
+ */
   private boolean resourcesAvailable(OrbJob job) {
     // TODO what do we need to examine in order to actually check whether
     // resources are available?
     return true;
   }
   
+/**
+ * 
+ * @param  OrbJob job
+ */
   private void removeJobFromQueue(OrbJob job) throws OrbZKFailure {
     ZookeeperUtils.deleteNodeIfEmpty(zk, jobQueuePath + "/" + job.getJobNumber());
   }
   
+/**
+ * 
+ * @param  OrbJob job
+ */
   private void jobDeath(OrbJob job) throws OrbZKFailure {
     logger.info("jobDeath " + job.getJobNumber());
     synchronized (job) {
@@ -364,6 +440,10 @@ public class JobManager<M extends OrbTrackerMember> implements OrbConfigurable {
     tryToLaunchJob();
   }
   
+/**
+ * 
+ * @param  OrbJob job
+ */
   private void jobComplete(OrbJob job) throws OrbZKFailure {
     synchronized (job) {
       job.getJobStillActiveInterface().kill();
@@ -378,16 +458,27 @@ public class JobManager<M extends OrbTrackerMember> implements OrbConfigurable {
   }
   
   private class JobsInQueueWatcher implements Watcher {
+/**
+ * 
+ * @param  WatchedEvent event
+ */
     @Override
     public void process(WatchedEvent event) {
       getJobsInQueue();
     }
   }
   
+/**
+ * 
+ * @param  OrbEvent orbEvent
+ */
   private void fireEvent(OrbEvent orbEvent) {
     orbCallback.process(orbEvent);
   }
   
+/**
+ * 
+ */
   private void buildJobManagerPaths() {
     try {
       ZookeeperUtils.notExistCreateNode(zk, jobQueuePath);
@@ -407,12 +498,20 @@ public class JobManager<M extends OrbTrackerMember> implements OrbConfigurable {
     private boolean active;
     private Long lastHeartbeat = -1L;
     
+/**
+ * Constructor
+ *
+ * @param  OrbJob job
+ */
     public JobStillActiveCheck(OrbJob job) {
       logger.info("Creating JobStillActiveChecker for: " + job.getJobNumber());
       this.job = job;
       active = true;
     }
     
+/**
+ * 
+ */
     @Override
     public void run() {
       synchronized (this) {
@@ -436,35 +535,58 @@ public class JobManager<M extends OrbTrackerMember> implements OrbConfigurable {
       }
     }
     
+/**
+ * Return the ctive
+ */
     public boolean isActive() {
       return active;
     }
     
+/**
+ * Set the active
+ * @param  boolean active
+ */
     public void setActive(boolean active) {
       this.active = active;
     }
     
+/**
+ * 
+ */
     @Override
     public void kill() {
       active = false;
     }
     
+/**
+ * 
+ */
     @Override
     public void restart() {
       active = true;
     }
   }
   
+/**
+ * Set the orbConf
+ * @param  OrbConfiguration orbConf
+ */
   @Override
   public void setOrbConf(OrbConfiguration orbConf) {
     this.orbConf = orbConf;
   }
   
+/**
+ * Return the orbConf
+ */
   @Override
   public OrbConfiguration getOrbConf() {
     return orbConf;
   }
   
+/**
+ * 
+ */
   public void shutdown() {
     activeManager = false;
   }

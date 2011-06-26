@@ -29,20 +29,35 @@ public class MockPartitionThread implements PartitionProcess, Runnable {
   private boolean reserved = false;
   private OrbConfiguration orbConf;
   
+/**
+ * Constructor
+ *
+ */
   public MockPartitionThread() {
     thread = new Thread(this);
   }
   
+/**
+ * 
+ */
   @Override
   public void run() {
     // TODO Auto-generated method stub
   }
   
+/**
+ * 
+ * @param  FileOutputStream outStream
+ * @param  FileOutputStream errStream
+ */
   @Override
   public void launch(FileOutputStream outStream, FileOutputStream errStream) {
     thread.start();
   }
   
+/**
+ * 
+ */
   @Override
   public void kill() {
     try {
@@ -52,47 +67,78 @@ public class MockPartitionThread implements PartitionProcess, Runnable {
     }
   }
   
+/**
+ * Return the conf
+ */
   @Override
   public OrbConfiguration getConf() {
     return orbConf;
   }
   
+/**
+ * Set the conf
+ * @param  OrbConfiguration conf
+ */
   @Override
   public void setConf(OrbConfiguration conf) {
     this.orbConf = conf;
   }
   
+/**
+ * Return the processNum
+ */
   @Override
   public int getProcessNum() {
     return processNum;
   }
   
+/**
+ * Set the processNum
+ * @param  int processNum
+ */
   @Override
   public void setProcessNum(int processNum) {
     this.processNum = processNum;
   }
   
+/**
+ * Return the unning
+ */
   @Override
   public boolean isRunning() {
     return thread.isAlive();
   }
   
+/**
+ * Set the reserved
+ * @param  boolean reserved
+ */
   @Override
   public void setReserved(boolean reserved) {
     this.reserved = reserved;
   }
   
+/**
+ * Return the eserved
+ */
   @Override
   public boolean isReserved() {
     return reserved;
   }
 
+/**
+ * Set the partitionID
+ * @param  int partitionID
+ */
   @Override
   public void setPartitionID(int partitionID) {
     // TODO Auto-generated method stub
     
   }
 
+/**
+ * Return the partitionID
+ */
   @Override
   public int getPartitionID() {
     // TODO Auto-generated method stub

@@ -24,6 +24,9 @@ public class TestWatchMemberData {
   private static String basePath = "/TestWatchMemberData"; 
   private static TMember member = new TMember();
   
+/**
+ * 
+ */
   @Test
   public void WatchMemberData() throws IOException, InterruptedException, OrbZKFailure, KeeperException {
     

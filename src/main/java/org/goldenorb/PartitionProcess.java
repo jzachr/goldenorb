@@ -22,15 +22,54 @@ import java.io.FileOutputStream;
 import org.goldenorb.conf.OrbConfiguration;
 
 public interface PartitionProcess {
+/**
+ * 
+ * @param  FileOutputStream outStream
+ * @param  FileOutputStream errStream
+ */
   public void launch(FileOutputStream outStream, FileOutputStream errStream);
+/**
+ * 
+ */
   public void kill();
+/**
+ * Set the reserved
+ * @param  boolean reserved
+ */
   public void setReserved(boolean reserved);
+/**
+ * Return the eserved
+ */
   public boolean isReserved();
+/**
+ * Return the conf
+ */
   public OrbConfiguration getConf();
+/**
+ * Set the conf
+ * @param  OrbConfiguration conf
+ */
   public void setConf(OrbConfiguration conf);
+/**
+ * Return the processNum
+ */
   public int getProcessNum();
+/**
+ * Set the processNum
+ * @param  int processNum
+ */
   public void setProcessNum(int processNum);
+/**
+ * Return the unning
+ */
   public boolean isRunning();
+/**
+ * Set the partitionID
+ * @param  int partitionID
+ */
   public void setPartitionID(int partitionID);
+/**
+ * Return the partitionID
+ */
   public int getPartitionID();
 }

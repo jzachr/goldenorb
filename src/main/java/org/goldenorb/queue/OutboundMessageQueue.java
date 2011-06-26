@@ -190,16 +190,28 @@ public class OutboundMessageQueue {
     List<Map<String,List<Message<? extends Writable>>>> partitionMessageMapsList;
     List<Integer> partitionMessageCounter;
     
+/**
+ * Constructor
+ *
+ * @param  List<Map<String,List<Message<? extends Writable>>>> partitionMessageMapsList
+ * @param  List<Integer> partitionMessageCounter
+ */
     public PartitionMessagingObject(List<Map<String,List<Message<? extends Writable>>>> partitionMessageMapsList,
                                     List<Integer> partitionMessageCounter) {
       this.partitionMessageMapsList = partitionMessageMapsList;
       this.partitionMessageCounter = partitionMessageCounter;
     }
     
+/**
+ * Return the mapsList
+ */
     public List<Map<String,List<Message<? extends Writable>>>> getMapsList() {
       return partitionMessageMapsList;
     }
     
+/**
+ * Return the messageCounter
+ */
     public List<Integer> getMessageCounter() {
       return partitionMessageCounter;
     }

@@ -1,3 +1,21 @@
+/**
+ * Licensed to Ravel, Inc. under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  Ravel, Inc. licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ * 
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ */
 package org.goldenorb.zookeeper.test;
 
 import java.util.concurrent.CountDownLatch;
@@ -28,6 +46,16 @@ public class TJTracker implements Runnable, OrbConfigurable {
   private boolean leader = false;
   private ResourceAllocator allocator;
   
+/**
+ * Constructor
+ *
+ * @param  ZooKeeper zk
+ * @param  CountDownLatch joinLeaderGroup
+ * @param  CountDownLatch exit
+ * @param  OrbConfiguration orbConf
+ * @param  int data
+ * @param  String basePath
+ */
   public TJTracker(ZooKeeper zk,
                    CountDownLatch joinLeaderGroup,
                    CountDownLatch exit,
@@ -43,6 +71,9 @@ public class TJTracker implements Runnable, OrbConfigurable {
     member.setData(data);
   }
   
+/**
+ * 
+ */
   @Override
   public void run() {
     orbCallback = new OrbTJTrackerCallback();
@@ -56,16 +87,26 @@ public class TJTracker implements Runnable, OrbConfigurable {
     }
   }
   
+/**
+ * Set the orbConf
+ * @param  OrbConfiguration orbConf
+ */
   @Override
   public void setOrbConf(OrbConfiguration orbConf) {
     this.orbConf = orbConf;
   }
   
+/**
+ * Return the orbConf
+ */
   @Override
   public OrbConfiguration getOrbConf() {
     return orbConf;
   }
   
+/**
+ * 
+ */
   private void leader() {
     synchronized (this) {
       leader = true;
@@ -75,6 +116,9 @@ public class TJTracker implements Runnable, OrbConfigurable {
     waitLoop();
   }
   
+/**
+ * 
+ */
   private void slave() {
     synchronized (this) {
       leader = false;
@@ -85,6 +129,9 @@ public class TJTracker implements Runnable, OrbConfigurable {
     waitLoop();
   }
   
+/**
+ * 
+ */
   private void waitLoop() {
     while (runTracker) {
       synchronized (this) {
@@ -104,6 +151,10 @@ public class TJTracker implements Runnable, OrbConfigurable {
   
   private class OrbTJTrackerCallback implements OrbCallback {
     
+/**
+ * 
+ * @param  OrbEvent e
+ */
     @Override
     public void process(OrbEvent e) {
       if (e.getType() == OrbEvent.ORB_EXCEPTION) {
@@ -120,6 +171,9 @@ public class TJTracker implements Runnable, OrbConfigurable {
     }
   }
   
+/**
+ * 
+ */
   public void leave() {
     runTracker = false;
     leaderGroup.leave();
@@ -131,6 +185,9 @@ public class TJTracker implements Runnable, OrbConfigurable {
 
   
   
+/**
+ * Return the eader
+ */
   public boolean isLeader() {
     return leaderGroup.isLeader();
   }

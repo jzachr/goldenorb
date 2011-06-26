@@ -30,8 +30,20 @@ public class OrbPartitionProcess implements PartitionProcess {
   private boolean reserved = false;
   private int partitionID;
   
+/**
+ * Constructor
+ *
+ */
   public OrbPartitionProcess() {}
   
+/**
+ * Constructor
+ *
+ * @param  OrbConfiguration conf
+ * @param  int processNum
+ * @param  boolean reserved
+ * @param  int partitionID
+ */
   public OrbPartitionProcess(OrbConfiguration conf, int processNum, boolean reserved, int partitionID) {
     this.conf = conf;
     this.processNum = processNum;
@@ -39,6 +51,11 @@ public class OrbPartitionProcess implements PartitionProcess {
     this.partitionID = partitionID;
   }
   
+/**
+ * 
+ * @param  FileOutputStream outStream
+ * @param  FileOutputStream errStream
+ */
   @Override
   public void launch(FileOutputStream outStream, FileOutputStream errStream) {
     // TODO Need to update Process launch arguments once OrbPartition is completed
@@ -56,6 +73,10 @@ public class OrbPartitionProcess implements PartitionProcess {
     }
   }
   
+/**
+ * 
+ * @returns String
+ */
   private String buildClassPathPart() {
     StringBuilder sb = new StringBuilder();
     for (String cp : conf.getOrbClassPaths()) {
@@ -65,31 +86,51 @@ public class OrbPartitionProcess implements PartitionProcess {
     return sb.toString();
   }
   
+/**
+ * 
+ */
   @Override
   public void kill() {
     process.destroy();
   }
 
+/**
+ * Return the conf
+ */
   @Override
   public OrbConfiguration getConf() {
     return conf;
   }
 
+/**
+ * Set the conf
+ * @param  OrbConfiguration conf
+ */
   @Override
   public void setConf(OrbConfiguration conf) {
     this.conf = conf;
   }
 
+/**
+ * Return the processNum
+ */
   @Override
   public int getProcessNum() {
     return processNum;
   }
 
+/**
+ * Set the processNum
+ * @param  int processNum
+ */
   @Override
   public void setProcessNum(int processNum) {
     this.processNum = processNum;
   }
 
+/**
+ * Return the unning
+ */
   @Override
   public boolean isRunning() {
     boolean ret = false;
@@ -103,21 +144,35 @@ public class OrbPartitionProcess implements PartitionProcess {
     return ret;
   }
 
+/**
+ * Set the reserved
+ * @param  boolean reserved
+ */
   @Override
   public void setReserved(boolean reserved) {
     this.reserved = reserved;
   }
 
+/**
+ * Return the eserved
+ */
   @Override
   public boolean isReserved() {
     return reserved;
   }
 
+/**
+ * Set the partitionID
+ * @param  int partitionID
+ */
   @Override
   public void setPartitionID(int partitionID) {
     this.partitionID = partitionID;
   }
 
+/**
+ * Return the partitionID
+ */
   @Override
   public int getPartitionID() {
     return partitionID;
