@@ -13,7 +13,7 @@ then
 fi
 
 ORB_PIDFILE="$ORB_HOME"/orbtracker.pid
-ORB_CLASSPATH="$ORB_LIBS"/orb-site.xml:"$ORB_LIBS"/\*:"$ORB_HOME"/target/"$ORB_JAR":`cat $ORB_HOME/classpath.txt`
+ORB_CLASSPATH="$ORB_LIBS"/.:"$ORB_LIBS"/\*:"$ORB_HOME"/target/"$ORB_JAR":`cat $ORB_HOME/classpath.txt`
 
 case $1 in
 start)
