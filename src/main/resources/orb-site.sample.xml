@@ -1,0 +1,53 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+
+<configuration>
+
+  <property>
+    <name>goldenOrb.orb.partition.messagehandlers.threads</name>
+    <value>15</value>
+    <description>Number of message handlers threads per partition.
+    </description>
+  </property>
+
+  <property>
+    <name>goldenOrb.orb.requestedPartitions</name>
+    <value>3</value>
+    <description>Requested number of partitions for this job
+    </description>
+  </property>
+
+  <property>
+    <name>goldenOrb.orb.reservedPartitions</name>
+    <value>0</value>
+    <description>Requested number of reserve partitions for this job
+    </description>
+  </property>
+
+  <property>
+    <name>goldenOrb.orb.partitionsPerMachine</name>
+    <value>5</value>
+    <description>Number of partitions per machine.
+    </description>
+  </property>
+
+  <property>
+    <name>fs.default.name</name>
+    <value>hdfs://localhost:9000</value>
+  </property>
+
+  <property>
+    <name>goldenOrb.job.heartbeatTimeout</name>
+    <value>1000</value>
+    <description>Timeout for job manager to monitor jobs
+    </description>
+  </property>
+
+  <property>
+    <name>goldenOrb.job.max.tries</name>
+    <value>1</value>
+    <description>Number of attempts JobManager makes before killing job
+    </description>
+  </property>
+
+</configuration>
