@@ -1,3 +1,21 @@
+/**
+ * Licensed to Ravel, Inc. under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  Ravel, Inc. licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ * 
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ */
 package org.goldenorb.util;
 
 import java.io.IOException;
@@ -47,6 +65,10 @@ public class CommandLineUtils {
     
   }
 
+/**
+ * 
+ * @param  String[] args
+ */
   public static void help(String[] args) {
     initializeHelpMaps();
     Set<String> commandsSet = helpMap.keySet();
@@ -74,6 +96,9 @@ public class CommandLineUtils {
     }
   }
 
+/**
+ * 
+ */
   public static void initializeHelpMaps() {
     helpMap = new TreeMap<String, String>();
     // Job
@@ -86,6 +111,10 @@ public class CommandLineUtils {
     validArguments.put("Job", jobHelpValidArguments()); 
   }
 
+/**
+ * 
+ * @returns SortedMap<String,String>
+ */
   public static SortedMap<String, String> jobHelpValidArguments() {
     SortedMap<String, String> map = new TreeMap<String, String>();
     // kill
@@ -98,6 +127,10 @@ public class CommandLineUtils {
     return map;
   }
   
+/**
+ * 
+ * @param  String[] args
+ */
   public static void job(String[] args) {
     ZooKeeper zk = connectZookeeper();
     if(args[1].equalsIgnoreCase("-kill")) {
@@ -109,6 +142,11 @@ public class CommandLineUtils {
     }
   }
   
+/**
+ * 
+ * @param  String[] args
+ * @param  ZooKeeper zk
+ */
   public static void jobKill(String[] args, ZooKeeper zk) {
     if (args.length < 3) {
       System.out.println("'Job -kill' requires a cluster name and Job ID!");
@@ -141,6 +179,11 @@ public class CommandLineUtils {
     }
   }
   
+/**
+ * 
+ * @param  String[] args
+ * @param  ZooKeeper zk
+ */
   public static void jobStatus(String[]args, ZooKeeper zk) {
     if (args.length < 3) {
       System.out.println("No cluster name provided.");
@@ -188,6 +231,10 @@ public class CommandLineUtils {
     }
   }
   
+/**
+ * 
+ * @returns ZooKeeper
+ */
   public static ZooKeeper connectZookeeper() {
     OrbConfiguration orbConf = new OrbConfiguration(true);
     ZooKeeper zk = null;
