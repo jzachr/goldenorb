@@ -72,4 +72,8 @@ public interface PartitionProcess {
  * Return the partitionID
  */
   public int getPartitionID();
+  
+  public void setJobNumber(String jobNumber);
+
+  public String getJobNumber();
 }

@@ -72,11 +72,12 @@ public class OrbPartitionManager<M extends PartitionProcess> implements OrbConfi
  * @param  int reserved
  * @param  int basePartitionID
  */
-  public void launchPartitions(int requested, int reserved, int basePartitionID) throws InstantiationException, IllegalAccessException {
+  public void launchPartitions(int requested, int reserved, int basePartitionID, String jobNumber) throws InstantiationException, IllegalAccessException {
     logger.info("requested " + requested + ", reserved " + reserved);
     for (int i = 0; i < (requested + reserved); i++) {
       M partition = processClass.newInstance();
       partition.setConf(conf);
+      partition.setJobNumber(jobNumber);
       partition.setProcessNum(i);
       if (i < requested) {
         partition.setPartitionID(basePartitionID + i);
@@ -108,7 +109,7 @@ public class OrbPartitionManager<M extends PartitionProcess> implements OrbConfi
   public void stop() {
     Configuration rpcConf = new Configuration();
     for (M p : childProcesses) {
-      int rpcPort = conf.getOrbPartitionManagementBaseport() + p.getProcessNum();
+      int rpcPort = conf.getOrbPartitionManagementBaseport() + p.getProcessNum() + 100;
       InetSocketAddress addr = new InetSocketAddress(ipAddress, rpcPort);
       try {
         partitionClient = (OrbPartitionManagerProtocol) RPC.waitForProxy(OrbPartitionManagerProtocol.class,

@@ -22,6 +22,8 @@ import java.io.IOException;
 
 import org.goldenorb.conf.OrbConfiguration;
 import org.goldenorb.util.StreamWriter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class OrbPartitionProcess implements PartitionProcess {
   private Process process;
@@ -29,6 +31,9 @@ public class OrbPartitionProcess implements PartitionProcess {
   private int processNum;
   private boolean reserved = false;
   private int partitionID;
+  private String jobNumber;
+
+  private final Logger logger = LoggerFactory.getLogger(OrbPartitionProcess.class);
   
 /**
  * Constructor
@@ -60,9 +65,11 @@ public class OrbPartitionProcess implements PartitionProcess {
   public void launch(FileOutputStream outStream, FileOutputStream errStream) {
     // TODO Need to update Process launch arguments once OrbPartition is completed
     try {
+      String cp = buildClassPathPart();
+      logger.debug("classpath: {}", cp);
       ProcessBuilder builder = new ProcessBuilder("java", conf.getOrbPartitionJavaopts(), "-cp",
           "goldenorb-0.0.1-SNAPSHOT-jar-with-dependencies.jar" + buildClassPathPart(),
-          "org.goldenorb.OrbPartition", conf.getOrbJobName().toString(), Integer.toString(partitionID),
+          "org.goldenorb.OrbPartition", jobNumber, Integer.toString(partitionID),
           Boolean.toString(reserved), Integer.toString(conf.getOrbBasePort() + processNum));
       
       process = builder.start();
@@ -97,7 +104,6 @@ public class OrbPartitionProcess implements PartitionProcess {
 /**
  * Return the conf
  */
-  @Override
   public OrbConfiguration getConf() {
     return conf;
   }
@@ -176,5 +182,15 @@ public class OrbPartitionProcess implements PartitionProcess {
   @Override
   public int getPartitionID() {
     return partitionID;
+  }
+
+  @Override
+  public void setJobNumber(String jobNumber) {
+    this.jobNumber = jobNumber;
+  }
+
+  @Override
+  public String getJobNumber() {
+    return jobNumber;
   }
 }
