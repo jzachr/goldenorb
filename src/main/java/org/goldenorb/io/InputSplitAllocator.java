@@ -18,12 +18,20 @@
 
 package org.goldenorb.io;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.hadoop.io.DataOutputBuffer;
+import org.apache.hadoop.io.serializer.SerializationFactory;
+import org.apache.hadoop.io.serializer.Serializer;
+import org.apache.hadoop.mapred.JobConf;
+import org.apache.hadoop.mapreduce.JobContext;
+import org.apache.hadoop.mapreduce.JobID;
+import org.apache.hadoop.util.ReflectionUtils;
 import org.goldenorb.conf.OrbConfigurable;
 import org.goldenorb.conf.OrbConfiguration;
 import org.goldenorb.io.input.RawSplit;
@@ -31,6 +39,7 @@ import org.goldenorb.jet.OrbPartitionMember;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@SuppressWarnings("deprecation")
 public class InputSplitAllocator implements OrbConfigurable {
   
   private OrbConfiguration orbConf;
@@ -61,7 +70,47 @@ public class InputSplitAllocator implements OrbConfigurable {
     }
   }
   
+  @SuppressWarnings({"deprecation", "rawtypes", "unchecked"})
+  public Map<OrbPartitionMember,List<RawSplit>> assignInputSplits() {
+    List<RawSplit> rawSplits = null;
+    JobConf job = new JobConf(orbConf);
+    JobContext jobContext = new JobContext(job, new JobID(orbConf.getOrbJobName(), 0));
+    org.apache.hadoop.mapreduce.InputFormat<?,?> input;
+    try {
+      input = ReflectionUtils.newInstance(
+        jobContext.getInputFormatClass(), orbConf);
+    
+    List<org.apache.hadoop.mapreduce.InputSplit> splits = input.getSplits(jobContext);
+    rawSplits = new ArrayList<RawSplit>(splits.size());
+    DataOutputBuffer buffer = new DataOutputBuffer();
+    SerializationFactory factory = new SerializationFactory(orbConf);
+    Serializer serializer = factory.getSerializer(splits.get(0).getClass());
+    serializer.open(buffer);
+    for (int i = 0; i < splits.size(); i++) {
+      buffer.reset();
+      serializer.serialize(splits.get(i));
+      RawSplit rawSplit = new RawSplit();
+      rawSplit.setClassName(splits.get(i).getClass().getName());
+      rawSplit.setDataLength(splits.get(i).getLength());
+      rawSplit.setBytes(buffer.getData(), 0, buffer.getLength());
+      rawSplit.setLocations(splits.get(i).getLocations());
+      rawSplits.add(rawSplit);
+    }
+    } catch (ClassNotFoundException e) {
+      e.printStackTrace();
+      throw new RuntimeException(e);
+    } catch (IOException e) {
+      e.printStackTrace();
+      throw new RuntimeException(e);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+      throw new RuntimeException(e);
+    }
+    return assignInputSplits(rawSplits);
+  }
+  
   public Map<OrbPartitionMember,List<RawSplit>> assignInputSplits(Collection<RawSplit> rawSplits) {
+    
     Map<OrbPartitionMember,List<RawSplit>> mapOfSplitsToPartitions = new HashMap<OrbPartitionMember,List<RawSplit>>();
     List<RawSplit> notLocalRawSplits = new ArrayList<RawSplit>();
     
