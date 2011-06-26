@@ -21,6 +21,10 @@ import org.goldenorb.conf.OrbConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * This class contains several static utility methods for GoldenOrb to interface with ZooKeeper.
+ * 
+ */
 public class ZookeeperUtils {
   
   private static ConnectWatcher connect;
@@ -167,6 +171,7 @@ public class ZookeeperUtils {
   
   /**
    * Gets data from the Znode specified by path and sets a watcher.
+   * 
    * @param zk
    * @param path
    * @param writableClass
@@ -197,21 +202,20 @@ public class ZookeeperUtils {
     }
   }
   
-  
   /**
-   * Gets data from the Znode specified by the path, reads it into the Writable and
-   * sets a watcher
+   * Gets data from the Znode specified by the path, reads it into the Writable and sets a watcher
+   * 
    * @param zk
-   * @param path is the path to the node
-   * @param writable is the Writable object the node data will be read into
-   * @param watcher is the Watcher object to set upon reading the node data
-   * @return 
+   * @param path
+   *          is the path to the node
+   * @param writable
+   *          is the Writable object the node data will be read into
+   * @param watcher
+   *          is the Watcher object to set upon reading the node data
+   * @return
    * @throws OrbZKFailure
    */
-  public static Writable getNodeWritable(ZooKeeper zk,
-                                         String path,
-                                         Writable writable,
-                                         Watcher watcher) throws OrbZKFailure {
+  public static Writable getNodeWritable(ZooKeeper zk, String path, Writable writable, Watcher watcher) throws OrbZKFailure {
     byte[] data = null;
     try {
       data = zk.getData(path, watcher, null);
@@ -228,15 +232,14 @@ public class ZookeeperUtils {
       } catch (IOException e) {
         throw new OrbZKFailure(e);
       }
-    } 
+    }
     return null;
   }
   
   public static void deleteNodeIfEmpty(ZooKeeper zk, String path) throws OrbZKFailure {
     try {
       zk.delete(path, -1);
-    } catch (KeeperException.NoNodeException e) {
-    } catch (KeeperException.BadVersionException e) {
+    } catch (KeeperException.NoNodeException e) {} catch (KeeperException.BadVersionException e) {
       e.printStackTrace();
     } catch (KeeperException.NotEmptyException e) {
       e.printStackTrace();
@@ -286,13 +289,17 @@ public class ZookeeperUtils {
   }
   
   /**
-   * Sets the data of an already existing node to the value of the writable.  
-   * @param zk is the zookeeper instance
-   * @param path is the path of the node
-   * @param writable is the Writable object who's data will set in the node
+   * Sets the data of an already existing node to the value of the writable.
+   * 
+   * @param zk
+   *          is the zookeeper instance
+   * @param path
+   *          is the path of the node
+   * @param writable
+   *          is the Writable object who's data will set in the node
    * @throws OrbZKFailure
    */
-  public static void setNodeData(ZooKeeper zk, String path, Writable writable) throws OrbZKFailure{
+  public static void setNodeData(ZooKeeper zk, String path, Writable writable) throws OrbZKFailure {
     try {
       zk.setData(path, writableToByteArray(writable), -1);
     } catch (KeeperException e) {
@@ -317,6 +324,5 @@ public class ZookeeperUtils {
       throw new OrbZKFailure(e);
     }
   }
-  
   
 }

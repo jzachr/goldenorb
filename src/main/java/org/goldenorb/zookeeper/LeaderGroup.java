@@ -22,6 +22,11 @@ import org.goldenorb.event.OrbCallback;
 import org.goldenorb.event.OrbEvent;
 import org.goldenorb.event.OrbExceptionEvent;
 
+/**
+ * This class defines LeaderGroup, which forms the abstract structure used to coordinate between members.
+ * 
+ * @param <MEMBER_TYPE>
+ */
 public class LeaderGroup<MEMBER_TYPE extends Member> implements OrbConfigurable {
   
   private OrbConfiguration orbConf;

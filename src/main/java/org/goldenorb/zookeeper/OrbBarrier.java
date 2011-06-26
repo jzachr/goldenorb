@@ -14,7 +14,6 @@ import org.goldenorb.conf.OrbConfiguration;
  * sync its constituent members before and after a computation or can be used at startup to wait for all
  * members to initialize and enter.
  * 
- * @author long
  */
 public class OrbBarrier implements Barrier {
   
@@ -101,7 +100,6 @@ public class OrbBarrier implements Barrier {
   /**
    * This class implements a Watcher for usage in the barrier mechanism for ZooKeeper.
    * 
-   * @author long
    */
   class BarrierWait implements Watcher {
     OrbBarrier ob;

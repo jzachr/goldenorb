@@ -27,6 +27,12 @@ import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.ZooKeeper;
 import org.goldenorb.conf.OrbConfiguration;
 
+/**
+ * This class provides the implementation of a ZooKeeper Barrier for the GoldenOrb project. It can be used to
+ * sync its constituent members before and after a computation or can be used at startup to wait for all
+ * members to initialize and enter. OrbFastBarrier utilizes a O(n) algorithm for enter().
+ * 
+ */
 public class OrbFastBarrier implements Barrier {
   
   private OrbConfiguration orbConf;
@@ -37,7 +43,7 @@ public class OrbFastBarrier implements Barrier {
   private boolean active;
   
   /**
-   * Constructs an OrbFastBarrier object. Which implements an O(n) version of enter
+   * Constructs an OrbFastBarrier object.
    * 
    * @param orbConf
    *          - OrbConfiguration
@@ -51,10 +57,10 @@ public class OrbFastBarrier implements Barrier {
    *          - ZooKeeper object
    */
   public OrbFastBarrier(OrbConfiguration orbConf,
-                    String barrierName,
-                    int numOfMembers,
-                    String member,
-                    ZooKeeper zk) {
+                        String barrierName,
+                        int numOfMembers,
+                        String member,
+                        ZooKeeper zk) {
     this.orbConf = orbConf;
     this.barrierName = barrierName;
     this.numOfMembers = numOfMembers;
@@ -63,10 +69,9 @@ public class OrbFastBarrier implements Barrier {
     this.active = true;
   }
   
-  
   /**
-   * This method creates a new member node under the barrier node if it does not already exist. It currently
-   * is implemented with an O(n^2) algorithm where all members periodically check if the others have joined.
+   * This method creates a new member node under the barrier node if it does not already exist. It uses a O(n)
+   * algorithm.
    * 
    * @exception InterruptedException
    *              throws OrbZKFailure
@@ -75,13 +80,13 @@ public class OrbFastBarrier implements Barrier {
    */
   @Override
   public void enter() throws OrbZKFailure {
- // general path looks like: "/barrierName/member"
+    // general path looks like: "/barrierName/member"
     String barrierPath = "/" + barrierName;
     String memberPath = barrierPath + "/" + member;
     
-    /*  If this barrier is the first to enter() it will create the barrier node and
-     *  firstToEnter will be the path of the barrier node.  Otherwise firstToEnter
-     *  will equal null.
+    /*
+     * If this barrier is the first to enter() it will create the barrier node and firstToEnter will be the
+     * path of the barrier node. Otherwise firstToEnter will equal null.
      */
     String firstToEnter = ZookeeperUtils.tryToCreateNode(zk, barrierPath, CreateMode.PERSISTENT);
     ZookeeperUtils.tryToCreateNode(zk, memberPath, CreateMode.EPHEMERAL);
@@ -90,15 +95,15 @@ public class OrbFastBarrier implements Barrier {
       try {
         BarrierWatcher bw = new BarrierWatcher(this);
         List<String> memberList = zk.getChildren(barrierPath, bw);
-        synchronized(this) {
+        synchronized (this) {
           while (memberList.size() < numOfMembers) {
-            //synchronized(this) {
-              this.wait(1000);
-              memberList = zk.getChildren(barrierPath, bw);
-            }
+            // synchronized(this) {
+            this.wait(1000);
+            memberList = zk.getChildren(barrierPath, bw);
           }
+        }
         // Everyone has joined, give the All Clear to move forward
-        ZookeeperUtils.tryToCreateNode(zk, barrierPath+"/AllClear", CreateMode.EPHEMERAL);
+        ZookeeperUtils.tryToCreateNode(zk, barrierPath + "/AllClear", CreateMode.EPHEMERAL);
         // delete its node on they way out
         ZookeeperUtils.deleteNodeIfEmpty(zk, memberPath);
       } catch (KeeperException e) {
@@ -109,7 +114,7 @@ public class OrbFastBarrier implements Barrier {
     } else { // not first to enter, therefore just watches for the AllClear node
       try {
         BarrierWatcher bw = new BarrierWatcher(this);
-        while(zk.exists(barrierPath + "/AllClear", bw) == null) {
+        while (zk.exists(barrierPath + "/AllClear", bw) == null) {
           synchronized (this) {
             this.wait(1000);
           }
@@ -123,7 +128,7 @@ public class OrbFastBarrier implements Barrier {
       }
     }
   }
-    
+  
   public void makeInactive() {
     this.active = false;
   }
@@ -141,7 +146,6 @@ public class OrbFastBarrier implements Barrier {
   /**
    * This class implements a Watcher for usage in the barrier mechanism for ZooKeeper.
    * 
-   * @author long
    */
   class BarrierWatcher implements Watcher {
     OrbFastBarrier ofb;
@@ -168,6 +172,5 @@ public class OrbFastBarrier implements Barrier {
     }
     
   }
-
   
 }
