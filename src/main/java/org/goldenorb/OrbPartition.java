@@ -283,7 +283,12 @@ public class OrbPartition extends OrbPartitionMember implements Runnable, OrbPar
     enterBarrier("loadVerticesIntoPartitionBarrier");
     
     LOG.debug("Completed Loading vertices --- shutting down!!!");
-    System.exit(-1);
+    try {
+      ZookeeperUtils.tryToCreateNode(zk, jobInProgressPath + "/messages/complete");
+    } catch (OrbZKFailure e) {
+      e.printStackTrace();
+    }
+    System.exit(1);
   }
   
   private void loadVerticesLeader() {
@@ -294,7 +299,12 @@ public class OrbPartition extends OrbPartitionMember implements Runnable, OrbPar
     enterBarrier("loadVerticesIntoPartitionBarrier");
     
     LOG.debug("Completed Loading vertices --- shutting down!!!");
-    System.exit(-1);
+    try {
+      ZookeeperUtils.tryToCreateNode(zk, jobInProgressPath + "/messages/complete");
+    } catch (OrbZKFailure e) {
+      e.printStackTrace();
+    }
+    System.exit(1);
   }
   
   private void waitLoop() {
