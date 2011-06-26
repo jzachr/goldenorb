@@ -36,6 +36,7 @@ import org.goldenorb.conf.OrbConfiguration;
 import org.goldenorb.event.OrbCallback;
 import org.goldenorb.event.OrbEvent;
 import org.goldenorb.event.OrbExceptionEvent;
+import org.goldenorb.io.InputSplitAllocator;
 import org.goldenorb.io.input.RawSplit;
 import org.goldenorb.io.input.VertexBuilder;
 import org.goldenorb.jet.OrbPartitionMember;
@@ -208,28 +209,11 @@ public class OrbPartition extends OrbPartitionMember implements Runnable, OrbPar
       }
     }
     initializeOrbClients();
-    // Loop waiting for it to become active. If it is already "active" then it should blow right through this.
-    // i.e. if it is in this loop then it is waiting
     
-    // synchronized(this){
-    // while(standby){
-    // LOG.info("OrbPartition " + partitionID + "is Standby partition.  Waiting for failure!");
-    // try {
-    // this.wait();
-    // } catch (InterruptedException e) {
-    // e.printStackTrace();
-    // }
-    // }
-    // }
-    
-    synchronized (this) {
-      while (standby) {
-        try {
-          this.wait();
-        } catch (InterruptedException e) {
-          e.printStackTrace();
-        }
-      }
+    if(isLeader()){
+      executeAsLeader();
+    } else {
+      executeAsSlave();
     }
   }
   
@@ -253,6 +237,9 @@ public class OrbPartition extends OrbPartitionMember implements Runnable, OrbPar
  * 
  */
   private void executeAsSlave() {
+    if(standby){
+      waitForActivate();
+    }
     synchronized (this) {
       leader = false;
       if (!loadedVerticesComplete) {
@@ -274,6 +261,19 @@ public class OrbPartition extends OrbPartitionMember implements Runnable, OrbPar
       heartbeatGenerator = new HeartbeatGenerator();
     }
     waitLoop();
+  }
+  
+  private void waitForActivate(){
+    synchronized (this) {
+      while (standby) {
+        try {
+          this.wait();
+        } catch (InterruptedException e) {
+          e.printStackTrace();
+        }
+      }
+      //need to have separate code for if it becomes active as a leader or as a slave
+    }
   }
   
 /**
@@ -324,6 +324,7 @@ public class OrbPartition extends OrbPartitionMember implements Runnable, OrbPar
   private void loadVerticesLeader() {
     enterBarrier("startLoadVerticesBarrier");
     // TODO start sending inputsplits to the machines that need to process them
+    InputSplitAllocator inputSplitAllocator = new InputSplitAllocator(getOrbConf(), leaderGroup.getMembers());
     enterBarrier("sentInputSplitsBarrier");
     enterBarrier("inputSplitHandlersCompleteBarrier");
     enterBarrier("loadVerticesIntoPartitionBarrier");
