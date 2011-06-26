@@ -48,11 +48,12 @@ public class ZookeeperUtils {
   private static ConnectWatcher connect;
   private static Logger LOG = LoggerFactory.getLogger(ZookeeperUtils.class);
   
-/**
- * 
- * @param  String hosts
- * @returns ZooKeeper
- */
+  /**
+   * 
+   * @param hosts
+   *          - String
+   * @returns ZooKeeper
+   */
   public static ZooKeeper connect(String hosts) throws IOException, InterruptedException {
     if (connect == null) {
       connect = new ConnectWatcher();
@@ -60,11 +61,12 @@ public class ZookeeperUtils {
     return connect.connect(hosts);
   }
   
-/**
- * 
- * @param  Writable w
- * @returns byte[]
- */
+  /**
+   * 
+   * @param w
+   *          - Writable
+   * @returns byte[]
+   */
   public static byte[] writableToByteArray(Writable w) throws IOException {
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
     DataOutput out = new DataOutputStream(baos);
@@ -72,13 +74,16 @@ public class ZookeeperUtils {
     return baos.toByteArray();
   }
   
-/**
- * 
- * @param  byte[] byteArray
- * @param  Class<? extends Writable> writableClass
- * @param  OrbConfiguration orbConf
- * @returns Writable
- */
+  /**
+   * 
+   * @param byteArray
+   *          - byte[]
+   * @param writableClass
+   *          - Class <? extends Writable>
+   * @param orbConf
+   *          - OrbConfiguration
+   * @returns Writable
+   */
   public static Writable byteArrayToWritable(byte[] byteArray,
                                              Class<? extends Writable> writableClass,
                                              OrbConfiguration orbConf) {
@@ -94,12 +99,14 @@ public class ZookeeperUtils {
     return w;
   }
   
-/**
- * 
- * @param  byte[] byteArray
- * @param  Writable w
- * @returns Writable
- */
+  /**
+   * 
+   * @param byteArray
+   *          - byte[]
+   * @param w
+   *          - Writable
+   * @returns Writable
+   */
   public static Writable byteArrayToWritable(byte[] byteArray, Writable w) throws IOException {
     ByteArrayInputStream bais = new ByteArrayInputStream(byteArray);
     DataInput in = new DataInputStream(bais);
@@ -107,12 +114,14 @@ public class ZookeeperUtils {
     return w;
   }
   
-/**
- * 
- * @param  ZooKeeper zk
- * @param  String string
- * @returns boolean
- */
+  /**
+   * 
+   * @param zk
+   *          - ZooKeeper
+   * @param string
+   *          - String
+   * @returns boolean
+   */
   public static boolean nodeExists(ZooKeeper zk, String string) {
     Stat stat;
     try {
@@ -123,12 +132,14 @@ public class ZookeeperUtils {
     return stat != null;
   }
   
-/**
- * 
- * @param  ZooKeeper zk
- * @param  String path
- * @returns String
- */
+  /**
+   * 
+   * @param zk
+   *          - ZooKeeper
+   * @param path
+   *          - String
+   * @returns String
+   */
   public static String tryToCreateNode(ZooKeeper zk, String path) throws OrbZKFailure {
     String result = null;
     try {
@@ -143,13 +154,16 @@ public class ZookeeperUtils {
     return result;
   }
   
-/**
- * 
- * @param  ZooKeeper zk
- * @param  String path
- * @param  CreateMode createMode
- * @returns String
- */
+  /**
+   * 
+   * @param zk
+   *          - ZooKeeper
+   * @param path
+   *          - String
+   * @param createMode
+   *          - CreateMode
+   * @returns String
+   */
   public static String tryToCreateNode(ZooKeeper zk, String path, CreateMode createMode) throws OrbZKFailure {
     String result = null;
     try {
@@ -164,14 +178,18 @@ public class ZookeeperUtils {
     return result;
   }
   
-/**
- * 
- * @param  ZooKeeper zk
- * @param  String path
- * @param  Writable node
- * @param  CreateMode createMode
- * @returns String
- */
+  /**
+   * 
+   * @param zk
+   *          - ZooKeeper
+   * @param path
+   *          - String
+   * @param node
+   *          - Writable
+   * @param createMode
+   *          - CreateMode
+   * @returns String
+   */
   public static String tryToCreateNode(ZooKeeper zk, String path, Writable node, CreateMode createMode) throws OrbZKFailure {
     String result = null;
     try {
@@ -192,12 +210,14 @@ public class ZookeeperUtils {
     return result;
   }
   
-/**
- * 
- * @param  ZooKeeper zk
- * @param  String path
- * @returns String
- */
+  /**
+   * 
+   * @param zk
+   *          - ZooKeeper
+   * @param path
+   *          - String
+   * @returns String
+   */
   public static String notExistCreateNode(ZooKeeper zk, String path) throws OrbZKFailure {
     String nodePath = null;
     if (!nodeExists(zk, path)) {
@@ -206,13 +226,16 @@ public class ZookeeperUtils {
     return nodePath;
   }
   
-/**
- * 
- * @param  ZooKeeper zk
- * @param  String path
- * @param  CreateMode createMode
- * @returns String
- */
+  /**
+   * 
+   * @param zk
+   *          - ZooKeeper
+   * @param path
+   *          - String
+   * @param createMode
+   *          - CreateMode
+   * @returns String
+   */
   public static String notExistCreateNode(ZooKeeper zk, String path, CreateMode createMode) throws OrbZKFailure {
     String nodePath = null;
     if (!nodeExists(zk, path)) {
@@ -221,14 +244,18 @@ public class ZookeeperUtils {
     return nodePath;
   }
   
-/**
- * 
- * @param  ZooKeeper zk
- * @param  String path
- * @param  Writable node
- * @param  CreateMode createMode
- * @returns String
- */
+  /**
+   * 
+   * @param zk
+   *          - ZooKeeper
+   * @param path
+   *          - String
+   * @param node
+   *          - Writable
+   * @param createMode
+   *          - CreateMode
+   * @returns String
+   */
   public static String notExistCreateNode(ZooKeeper zk, String path, Writable node, CreateMode createMode) throws OrbZKFailure {
     String nodePath = null;
     if (!nodeExists(zk, path)) {
@@ -237,9 +264,9 @@ public class ZookeeperUtils {
     return nodePath;
   }
   
-/**
- * Return the nodeWritable
- */
+  /**
+   * Return the nodeWritable
+   */
   public static Writable getNodeWritable(ZooKeeper zk,
                                          String path,
                                          Class<? extends Writable> writableClass,
@@ -328,11 +355,13 @@ public class ZookeeperUtils {
     return null;
   }
   
-/**
- * 
- * @param  ZooKeeper zk
- * @param  String path
- */
+  /**
+   * 
+   * @param zk
+   *          - ZooKeeper
+   * @param path
+   *          - String
+   */
   public static void deleteNodeIfEmpty(ZooKeeper zk, String path) throws OrbZKFailure {
     try {
       zk.delete(path, -1);
@@ -347,11 +376,13 @@ public class ZookeeperUtils {
     }
   }
   
-/**
- * 
- * @param  ZooKeeper zk
- * @param  String path
- */
+  /**
+   * 
+   * @param zk
+   *          - ZooKeeper
+   * @param path
+   *          - String
+   */
   public static void recursiveDelete(ZooKeeper zk, String path) throws OrbZKFailure {
     
     try {
@@ -372,12 +403,15 @@ public class ZookeeperUtils {
     
   }
   
-/**
- * 
- * @param  ZooKeeper zk
- * @param  String path
- * @param  Writable writable
- */
+  /**
+   * 
+   * @param zk
+   *          - ZooKeeper
+   * @param path
+   *          - String
+   * @param writable
+   *          - Writable
+   */
   public static void updateNodeData(ZooKeeper zk, String path, Writable writable) throws OrbZKFailure {
     try {
       zk.setData(path, writableToByteArray(writable), -1);
@@ -390,12 +424,15 @@ public class ZookeeperUtils {
     }
   }
   
-/**
- * 
- * @param  ZooKeeper zk
- * @param  String path
- * @param  Writable writable
- */
+  /**
+   * 
+   * @param zk
+   *          - ZooKeeper
+   * @param path
+   *          - String
+   * @param writable
+   *          - Writable
+   */
   public static void existsUpdateNodeData(ZooKeeper zk, String path, Writable writable) throws OrbZKFailure {
     if (nodeExists(zk, path)) {
       updateNodeData(zk, path, writable);
@@ -429,9 +466,9 @@ public class ZookeeperUtils {
     
   }
   
-/**
- * Return the children
- */
+  /**
+   * Return the children
+   */
   public static List<String> getChildren(ZooKeeper zk, String path, Watcher watcher) throws OrbZKFailure {
     try {
       return zk.getChildren(path, watcher);

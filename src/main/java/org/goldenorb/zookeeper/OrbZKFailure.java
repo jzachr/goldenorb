@@ -26,11 +26,12 @@ public class OrbZKFailure extends Exception {
   
   private static final long serialVersionUID = -8123604900244097614L;
   
-/**
- * Constructor
- *
- * @param  Exception e
- */
+  /**
+   * Constructor
+   * 
+   * @param e
+   *          - Exception
+   */
   public OrbZKFailure(Exception e) {
 
   }

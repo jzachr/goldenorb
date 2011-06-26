@@ -26,8 +26,8 @@ import org.goldenorb.conf.OrbConfigurable;
  */
 public interface Barrier extends OrbConfigurable {
   
-/**
- * 
- */
+  /**
+   * The enter method to be implemented.
+   */
   public void enter() throws OrbZKFailure;
 }

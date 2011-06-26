@@ -43,7 +43,6 @@ import org.goldenorb.event.OrbExceptionEvent;
 /**
  * This class defines LeaderGroup, which forms the abstract structure used to coordinate between members.
  * 
- * @param <MEMBER_TYPE>
  */
 public class LeaderGroup<MEMBER_TYPE extends Member> implements OrbConfigurable {
   
@@ -59,15 +58,23 @@ public class LeaderGroup<MEMBER_TYPE extends Member> implements OrbConfigurable 
   private SortedMap<String,MemberDataWatcher> watchers = new TreeMap<String,MemberDataWatcher>();
   private boolean fireEvents = false;
   
-/**
- * Constructor
- *
- * @param  ZooKeeper zk
- * @param  OrbCallback orbCallback
- * @param  String path
- * @param  MEMBER_TYPE member
- * @param  Class<? extends Member> memberClass
- */
+  /**
+   * Constructor
+   * 
+   * @param zk
+   *          - ZooKeeper
+   * @param orbCallback
+   *          - OrbCallback
+   * 
+   * @param path
+   *          - String
+   * 
+   * @param member
+   *          - MEMBER_TYPE
+   * 
+   * @param memberClass
+   *          - Class <? extends Member>
+   */
   public LeaderGroup(ZooKeeper zk,
                      OrbCallback orbCallback,
                      String path,
@@ -81,9 +88,9 @@ public class LeaderGroup<MEMBER_TYPE extends Member> implements OrbConfigurable 
     init();
   }
   
-/**
- * 
- */
+  /**
+   * Initializes the LeaderGroup.
+   */
   public void init() {
     try {
       ZookeeperUtils.notExistCreateNode(zk, basePath);
@@ -97,9 +104,9 @@ public class LeaderGroup<MEMBER_TYPE extends Member> implements OrbConfigurable 
     }
   }
   
-/**
- * 
- */
+  /**
+   * Updates members in the group.
+   */
   @SuppressWarnings("unchecked")
   public void updateMembers() throws OrbZKFailure {
     synchronized (members) {
@@ -168,12 +175,18 @@ public class LeaderGroup<MEMBER_TYPE extends Member> implements OrbConfigurable 
     }
   }
   
+  /**
+   * This class defines a Watcher for use with each member.
+   * 
+   */
   public class WatchMembers implements Watcher {
     
-/**
- * 
- * @param  WatchedEvent event
- */
+    /**
+     * Updates members based on receiving a Watcher event.
+     * 
+     * @param event
+     *          - WatchedEvent
+     */
     public void process(WatchedEvent event) {
       if (LeaderGroup.this.isProcessWatchedEvents()) {
         try {
@@ -185,17 +198,22 @@ public class LeaderGroup<MEMBER_TYPE extends Member> implements OrbConfigurable 
     }
   }
   
+  /**
+   * This class defines a Watch for use with the data in each member.
+   * 
+   */
   public class MemberDataWatcher implements Watcher {
     
     private String nodePath;
     private String nodeName;
     private boolean active;
     
-/**
- * Constructor
- *
- * @param  String nodeName
- */
+    /**
+     * Constructor
+     * 
+     * @param nodeName
+     *          - String
+     */
     public MemberDataWatcher(String nodeName) {
       this.nodePath = basePath + "/" + nodeName;
       this.nodeName = nodeName;
@@ -203,17 +221,18 @@ public class LeaderGroup<MEMBER_TYPE extends Member> implements OrbConfigurable 
       active = true;
     }
     
-/**
- * 
- */
+    /**
+     * Makes this member inactive.
+     */
     public void makeInactive() {
       active = false;
     }
     
-/**
- * 
- * @param  WatchedEvent event
- */
+    /**
+     * 
+     * @param event
+     *          - WatchedEvent
+     */
     @SuppressWarnings("unchecked")
     @Override
     public void process(WatchedEvent event) {
@@ -233,11 +252,14 @@ public class LeaderGroup<MEMBER_TYPE extends Member> implements OrbConfigurable 
     }
   }
   
-/**
- * 
- * @param  String memberPath
- * @param  MEMBER_TYPE update
- */
+  /**
+   * Updates a member's data.
+   * 
+   * @param memberPath
+   *          - String
+   * @param update
+   *          - MEMBER_TYPE
+   */
   public void updateMembersData(String memberPath, MEMBER_TYPE update) {
     if (update != null) {
       members.put(memberPath, update);
@@ -245,70 +267,73 @@ public class LeaderGroup<MEMBER_TYPE extends Member> implements OrbConfigurable 
     }
   }
   
-/**
- * Return the members
- */
+  /**
+   * Return the members
+   */
   public Collection<MEMBER_TYPE> getMembers() {
     synchronized (members) {
       return members.values();
     }
   }
   
-/**
- * Return the numOfMembers
- */
+  /**
+   * Return the numOfMembers
+   */
   public int getNumOfMembers() {
     synchronized (members) {
       return members.size();
     }
   }
   
-/**
- * Return the eader
- */
+  /**
+   * Return the true if the calling member is the leader.
+   */
   public boolean isLeader() {
     synchronized (members) {
       return member.equals(members.get(members.firstKey()));
     }
   }
   
-/**
- * Return the leader
- */
+  /**
+   * Return the leader
+   */
   public MEMBER_TYPE getLeader() {
     synchronized (members) {
       return members.get(members.firstKey());
     }
   }
   
-/**
- * 
- * @param  OrbEvent e
- */
+  /**
+   * 
+   * @param e
+   *          - OrbEvent
+   */
   public void fireEvent(OrbEvent e) {
     if (fireEvents) {
       orbCallback.process(e);
     }
   }
   
-/**
- * Set the orbConf
- * @param  OrbConfiguration orbConf
- */
+  /**
+   * Set the orbConf
+   * 
+   * @param orbConf
+   *          - OrbConfiguration
+   */
   public void setOrbConf(OrbConfiguration orbConf) {
     this.orbConf = orbConf;
   }
   
-/**
- * Return the orbConf
- */
+  /**
+   * Return the orbConf
+   */
   public OrbConfiguration getOrbConf() {
     return orbConf;
   }
   
-/**
- * Return the membersPath
- */
+  /**
+   * Return the membersPath
+   */
   public List<String> getMembersPath() {
     ArrayList<String> paths = new ArrayList<String>();
     Set<String> memberPaths = members.keySet();
@@ -318,16 +343,16 @@ public class LeaderGroup<MEMBER_TYPE extends Member> implements OrbConfigurable 
     return paths;
   }
   
-/**
- * Return the myPath
- */
+  /**
+   * Return the myPath
+   */
   public String getMyPath() {
     return myPath;
   }
   
-/**
- * 
- */
+  /**
+   * Leaves the LeaderGroup.
+   */
   public void leave() {
     this.processWatchedEvents = false;
     try {
@@ -337,17 +362,19 @@ public class LeaderGroup<MEMBER_TYPE extends Member> implements OrbConfigurable 
     }
   }
   
-/**
- * Return the rocessWatchedEvents
- */
+  /**
+   * Return the rocessWatchedEvents
+   */
   protected boolean isProcessWatchedEvents() {
     return processWatchedEvents;
   }
   
-/**
- * Set the processWatchedEvents
- * @param  boolean processWatchedEvents
- */
+  /**
+   * Set the processWatchedEvents
+   * 
+   * @param processWatchedEvents
+   *          - boolean
+   */
   protected void setProcessWatchedEvents(boolean processWatchedEvents) {
     this.processWatchedEvents = processWatchedEvents;
   }

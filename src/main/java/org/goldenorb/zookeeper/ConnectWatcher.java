@@ -36,21 +36,26 @@ public class ConnectWatcher implements Watcher {
   private static final int SESSION_TIMEOUT = 10000;
   private CountDownLatch connectedSignal = new CountDownLatch(1);
   
-/**
- * 
- * @param  String hosts
- * @returns ZooKeeper
- */
+  /**
+   * This method connects to a running ZooKeeper.
+   * 
+   * @param hosts
+   *          - String containing a comma separated list of host:port pairs, each corresponding to a ZooKeeper
+   *          server.
+   * @returns ZooKeeper
+   */
   public ZooKeeper connect(String hosts) throws IOException, InterruptedException {
     ZooKeeper _zk = new ZooKeeper(hosts, SESSION_TIMEOUT, this);
     connectedSignal.await();
     return _zk;
   }
   
-/**
- * 
- * @param  WatchedEvent event
- */
+  /**
+   * This method executes its content given a Watcher event.
+   * 
+   * @param event
+   *          - WatchedEvent
+   */
   public void process(WatchedEvent event) {
     if (event.getState() == KeeperState.SyncConnected) {
       connectedSignal.countDown();
