@@ -116,7 +116,7 @@ public class OrbPartition extends OrbPartitionMember implements Runnable, OrbPar
         .getVerticesLoaderHandlerThreads());
     
     try {
-      ZookeeperUtils.connect(getOrbConf().getOrbZooKeeperQuorum());
+      zk = ZookeeperUtils.connect(getOrbConf().getOrbZooKeeperQuorum());
     } catch (Exception e) {
       LOG.error("Unable to establish a connection with ZooKeeper" + getOrbConf().getOrbZooKeeperQuorum(), e);
       System.exit(-1);
@@ -256,31 +256,34 @@ public class OrbPartition extends OrbPartitionMember implements Runnable, OrbPar
     enterBarrier("startLoadVerticesBarrier");
     enterBarrier("sentInputSplitsBarrier");
     
-    while(!inputSplitLoaderHandlers.isEmpty()){
-      synchronized(this){
-        try {
-          wait(1000);
-        } catch (InterruptedException e) {
-          e.printStackTrace();
-        }
-      }
-    }
+//    while(!inputSplitLoaderHandlers.isEmpty()){
+//      synchronized(this){
+//        try {
+//          wait(1000);
+//        } catch (InterruptedException e) {
+//          e.printStackTrace();
+//        }
+//      }
+//    }
     
     enterBarrier("inputSplitHandlersCompleteBarrier");
 
-    while(!loadVerticesHandlers.isEmpty()){
-      synchronized(this){
-        try {
-          wait(1000);
-          
-        } catch (InterruptedException e) {
-          // TODO Auto-generated catch block
-          e.printStackTrace();
-        }
-      }
-    }
+//    while(!loadVerticesHandlers.isEmpty()){
+//      synchronized(this){
+//        try {
+//          wait(1000);
+//          
+//        } catch (InterruptedException e) {
+//          // TODO Auto-generated catch block
+//          e.printStackTrace();
+//        }
+//      }
+//    }
     
     enterBarrier("loadVerticesIntoPartitionBarrier");
+    
+    LOG.debug("Completed Loading vertices --- shutting down!!!");
+    System.exit(-1);
   }
   
   private void loadVerticesLeader() {
@@ -289,6 +292,9 @@ public class OrbPartition extends OrbPartitionMember implements Runnable, OrbPar
     enterBarrier("sentInputSplitsBarrier");
     enterBarrier("inputSplitHandlersCompleteBarrier");
     enterBarrier("loadVerticesIntoPartitionBarrier");
+    
+    LOG.debug("Completed Loading vertices --- shutting down!!!");
+    System.exit(-1);
   }
   
   private void waitLoop() {
