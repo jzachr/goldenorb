@@ -22,35 +22,40 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-public class StreamWriter extends Thread {
-    OutputStream os;
-
-    InputStream is;
-
 /**
- * Constructor
- *
- * @param  InputStream is
- * @param  OutputStream os
- */
-    public StreamWriter(InputStream is, OutputStream os) {
-        this.is = is;
-        this.os = os;
-        start();
-    }
-
-/**
+ * This class defines a StreamWriter, a utility class which writes from an InputStream to an OutputStream.
  * 
  */
-    public void run() {
-        byte b[] = new byte[80];
-        int rc;
-        try {
-            while ((rc = is.read(b)) > 0) {
-                os.write(b, 0, rc);
-            }
-        } catch (IOException e) {
-        }
-
-    }
+public class StreamWriter extends Thread {
+  
+  OutputStream os;
+  InputStream is;
+  
+  /**
+   * Constructor
+   * 
+   * @param is
+   *          - InputStream
+   * @param os
+   *          - OutputStream
+   */
+  public StreamWriter(InputStream is, OutputStream os) {
+    this.is = is;
+    this.os = os;
+    start();
+  }
+  
+  /**
+   * Runs the StreamWriter.
+   */
+  public void run() {
+    byte b[] = new byte[80];
+    int rc;
+    try {
+      while ((rc = is.read(b)) > 0) {
+        os.write(b, 0, rc);
+      }
+    } catch (IOException e) {}
+    
+  }
 }

@@ -33,14 +33,16 @@ import org.goldenorb.zookeeper.ZookeeperUtils;
 
 /**
  * This class provides a command line interface utility class for GoldenOrb.
- *
+ * 
  */
 public class CommandLineUtils {
   
-  private static SortedMap<String, String> helpMap;
-  private static SortedMap<String, SortedMap<String, String> > validArguments;
+  private static SortedMap<String,String> helpMap;
+  private static SortedMap<String,SortedMap<String,String>> validArguments;
   
   /**
+   * Main method for the CLI.
+   * 
    * @param args
    */
   public static void main(String[] args) {
@@ -52,40 +54,40 @@ public class CommandLineUtils {
     if (args[0].equalsIgnoreCase("Help")) {
       help(args);
     } else if (args[0].equalsIgnoreCase("Job")) {
-      if (args.length >= 1) 
-        job(args);
+      if (args.length >= 1) job(args);
       else {
         System.out.println("Job command requires arguments.");
       }
-    } else { //Invalid Command
-      System.out.println("Error : Invalid Command. Command '" + args[0] +"' not recognized.");
+    } else { // Invalid Command
+      System.out.println("Error : Invalid Command. Command '" + args[0] + "' not recognized.");
       System.exit(-1);
     }
     
-    
   }
-
-/**
- * 
- * @param  String[] args
- */
+  
+  /**
+   * Provides a "help" command in the CLI.
+   * 
+   * @param args
+   *          - String[]
+   */
   public static void help(String[] args) {
     initializeHelpMaps();
     Set<String> commandsSet = helpMap.keySet();
-    if(args.length == 1) {
-      for(String command : commandsSet) {
-        System.out.print(command + "\t"+ helpMap.get(command));
+    if (args.length == 1) {
+      for (String command : commandsSet) {
+        System.out.print(command + "\t" + helpMap.get(command));
         if (!command.equalsIgnoreCase("Help")) {
           System.out.println(" Use 'Help -" + command + "' to view a list of valid arguments");
         }
       }
-    } else { //option provided
+    } else { // option provided
       String command = args[1].replaceFirst("-", "");
-      if(commandsSet.contains(command)) {
-        System.out.println("Help for command '"+ command +"'.");
-        System.out.println(command + "\t"+ helpMap.get(command));
-        System.out.println("List of valid arguments for command '"+ command + "' : ");
-        SortedMap<String, String> argMap = validArguments.get(command);
+      if (commandsSet.contains(command)) {
+        System.out.println("Help for command '" + command + "'.");
+        System.out.println(command + "\t" + helpMap.get(command));
+        System.out.println("List of valid arguments for command '" + command + "' : ");
+        SortedMap<String,String> argMap = validArguments.get(command);
         Set<String> arguments = argMap.keySet();
         for (String arg : arguments) {
           System.out.println(command + "\t" + argMap.get(arg));
@@ -95,146 +97,169 @@ public class CommandLineUtils {
       }
     }
   }
-
-/**
- * 
- */
+  
+  /**
+   * Initializes the helpMaps used for the CLI.
+   */
   public static void initializeHelpMaps() {
-    helpMap = new TreeMap<String, String>();
+    helpMap = new TreeMap<String,String>();
     // Job
     helpMap.put("Job", "Lets you kill jobs and view job status.");
     // Help
     helpMap.put("Help", "Displays all of the commands and their general purpose.");
     
-    validArguments = new TreeMap<String, SortedMap<String, String> >();
-    //Job
-    validArguments.put("Job", jobHelpValidArguments()); 
+    validArguments = new TreeMap<String,SortedMap<String,String>>();
+    // Job
+    validArguments.put("Job", jobHelpValidArguments());
   }
-
-/**
- * 
- * @returns SortedMap<String,String>
- */
-  public static SortedMap<String, String> jobHelpValidArguments() {
-    SortedMap<String, String> map = new TreeMap<String, String>();
+  
+  /**
+   * Defines valid arguments.
+   * 
+   * @returns SortedMap<String,String>
+   */
+  public static SortedMap<String,String> jobHelpValidArguments() {
+    SortedMap<String,String> map = new TreeMap<String,String>();
     // kill
-    map.put("-kill", "Terminates the job whose JobID is supplied.  ex. Job -kill ClusterName Job1234 ,\n\t\t" +
-    		    "would kill the job whose JobID is '1234' on cluster 'ClusterName.");
+    map.put("-kill", "Terminates the job whose JobID is supplied.  ex. Job -kill ClusterName Job1234 ,\n\t\t"
+                     + "would kill the job whose JobID is '1234' on cluster 'ClusterName.");
     // status
-    map.put("-status", "If supplied a JobID and cluster, it will display the job status of that specific job.\n\t\t" +
-    		    "If no JobID is provided, but a cluster name is provied, it will list the status of all jobs on that cluster.\n\t\t" +
-    		    "ex. Job -status ClusterName Job1234 , would display the status of 'Job1234' on cluster 'ClusterName'.");
+    map.put(
+      "-status",
+      "If supplied a JobID and cluster, it will display the job status of that specific job.\n\t\t"
+          + "If no JobID is provided, but a cluster name is provied, it will list the status of all jobs on that cluster.\n\t\t"
+          + "ex. Job -status ClusterName Job1234 , would display the status of 'Job1234' on cluster 'ClusterName'.");
     return map;
   }
   
-/**
- * 
- * @param  String[] args
- */
+  /**
+   * Provides a "job" command in the CLI.
+   * 
+   * @param args
+   *          - String[]
+   */
   public static void job(String[] args) {
     ZooKeeper zk = connectZookeeper();
-    if(args[1].equalsIgnoreCase("-kill")) {
+    if (args[1].equalsIgnoreCase("-kill")) {
       jobKill(args, zk);
     } else if (args[1].equalsIgnoreCase("-status")) {
       jobStatus(args, zk);
     } else {
-      System.out.println(args[1] + "is an invalid argument for 'Job'. Use 'Help -Job' for a list of valid arguments.");
+      System.out
+          .println(args[1]
+                   + "is an invalid argument for 'Job'. Use 'Help -Job' for a list of valid arguments.");
     }
   }
   
-/**
- * 
- * @param  String[] args
- * @param  ZooKeeper zk
- */
+  /**
+   * Kills a Job.
+   * 
+   * @param args
+   *          - String[]
+   * @param zk
+   *          - ZooKeeper
+   */
   public static void jobKill(String[] args, ZooKeeper zk) {
     if (args.length < 3) {
       System.out.println("'Job -kill' requires a cluster name and Job ID!");
     } else if (args.length == 3) {
       System.out.println("'Job -kill' requires a Job ID!");
-    } else if (ZookeeperUtils.nodeExists(zk, "/GoldenOrb/"+args[2])){ // cluster exists
-      if(ZookeeperUtils.nodeExists(zk, "/GoldenOrb/"+args[2]+"/JobQueue/"+args[3])) { // job is in queue
+    } else if (ZookeeperUtils.nodeExists(zk, "/GoldenOrb/" + args[2])) { // cluster exists
+      if (ZookeeperUtils.nodeExists(zk, "/GoldenOrb/" + args[2] + "/JobQueue/" + args[3])) { // job is in
+                                                                                             // queue
         try {
-          ZookeeperUtils.deleteNodeIfEmpty(zk, "/GoldenOrb/"+args[2]+"/JobQueue/"+args[3]);
-          System.out.println("Killed "+args[2]+" on cluster "+args[3]);
+          ZookeeperUtils.deleteNodeIfEmpty(zk, "/GoldenOrb/" + args[2] + "/JobQueue/" + args[3]);
+          System.out.println("Killed " + args[2] + " on cluster " + args[3]);
         } catch (OrbZKFailure e) {
-          System.err.println("Error occured while trying delete "+args[3]+" from the JobQueue.");
+          System.err.println("Error occured while trying delete " + args[3] + " from the JobQueue.");
           e.printStackTrace();
           System.exit(-1);
         }
-      } else if (ZookeeperUtils.nodeExists(zk, "/GoldenOrb/"+args[2]+"/JobsInProgress/"+args[3])) { // job is running
+      } else if (ZookeeperUtils.nodeExists(zk, "/GoldenOrb/" + args[2] + "/JobsInProgress/" + args[3])) { // job
+                                                                                                          // is
+                                                                                                          // running
         try {
-          ZookeeperUtils.tryToCreateNode(zk, "/GoldenOrb/"+args[2]+"/JobsInProgress/"+args[3]+"/messages/death");
-          System.out.println("Killed "+args[2]+" on cluster "+args[3]);
+          ZookeeperUtils.tryToCreateNode(zk, "/GoldenOrb/" + args[2] + "/JobsInProgress/" + args[3]
+                                             + "/messages/death");
+          System.out.println("Killed " + args[2] + " on cluster " + args[3]);
         } catch (OrbZKFailure e) {
-          System.err.println("Error occured while trying kill "+args[3]+" on cluster "+args[2]);
+          System.err.println("Error occured while trying kill " + args[3] + " on cluster " + args[2]);
           e.printStackTrace();
           System.exit(-1);
         }
       } else { // Job does not exist
-        System.out.println("Job "+args[3]+" on cluster "+args[2]+" does not exist.");
+        System.out.println("Job " + args[3] + " on cluster " + args[2] + " does not exist.");
       }
     } else {
-      System.out.println("Cluster "+args[2]+" does not exist.");
+      System.out.println("Cluster " + args[2] + " does not exist.");
     }
   }
   
-/**
- * 
- * @param  String[] args
- * @param  ZooKeeper zk
- */
-  public static void jobStatus(String[]args, ZooKeeper zk) {
+  /**
+   * Checks the status of a Job.
+   * 
+   * @param args
+   *          - String[]
+   * @param zk
+   *          - ZooKeeper
+   */
+  public static void jobStatus(String[] args, ZooKeeper zk) {
     if (args.length < 3) {
       System.out.println("No cluster name provided.");
-    } else if (!ZookeeperUtils.nodeExists(zk, "/GoldenOrb/"+args[2])) {
-      System.out.println("Cluster "+args[2]+" does not exist.");
-    } else if (args.length == 3) { //display status of all jobs on cluster
+    } else if (!ZookeeperUtils.nodeExists(zk, "/GoldenOrb/" + args[2])) {
+      System.out.println("Cluster " + args[2] + " does not exist.");
+    } else if (args.length == 3) { // display status of all jobs on cluster
       try {
-        List<String> jobsInQueue = zk.getChildren("/GoldenOrb/"+args[2]+"/JobQueue", false);
-        List<String> jobsInProgress = zk.getChildren("/GoldenOrb/"+args[2]+"/JobsInProgress", false);
-        System.out.println(jobsInQueue.size()+" jobs in JobQueue :");
+        List<String> jobsInQueue = zk.getChildren("/GoldenOrb/" + args[2] + "/JobQueue", false);
+        List<String> jobsInProgress = zk.getChildren("/GoldenOrb/" + args[2] + "/JobsInProgress", false);
+        System.out.println(jobsInQueue.size() + " jobs in JobQueue :");
         Collections.sort(jobsInQueue);
-        for(String job : jobsInQueue) {	
-          System.out.println("\t"+job);
+        for (String job : jobsInQueue) {
+          System.out.println("\t" + job);
         }
-        System.out.println("\n"+jobsInProgress.size()+" jobs in progress :");
-        for(String job : jobsInProgress) {
-          System.out.println("\t"+job);
+        System.out.println("\n" + jobsInProgress.size() + " jobs in progress :");
+        for (String job : jobsInProgress) {
+          System.out.println("\t" + job);
         }
       } catch (Exception e) {
-        System.err.println("Error occured while attempting to get status of jobs on cluster "+args[2]);
+        System.err.println("Error occured while attempting to get status of jobs on cluster " + args[2]);
         e.printStackTrace();
         System.exit(-1);
       }
     } else { // JobID is provided
-      if (ZookeeperUtils.nodeExists(zk, "/GoldenOrb/"+args[2]+"/JobQueue/"+args[3])) {
-    	 try {
-	    	 List<String> children = zk.getChildren("/GoldenOrb/"+args[2]+"/JobQueue", false);
-	    	 Collections.sort(children);
-	    	 int place = children.indexOf(args[3]) +1;
-	    	 String placeInQueue;
-	    	 if (place ==1 ) { placeInQueue = "1st"; }
-	    	 else if (place == 2) { placeInQueue = "2nd"; }
-	    	 else if (place == 3) { placeInQueue = "3rd"; }
-	    	 else { placeInQueue = place+"th"; }
-	    	 System.out.println(args[3]+" is "+placeInQueue+" in the JobQueue.");
-    	 } catch ( Exception e) {
-    		 System.err.println("Error occurred while looking up job status : ");
-    		 e.printStackTrace();
-    	 }
-      } else if (ZookeeperUtils.nodeExists(zk, "/GoldenOrb/"+args[2]+"/JobsInProgress/"+args[3])) {
-    	  System.out.println(args[3]+" is in progress.");
+      if (ZookeeperUtils.nodeExists(zk, "/GoldenOrb/" + args[2] + "/JobQueue/" + args[3])) {
+        try {
+          List<String> children = zk.getChildren("/GoldenOrb/" + args[2] + "/JobQueue", false);
+          Collections.sort(children);
+          int place = children.indexOf(args[3]) + 1;
+          String placeInQueue;
+          if (place == 1) {
+            placeInQueue = "1st";
+          } else if (place == 2) {
+            placeInQueue = "2nd";
+          } else if (place == 3) {
+            placeInQueue = "3rd";
+          } else {
+            placeInQueue = place + "th";
+          }
+          System.out.println(args[3] + " is " + placeInQueue + " in the JobQueue.");
+        } catch (Exception e) {
+          System.err.println("Error occurred while looking up job status : ");
+          e.printStackTrace();
+        }
+      } else if (ZookeeperUtils.nodeExists(zk, "/GoldenOrb/" + args[2] + "/JobsInProgress/" + args[3])) {
+        System.out.println(args[3] + " is in progress.");
       } else {
-    	  System.out.println("Job "+args[3]+ " does not exist on cluster "+args[2]+".");
+        System.out.println("Job " + args[3] + " does not exist on cluster " + args[2] + ".");
       }
     }
   }
   
-/**
- * 
- * @returns ZooKeeper
- */
+  /**
+   * Connects to ZooKeeper.
+   * 
+   * @returns ZooKeeper
+   */
   public static ZooKeeper connectZookeeper() {
     OrbConfiguration orbConf = new OrbConfiguration(true);
     ZooKeeper zk = null;

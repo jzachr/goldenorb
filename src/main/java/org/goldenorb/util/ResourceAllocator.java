@@ -48,21 +48,23 @@ public class ResourceAllocator<M extends OrbTrackerMember> {
   private Map<M,Integer[]> orbTrackerAssignments = new HashMap<M,Integer[]>();
   private Map<M,Integer[]> orbTrackerAvailability = new HashMap<M,Integer[]>();
   
-/**
- * Constructor
- *
- * @param  OrbConfiguration conf
- * @param  Collection<M> orbTrackers
- */
+  /**
+   * Constructor
+   * 
+   * @param conf
+   *          - OrbConfiguration
+   * @param orbTrackers
+   */
   public ResourceAllocator(OrbConfiguration conf, Collection<M> orbTrackers) {
     this.setConf(conf);
     this.setOrbTrackers(orbTrackers);
   }
   
-/**
- * 
- * @returns Map<M,Integer[]>
- */
+  /**
+   * Assigns resources.
+   * 
+   * @returns Map<M,Integer[]>
+   */
   public Map<M,Integer[]> assignResources() throws InvalidJobConfException {
     logger.info("ResourceAllocator: assignResources()");
     
@@ -138,33 +140,39 @@ public class ResourceAllocator<M extends OrbTrackerMember> {
     return orbTrackerAssignments;
   }
   
-/**
- * 
- * @param  M tracker
- * @param  int count
- * @param  int field
- */
+  /**
+   * 
+   * @param tracker
+   *          - M
+   * @param count
+   *          - int
+   * @param field
+   *          - int
+   */
   private void assignAvailable(M tracker, int count, int field) {
     Integer[] v = orbTrackerAssignments.get(tracker);
     v[field] += count;
     orbTrackerAssignments.put(tracker, v);
   }
   
-/**
- * 
- * @param  M tracker
- * @param  int count
- * @param  int field
- */
+  /**
+   * 
+   * @param tracker
+   *          - M
+   * @param count
+   *          - int
+   * @param field
+   *          - int
+   */
   private void decrementAvailable(M tracker, int count, int field) {
     Integer[] v = orbTrackerAvailability.get(tracker);
     v[field] -= count;
     orbTrackerAvailability.put(tracker, v);
   }
   
-/**
- * 
- */
+  /**
+   * Sorts available and reserved trackers.
+   */
   private void sortTrackers() {
     trackersByAvailable = new ArrayList<M>(getOrbTrackers());
     Collections.sort(trackersByAvailable, new Comparator<M>() {
@@ -186,9 +194,9 @@ public class ResourceAllocator<M extends OrbTrackerMember> {
     });
   }
   
-/**
- * 
- */
+  /**
+   * Updates OrbTracker availability.
+   */
   private void updateOrbTrackerAvailability() {
     totalAvailable = 0;
     totalReserved = 0;
@@ -209,32 +217,35 @@ public class ResourceAllocator<M extends OrbTrackerMember> {
     }
   }
   
-/**
- * Set the conf
- * @param  OrbConfiguration conf
- */
+  /**
+   * Set the conf
+   * 
+   * @param conf
+   *          - OrbConfiguration
+   */
   public void setConf(OrbConfiguration conf) {
     this.conf = conf;
   }
   
-/**
- * Return the conf
- */
+  /**
+   * Return the conf
+   */
   public OrbConfiguration getConf() {
     return conf;
   }
   
-/**
- * Return the orbTrackers
- */
+  /**
+   * Return the orbTrackers
+   */
   public Collection<M> getOrbTrackers() {
     return orbTrackers;
   }
   
-/**
- * Set the orbTrackers
- * @param  Collection<M> orbTrackers
- */
+  /**
+   * Set the orbTrackers
+   * 
+   * @param orbTrackers
+   */
   public void setOrbTrackers(Collection<M> orbTrackers) {
     this.orbTrackers = orbTrackers;
   }
