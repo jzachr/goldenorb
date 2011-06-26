@@ -30,6 +30,10 @@ import org.goldenorb.conf.OrbConfiguration;
 import org.goldenorb.zookeeper.OrbZKFailure;
 import org.goldenorb.zookeeper.ZookeeperUtils;
 
+/**
+ * This class provides a command line interface utility class for GoldenOrb.
+ *
+ */
 public class CommandLineUtils {
   
   private static SortedMap<String, String> helpMap;
