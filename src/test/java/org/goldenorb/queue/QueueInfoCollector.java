@@ -59,7 +59,7 @@ public class QueueInfoCollector implements OrbPartitionCommunicationProtocol {
   }
 
   @Override
-  public void becomeActive() {
+  public void becomeActive(int partitionID) {
     
   }
 
