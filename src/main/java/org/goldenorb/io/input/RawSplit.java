@@ -70,5 +70,4 @@ public class RawSplit implements Writable {
     public void setDataLength(long l) {
       dataLength = l;
     }
-    
   }
