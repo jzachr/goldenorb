@@ -7,6 +7,13 @@ import java.util.ArrayList;
 
 import org.apache.hadoop.io.Writable;
 
+/**
+ * A Writable for ArrayList containing instances of a class.  The The elements of this writable must all be 
+ * instances of the same class and extend Writable.  
+ *
+ * @param <WRITABLE_TYPE>
+ */
+
 public class ArrayListWritable<WRITABLE_TYPE extends Writable> implements Writable {
   
   private ArrayList<WRITABLE_TYPE> writables = new ArrayList<WRITABLE_TYPE>();

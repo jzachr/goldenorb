@@ -4,6 +4,10 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * A set of Strings that represent 
+ */
+
 public class VoteToHaltSet {
 	private Set<String> vths;
 	

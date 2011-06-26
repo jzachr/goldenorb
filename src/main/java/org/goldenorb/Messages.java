@@ -8,6 +8,9 @@ import java.util.List;
 
 import org.apache.hadoop.io.Writable;
 
+/**
+ * A Writable container to store messages.
+ */
 @SuppressWarnings("rawtypes")
 public class Messages implements Writable {
   

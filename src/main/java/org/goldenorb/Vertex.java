@@ -8,6 +8,15 @@ import java.util.Collection;
 
 import org.apache.hadoop.io.Writable;
 
+/**
+ * An Abstract Class for a vertex. Vertex stores out bound edges. The vertex value, edge value, and
+ * message value must extend Writable.
+ * 
+ * @param <VV> The class of the vertex value.
+ * @param <EV> The class of the edge value.
+ * @param <MV> The class of the message value.
+ */
+
 public abstract class Vertex<VV extends Writable,EV extends Writable,MV extends Message<? extends Writable>>
     implements Writable {
   
@@ -22,34 +31,34 @@ public abstract class Vertex<VV extends Writable,EV extends Writable,MV extends 
   
   public Vertex() {}
   
-  public Vertex(OrbPartition.OrbCommunicationInterface _oci,
-                String _vertexID,
-                VV _value,
-                Collection<Edge<EV>> _edges) {
-    oci = _oci;
-    vertexID = _vertexID;
-    value = _value;
-    edges = _edges;
+  public Vertex(OrbPartition.OrbCommunicationInterface oci,
+                String vertexID,
+                VV value,
+                Collection<Edge<EV>> edges) {
+    this.oci = oci;
+    this.vertexID = vertexID;
+    this.value = value;
+    this.edges = edges;
   }
   
-  public Vertex(String _vertexID, VV _value, Collection<Edge<EV>> _edges) {
-    vertexID = _vertexID;
-    value = _value;
-    edges = _edges;
+  public Vertex(String vertexID, VV value, Collection<Edge<EV>> edges) {
+    this.vertexID = vertexID;
+    this.value = value;
+    this.edges = edges;
   }
   
-  public Vertex(OrbPartition.OrbCommunicationInterface _oci,
-                Class<VV> _vertexValue,
-                Class<EV> _edgeValue,
-                Class<MV> _messageValue) {
-    oci = _oci;
-    vertexValue = _vertexValue;
-    edgeValue = _edgeValue;
+  public Vertex(OrbPartition.OrbCommunicationInterface oci,
+                Class<VV> vertexValue,
+                Class<EV> edgeValue,
+                Class<MV> messageValue) {
+    this.oci = oci;
+    this.vertexValue = vertexValue;
+    this.edgeValue = edgeValue;
   }
   
-  public Vertex(Class<VV> _vertexValue, Class<EV> _edgeValue, Class<MV> _messageValue) {
-    vertexValue = _vertexValue;
-    edgeValue = _edgeValue;
+  public Vertex(Class<VV> vertexValue, Class<EV> edgeValue, Class<MV> messageValue) {
+    this.vertexValue = vertexValue;
+    this.edgeValue = edgeValue;
   }
   
   public String vertexID() {

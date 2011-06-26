@@ -6,6 +6,11 @@ import java.io.IOException;
 
 import org.apache.hadoop.io.Writable;
 
+/**
+ * A directed edge for a vertex.  The edge value must a extend Writable.
+ * @param <EV> The class of the edge value.
+ */
+
 public class Edge<EV extends Writable> implements Writable {
   
   private String destinationVertex;
