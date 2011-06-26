@@ -426,7 +426,7 @@ public class OrbPartition extends OrbPartitionMember implements Runnable, OrbPar
       
       OutboundVertexQueue outboundVertexQueue;
       outboundVertexQueue = new OutboundVertexQueue(getOrbConf().getOrbRequestedPartitions(), getOrbConf()
-          .getNumberOfVerticesPerBlock(), orbClients, (Class<? extends Vertex<?,?,?>>) getOrbConf()
+          .getVerticesPerBlock(), orbClients, (Class<? extends Vertex<?,?,?>>) getOrbConf()
           .getVertexClass(), partitionID);
       
       LOG.info("Loading on machine " + hostname + ":" + interpartitionCommunicationPort);
