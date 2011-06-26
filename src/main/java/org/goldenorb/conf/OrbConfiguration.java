@@ -44,6 +44,7 @@ public class OrbConfiguration extends Configuration {
   public static final String ORB_INPUT_SPLIT_HANDLER_THREADS = "goldenOrb.orb.inputSplitHandlerThreads";
   public static final String ORB_MESSAGE_HANDLER_THREADS = "goldenOrb.orb.messageHandlerThreads";
   public static final String ORB_COMPUTE_THREADS = "goldenOrb.orb.computeThreads";
+  public static final String ORB_VERTICES_HANDLER_THREADS = "goldenOrb.orb.vertexHandlerThreads";
   
   public static final String ORB_ERROR_OUTPUT_STREAM = "goldenOrb.error.output.stream";
   public static final String ORB_SYSTEM_OUTPUT_STREAM = "goldenOrb.system.output.stream";
@@ -344,8 +345,11 @@ public class OrbConfiguration extends Configuration {
   }
 
   public int getVerticesLoaderHandlerThreads() {
-    // TODO Auto-generated method stub
-    return 0;
+    return Integer.parseInt(this.get(this.ORB_VERTICES_HANDLER_THREADS));
+  }
+  
+  public void setVerticesLoaderHandlerThreads(int vertexThreads) {
+    this.setInt(this.ORB_VERTICES_HANDLER_THREADS, vertexThreads);
   }
 
 }
