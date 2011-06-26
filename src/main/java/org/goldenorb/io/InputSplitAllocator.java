@@ -43,7 +43,7 @@ import org.slf4j.LoggerFactory;
 public class InputSplitAllocator implements OrbConfigurable {
   
   private OrbConfiguration orbConf;
-  private List<OrbPartitionMember> orbPartitionMembers;
+  private Collection<OrbPartitionMember> orbPartitionMembers;
   
   private Map<String,Map<Integer,List<RawSplit>>> hostToPortToRawSplits = new HashMap<String,Map<Integer,List<RawSplit>>>();
   private Map<String,Integer> hostToRawSplitCount = new HashMap<String,Integer>();
@@ -54,9 +54,9 @@ public class InputSplitAllocator implements OrbConfigurable {
  * Constructor
  *
  * @param  OrbConfiguration orbConf
- * @param  List<OrbPartitionMember> orbPartitionMembers
+ * @param  Collection<OrbPartitionMember> orbPartitionMembers
  */
-  public InputSplitAllocator(OrbConfiguration orbConf, List<OrbPartitionMember> orbPartitionMembers) {
+  public InputSplitAllocator(OrbConfiguration orbConf, Collection<OrbPartitionMember> orbPartitionMembers) {
     this.orbConf = orbConf;
     this.orbPartitionMembers = orbPartitionMembers;
     LOG = LoggerFactory.getLogger(InputSplitAllocator.class);
