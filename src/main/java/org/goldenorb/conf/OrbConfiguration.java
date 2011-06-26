@@ -343,4 +343,9 @@ public class OrbConfiguration extends Configuration {
     return Integer.parseInt(this.get(this.ORB_COMPUTE_THREADS));
   }
 
+  public int getVerticesLoaderHandlerThreads() {
+    // TODO Auto-generated method stub
+    return 0;
+  }
+
 }
