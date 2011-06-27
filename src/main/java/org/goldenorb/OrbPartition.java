@@ -182,7 +182,7 @@ public class OrbPartition extends OrbPartitionMember implements Runnable, OrbPar
       setOrbConf(jobConf);
       LOG.debug("setOrbConf with requested, reserved", jobConf.getOrbRequestedPartitions(), jobConf.getOrbReservedPartitions());
     }
-    setSuperStep(1);
+    setSuperStep(0);
     setNumberOfVertices(0);
     setMessagesSent(0);
     setPercentComplete(0.0F);
