@@ -81,7 +81,7 @@ public class Message<MV extends Writable> implements Writable {
   
 /**
  * Set the messageValue
- * @param  MV messageValue
+ * @param messageValue
  */
   public void setMessageValue(MV messageValue) {
     this.messageValue = messageValue;
@@ -104,7 +104,7 @@ public class Message<MV extends Writable> implements Writable {
   }
   
 /**
- * 
+ * Deserialize the fields of this object from in.
  * @param  DataInput in
  */
   public void readFields(DataInput in) throws IOException {

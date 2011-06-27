@@ -29,7 +29,7 @@ import org.apache.hadoop.io.Writable;
  * A Writable for ArrayList containing instances of a class.  The The elements of this writable must all be 
  * instances of the same class and extend Writable.  
  *
- * @param <WRITABLE_TYPE>
+ * @param <WRITABLE_TYPE> The class of the Writable that will populate the ArrayList
  */
 
 public class ArrayListWritable<WRITABLE_TYPE extends Writable> implements Writable {
@@ -38,7 +38,7 @@ public class ArrayListWritable<WRITABLE_TYPE extends Writable> implements Writab
   private Class<? extends WRITABLE_TYPE> writableType;
   
 /**
- * 
+ * Returns the number of elements in the ArrayList.
  * @returns int
  */
   public int size() {
@@ -46,21 +46,21 @@ public class ArrayListWritable<WRITABLE_TYPE extends Writable> implements Writab
   }
   
 /**
- * Constructor
+ * Default Constructor
  *
  */
   public ArrayListWritable() {}
   
 /**
- * Return the arrayList
+ * Return the ArrayList that is holding the Writables.
  */
   public ArrayList<WRITABLE_TYPE> getArrayList() {
     return writables;
   }
   
 /**
- * 
- * @param  DataInput in
+ * Deserialize the fields of this object from in.
+ * @param  in - DataInput to deserialize this object from
  */
   @SuppressWarnings("unchecked")
   @Override
@@ -89,8 +89,8 @@ public class ArrayListWritable<WRITABLE_TYPE extends Writable> implements Writab
   }
   
 /**
- * 
- * @param  DataOutput out
+ * Serialize the fields of the object to out.
+ * @param  DataOutput out DataOuput to serialize this object into.
  */
   @Override
   public void write(DataOutput out) throws IOException {
@@ -110,7 +110,7 @@ public class ArrayListWritable<WRITABLE_TYPE extends Writable> implements Writab
   }
   
 /**
- * 
+ * Adds Writable to the array.
  * @param  WRITABLE_TYPE v
  */
   public void add(WRITABLE_TYPE v) {

@@ -57,9 +57,9 @@ public abstract class Vertex<VV extends Writable,EV extends Writable,MV extends 
  * Constructor
  *
  * @param  OrbPartition.OrbCommunicationInterface oci
- * @param  String vertexID
- * @param  VV value
- * @param  Collection<Edge<EV>> edges
+ * @param  String vertexID Unique String to represent the vertex
+ * @param  VV value A Writable that is the vertex's value
+ * @param  Collection<Edge<EV>> edges 
  */
   public Vertex(OrbPartition.OrbCommunicationInterface oci,
                 String vertexID,

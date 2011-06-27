@@ -26,14 +26,32 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.goldenorb.conf.OrbConfiguration;
 
+/**
+ * A utility that sets a FSDataOutputStream that gets set to write to a specific path on the HDFS to back up the 
+ * data of a partition at a check pointed super step.
+ * 
+ * 
+ */
+
 public class CheckPointDataOutput extends FSDataOutputStream {
   
 /**
- * Constructor
+ * Constructor -
+ *  
+ *  Ex. If you wanted to get an CheckPointDataOutput to set to write the data that was on partition 3 at super step 5.
+ * 
+ * <code>
+ * CheckPointDataInput cpdiP3SS5 = new CheckPointDataInput(orbConf, super_super, step);
+ * </code>
+ * 
+ * This would write to the file out put path at JobNumberOfThisJob/5/3/SS5Part3 . SSPart3 is the file to be written to.
+ * If the path and file do not exist, they are created.
  *
- * @param  OrbConfiguration orbConf
- * @param  int superStep
- * @param  int partition
+ *
+ * @param  OrbConfiguration orbConf - OrbConfiguration that contains the FileOutputPath and job number
+ *  that you want to connect to.
+ * @param  int superStep - The super step at which this check point is being performed
+ * @param  int partition - The partition who's data is getting backed up
  */
   public CheckPointDataOutput(OrbConfiguration orbConf, int superStep, int partition) throws IOException {
     super(FileSystem.get(URI.create(orbConf.getFileOutputPath() + "/" + orbConf.getJobNumber() + "/" + superStep

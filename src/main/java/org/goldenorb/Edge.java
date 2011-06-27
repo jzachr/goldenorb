@@ -87,8 +87,8 @@ public class Edge<EV extends Writable> implements Writable {
   }
   
 /**
- * 
- * @param  DataInput in
+ * Deserialize the fields of this object from in.
+ * @param  DataInput in DataInput to deseriablize this object from.
  */
   public void readFields(DataInput in) throws IOException {
     destinationVertex = in.readUTF();
@@ -103,8 +103,8 @@ public class Edge<EV extends Writable> implements Writable {
   }
   
 /**
- * 
- * @param  DataOutput out
+ * Serialize the fields of this object to out.
+ * @param  DataOutput out  DataOuput to serialize this object into.
  */
   public void write(DataOutput out) throws IOException {
     out.writeUTF(destinationVertex);

@@ -76,7 +76,7 @@ public class Messages implements Writable {
   
 /**
  * 
- * @param  Message message
+ * @param  message - Message to add
  */
   public void add(Message message) {
     messages.add(message);
@@ -84,7 +84,7 @@ public class Messages implements Writable {
   
 /**
  * 
- * @returns int
+ * @returns int - the number of elements
  */
   public int size() {
     return messages.size();

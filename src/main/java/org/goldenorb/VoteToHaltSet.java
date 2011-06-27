@@ -23,7 +23,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * A set of Strings that represent 
+ * A set of Strings that represent the vertices.  Once the set is populated with
+ * active vertices, vertices that want to 'vote to halt' remove themselves from the set.
  */
 
 public class VoteToHaltSet {
@@ -32,7 +33,7 @@ public class VoteToHaltSet {
 /**
  * Constructor
  *
- * @param  Collection<String> initialVertices
+ * @param  Collection<String> initialVertices A collection of vertexIDs
  */
 	public VoteToHaltSet(Collection<String> initialVertices){
 		vths = new HashSet<String>(initialVertices);
@@ -65,14 +66,15 @@ public class VoteToHaltSet {
 	}
 	
 /**
- * Return the mpty
+ *
+ * Return true if the set is empty 
  */
 	public boolean isEmpty(){
 		return vths.isEmpty();
 	}
 	
 /**
- * 
+ * Returns the number of elements in the set. 
  * @returns int
  */
 	public int size(){
@@ -80,15 +82,15 @@ public class VoteToHaltSet {
 	}
 	
 /**
- * 
+ * Clears the set.
  */
 	public void clear(){
 	  vths.clear();
 	}
 	
 /**
- * 
- * @param  Collection<String> vertices
+ * Adds a collection of vertices to the set.
+ * @param  Collection<String> vertices Collection of vertexIDs
  */
 	public void addVertices(Collection<String> vertices){
 	  vths.addAll(vertices);
