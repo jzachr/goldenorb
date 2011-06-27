@@ -29,9 +29,9 @@ public class OrbDNS {
  */
 	public static String getDefaultHost(OrbConfiguration orbConf) throws UnknownHostException{
 		String host = DNS.getDefaultHost(orbConf.getNetworkInterface(), "default");
-		if(host.endsWith(".")){
-		  host = host.substring(0, host.length() - 1);
-		}
+//		if(host.endsWith(".")){
+//		  host = host.substring(0, host.length() - 1);
+//		}
 		return host;
 	}
 }
