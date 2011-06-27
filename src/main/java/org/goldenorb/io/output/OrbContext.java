@@ -18,31 +18,33 @@
  */
 package org.goldenorb.io.output;
 
-public class OrbContext<KEY, VALUE> {
-	private KEY key;
-	private VALUE value;
-	
-/**
- * 
- * @param  KEY key
- * @param  VALUE value
- */
-	public void write(KEY key, VALUE value){
-		this.key = key;
-		this.value = value;
-	}
-	
-/**
- * Return the key
- */
-	public KEY getKey(){
-		return key;
-	}
-	
-/**
- * Return the value
- */
-	public VALUE getValue(){
-		return value;
-	}
+public class OrbContext<KEY,VALUE> {
+  private KEY key;
+  private VALUE value;
+  
+  /**
+   * 
+   * @param key
+   *          - KEY
+   * @param value
+   *          - VALUE
+   */
+  public void write(KEY key, VALUE value) {
+    this.key = key;
+    this.value = value;
+  }
+  
+  /**
+   * Return the key.
+   */
+  public KEY getKey() {
+    return key;
+  }
+  
+  /**
+   * Return the value.
+   */
+  public VALUE getValue() {
+    return value;
+  }
 }
