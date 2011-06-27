@@ -46,7 +46,6 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputCommitter;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.apache.hadoop.util.ReflectionUtils;
-import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.ZooKeeper;
 import org.goldenorb.conf.OrbConfiguration;
 import org.goldenorb.event.OrbCallback;
@@ -407,13 +406,13 @@ public class OrbPartition extends OrbPartitionMember implements Runnable, OrbPar
       if (processingInboundMessageQueue.getVerticesWithMessages().size() == 0) {
         hasMoreToProcess = false;
         
-        if (enterAllDoneBarrier("superStepBarrier" + Integer.toString(superStep), true)) {
+        if (enterAllDoneBarrier("superStepBarrier", superStep, true)) {
           doneComputing();
         }
         
       } else {
         
-        enterAllDoneBarrier("superStepBarrier" + Integer.toString(superStep), false);
+        enterAllDoneBarrier("superStepBarrier", superStep, false);
         
         int count = 0;
         List<Vertex<?,?,?>> vertexList = new ArrayList<Vertex<?,?,?>>();
