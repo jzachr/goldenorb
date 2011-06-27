@@ -79,21 +79,20 @@ public class OrbBarrier implements Barrier {
   @Override
   public void enter() throws OrbZKFailure {
     // general path looks like: "/barrierName/member"
-    String barrierPath = "/" + barrierName;
-    String memberPath = barrierPath + "/" + member;
+    String memberPath = barrierName + "/" + member;
     
-    ZookeeperUtils.tryToCreateNode(zk, barrierPath, CreateMode.PERSISTENT);
+    ZookeeperUtils.tryToCreateNode(zk, barrierName, CreateMode.PERSISTENT);
     ZookeeperUtils.tryToCreateNode(zk, memberPath, CreateMode.EPHEMERAL);
     
     try {
       BarrierWait bw = new BarrierWait(this);
-      List<String> list = zk.getChildren(barrierPath, bw);
+      List<String> list = zk.getChildren(barrierName, bw);
       
       // O(N^2) implementation
       while (list.size() < numOfMembers) {
         synchronized (this) {
           wait(2000);
-          list = zk.getChildren(barrierPath, bw);
+          list = zk.getChildren(barrierName, bw);
         }
       }
       

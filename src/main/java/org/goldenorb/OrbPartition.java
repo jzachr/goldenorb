@@ -214,6 +214,7 @@ public class OrbPartition extends OrbPartitionMember implements Runnable, OrbPar
     
     try {
       setHostname(OrbDNS.getDefaultHost(getOrbConf()));
+      setPort(trackerTetherCommunicationPort);
     } catch (UnknownHostException e) {
       LOG.error("Unable to get hostname.", e);
       System.exit(-1);
@@ -244,7 +245,7 @@ public class OrbPartition extends OrbPartitionMember implements Runnable, OrbPar
       System.exit(-1);
     }
     
-    leaderGroup = new LeaderGroup<OrbPartitionMember>(zk, new OrbPartitionCallback(), jobInProgressPath,
+    leaderGroup = new LeaderGroup<OrbPartitionMember>(zk, new OrbPartitionCallback(), jobInProgressPath + "/OrbPartitionLeaderGroup",
         this, OrbPartitionMember.class);
     synchronized (this) {
       while (leaderGroup.getNumOfMembers() < (getOrbConf().getOrbRequestedPartitions() + getOrbConf()

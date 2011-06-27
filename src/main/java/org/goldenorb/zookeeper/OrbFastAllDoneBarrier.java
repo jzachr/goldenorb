@@ -84,12 +84,11 @@ public class OrbFastAllDoneBarrier implements AllDoneBarrier {
   @Override
   public boolean enter(boolean iAmDone) throws OrbZKFailure {
     // general path looks like: "/barrierName/member"
-    String barrierPath = "/" + barrierName;
     String memberPath = null;
     if(iAmDone){
-      memberPath = barrierPath + "/" + member + "DONE";
+      memberPath = barrierName + "/" + member + "DONE";
     } else {
-      memberPath = barrierPath + "/" + member;
+      memberPath = barrierName + "/" + member;
     }
      
     boolean notAllDone = true;
@@ -98,18 +97,18 @@ public class OrbFastAllDoneBarrier implements AllDoneBarrier {
      * If this barrier is the first to enter() it will create the barrier node and firstToEnter will be the
      * path of the barrier node. Otherwise firstToEnter will equal null.
      */
-    String firstToEnter = ZookeeperUtils.tryToCreateNode(zk, barrierPath, CreateMode.PERSISTENT);
+    String firstToEnter = ZookeeperUtils.tryToCreateNode(zk, barrierName, CreateMode.PERSISTENT);
     ZookeeperUtils.tryToCreateNode(zk, memberPath, CreateMode.EPHEMERAL);
     
     if (firstToEnter != null) { // becomes the counter for this barrier
       try {
         BarrierWatcher bw = new BarrierWatcher(this);
-        List<String> memberList = zk.getChildren(barrierPath, bw);
+        List<String> memberList = zk.getChildren(barrierName, bw);
         synchronized (this) {
           while (memberList.size() < numOfMembers) {
             // synchronized(this) {
             this.wait(1000);
-            memberList = zk.getChildren(barrierPath, bw);
+            memberList = zk.getChildren(barrierName, bw);
           }
         }
         notAllDone = false;
@@ -120,9 +119,9 @@ public class OrbFastAllDoneBarrier implements AllDoneBarrier {
         }
         // Everyone has joined, give the All Clear to move forward
         if(notAllDone){
-          ZookeeperUtils.tryToCreateNode(zk, barrierPath + "/AllClear", CreateMode.EPHEMERAL);
+          ZookeeperUtils.tryToCreateNode(zk, barrierName + "/AllClear", CreateMode.EPHEMERAL);
         } else {
-          ZookeeperUtils.tryToCreateNode(zk, barrierPath + "/AllDone", CreateMode.EPHEMERAL);
+          ZookeeperUtils.tryToCreateNode(zk, barrierName + "/AllDone", CreateMode.EPHEMERAL);
         }
         // delete its node on they way out
         ZookeeperUtils.deleteNodeIfEmpty(zk, memberPath);
@@ -138,14 +137,14 @@ public class OrbFastAllDoneBarrier implements AllDoneBarrier {
         BarrierWatcher bw = new BarrierWatcher(this);
         boolean notAllClear = true;
         notAllDone = true;
-        notAllDone = (zk.exists(barrierPath + "/AllDone", bw) == null);
-        notAllClear = (zk.exists(barrierPath + "/AllClear", bw) == null);
+        notAllDone = (zk.exists(barrierName + "/AllDone", bw) == null);
+        notAllClear = (zk.exists(barrierName + "/AllClear", bw) == null);
         while (notAllClear && notAllDone) {
           synchronized (this) {
             this.wait(1000);
           }
-          notAllDone = (zk.exists(barrierPath + "/AllDone", bw) == null);
-          notAllClear = (zk.exists(barrierPath + "/AllClear", bw) == null);
+          notAllDone = (zk.exists(barrierName + "/AllDone", bw) == null);
+          notAllClear = (zk.exists(barrierName + "/AllClear", bw) == null);
         }
         // delete its node on they way out
         ZookeeperUtils.deleteNodeIfEmpty(zk, memberPath);

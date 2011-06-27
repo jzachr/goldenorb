@@ -81,29 +81,28 @@ public class OrbFastBarrier implements Barrier {
   @Override
   public void enter() throws OrbZKFailure {
     // general path looks like: "/barrierName/member"
-    String barrierPath = "/" + barrierName;
-    String memberPath = barrierPath + "/" + member;
+    String memberPath = barrierName + "/" + member;
     
     /*
      * If this barrier is the first to enter() it will create the barrier node and firstToEnter will be the
      * path of the barrier node. Otherwise firstToEnter will equal null.
      */
-    String firstToEnter = ZookeeperUtils.tryToCreateNode(zk, barrierPath, CreateMode.PERSISTENT);
+    String firstToEnter = ZookeeperUtils.tryToCreateNode(zk, barrierName, CreateMode.PERSISTENT);
     ZookeeperUtils.tryToCreateNode(zk, memberPath, CreateMode.EPHEMERAL);
     
     if (firstToEnter != null) { // becomes the counter for this barrier
       try {
         BarrierWatcher bw = new BarrierWatcher(this);
-        List<String> memberList = zk.getChildren(barrierPath, bw);
+        List<String> memberList = zk.getChildren(barrierName, bw);
         synchronized (this) {
           while (memberList.size() < numOfMembers) {
             // synchronized(this) {
             this.wait(1000);
-            memberList = zk.getChildren(barrierPath, bw);
+            memberList = zk.getChildren(barrierName, bw);
           }
         }
         // Everyone has joined, give the All Clear to move forward
-        ZookeeperUtils.tryToCreateNode(zk, barrierPath + "/AllClear", CreateMode.EPHEMERAL);
+        ZookeeperUtils.tryToCreateNode(zk, barrierName + "/AllClear", CreateMode.EPHEMERAL);
         // delete its node on they way out
         ZookeeperUtils.deleteNodeIfEmpty(zk, memberPath);
       } catch (KeeperException e) {
@@ -114,7 +113,7 @@ public class OrbFastBarrier implements Barrier {
     } else { // not first to enter, therefore just watches for the AllClear node
       try {
         BarrierWatcher bw = new BarrierWatcher(this);
-        while (zk.exists(barrierPath + "/AllClear", bw) == null) {
+        while (zk.exists(barrierName + "/AllClear", bw) == null) {
           synchronized (this) {
             this.wait(1000);
           }

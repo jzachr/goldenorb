@@ -36,7 +36,7 @@ import org.junit.Test;
 public class OrbBarrierTest {
   
   OrbConfiguration orbConf = new OrbConfiguration(true);
-  String barrierName = "TestBarrierName";
+  String barrierName = "/TestBarrierName";
   CountDownLatch startLatch = new CountDownLatch(1);
   int numOfMembers;
   
@@ -67,14 +67,14 @@ public class OrbBarrierTest {
     
     everyoneDoneLatch.await(); // wait until all threads are done
     
-    assertTrue(zk.exists("/" + barrierName + "/member1", false) != null);
-    assertTrue(zk.exists("/" + barrierName + "/member2", false) != null);
-    assertTrue(zk.exists("/" + barrierName + "/member3", false) != null);
+    assertTrue(zk.exists(barrierName + "/member1", false) != null);
+    assertTrue(zk.exists(barrierName + "/member2", false) != null);
+    assertTrue(zk.exists(barrierName + "/member3", false) != null);
     
-    ZookeeperUtils.deleteNodeIfEmpty(zk, "/" + barrierName + "/member1");
-    ZookeeperUtils.deleteNodeIfEmpty(zk, "/" + barrierName + "/member2");
-    ZookeeperUtils.deleteNodeIfEmpty(zk, "/" + barrierName + "/member3");
-    ZookeeperUtils.deleteNodeIfEmpty(zk, "/" + barrierName);
+    ZookeeperUtils.deleteNodeIfEmpty(zk, barrierName + "/member1");
+    ZookeeperUtils.deleteNodeIfEmpty(zk, barrierName + "/member2");
+    ZookeeperUtils.deleteNodeIfEmpty(zk, barrierName + "/member3");
+    ZookeeperUtils.deleteNodeIfEmpty(zk, barrierName);
     zk.close();
   }
   
@@ -110,14 +110,14 @@ public class OrbBarrierTest {
     
     everyoneDoneLatch.await();
     
-    assertTrue(zk.exists("/" + barrierName + "/member1", false) != null);
-    assertTrue(zk.exists("/" + barrierName + "/member2", false) != null);
-    assertTrue(zk.exists("/" + barrierName + "/member3", false) != null);
+    assertTrue(zk.exists(barrierName + "/member1", false) != null);
+    assertTrue(zk.exists(barrierName + "/member2", false) != null);
+    assertTrue(zk.exists(barrierName + "/member3", false) != null);
     
-    ZookeeperUtils.deleteNodeIfEmpty(zk, "/" + barrierName + "/member1");
-    ZookeeperUtils.deleteNodeIfEmpty(zk, "/" + barrierName + "/member2");
-    ZookeeperUtils.deleteNodeIfEmpty(zk, "/" + barrierName + "/member3");
-    ZookeeperUtils.deleteNodeIfEmpty(zk, "/" + barrierName);
+    ZookeeperUtils.deleteNodeIfEmpty(zk, barrierName + "/member1");
+    ZookeeperUtils.deleteNodeIfEmpty(zk, barrierName + "/member2");
+    ZookeeperUtils.deleteNodeIfEmpty(zk, barrierName + "/member3");
+    ZookeeperUtils.deleteNodeIfEmpty(zk, barrierName);
     zk.close();
   }
   

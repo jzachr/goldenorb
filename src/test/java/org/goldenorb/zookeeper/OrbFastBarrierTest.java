@@ -32,7 +32,7 @@ import org.junit.Test;
 public class OrbFastBarrierTest {
 
   OrbConfiguration orbConf = new OrbConfiguration(true);
-  String barrierName = "TestBarrierName";
+  String barrierName = "/TestBarrierName";
   CountDownLatch startLatch = new CountDownLatch(1);
   int numOfMembers;
   
@@ -64,12 +64,12 @@ public class OrbFastBarrierTest {
     
     everyoneDoneLatch.await(); // wait until all threads are done
     
-    assertTrue(zk.exists("/" + barrierName + "/member1", false) == null);
-    assertTrue(zk.exists("/" + barrierName + "/member2", false) == null);
-    assertTrue(zk.exists("/" + barrierName + "/member3", false) == null);
+    assertTrue(zk.exists(barrierName + "/member1", false) == null);
+    assertTrue(zk.exists(barrierName + "/member2", false) == null);
+    assertTrue(zk.exists(barrierName + "/member3", false) == null);
     
-    ZookeeperUtils.recursiveDelete(zk, "/" + barrierName);
-    ZookeeperUtils.deleteNodeIfEmpty(zk, "/" + barrierName);
+    ZookeeperUtils.recursiveDelete(zk, barrierName);
+    ZookeeperUtils.deleteNodeIfEmpty(zk, barrierName);
     zk.close();
   }
   
@@ -105,15 +105,15 @@ public class OrbFastBarrierTest {
     
     //everyoneDoneLatch.await();
     
-    assertTrue(zk.exists("/" + barrierName + "/member1", false) != null);
-    assertTrue(zk.exists("/" + barrierName + "/member2", false) != null);
+    assertTrue(zk.exists(barrierName + "/member1", false) != null);
+    assertTrue(zk.exists(barrierName + "/member2", false) != null);
     //assertTrue(zk.exists("/" + barrierName + "/member3", false) != null);
     
     
     testBarrier1.makeInactive();
     testBarrier2.makeInactive();
-    ZookeeperUtils.recursiveDelete(zk, "/" + barrierName);
-    ZookeeperUtils.deleteNodeIfEmpty(zk, "/" + barrierName);
+    ZookeeperUtils.recursiveDelete(zk, barrierName);
+    ZookeeperUtils.deleteNodeIfEmpty(zk, barrierName);
     //zk.close();
   }
   
@@ -260,7 +260,7 @@ public class OrbFastBarrierTest {
       try {
         waitToStart.await();
         for(int i=0; i < numSteps; i++) {
-          OrbFastBarrier ofb = new OrbFastBarrier(orbConf, "barrier"+i, numBarrierStressThreads, member, zk);
+          OrbFastBarrier ofb = new OrbFastBarrier(orbConf, "/barrier"+i, numBarrierStressThreads, member, zk);
           ofb.enter();
         }
         everyoneDoneLatch.countDown(); // thread completed
