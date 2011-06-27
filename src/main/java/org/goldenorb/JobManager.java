@@ -249,6 +249,7 @@ public class JobManager<M extends OrbTrackerMember> implements OrbConfigurable {
       logger.error(e.getMessage());
       fireEvent(new OrbExceptionEvent(e));
     } catch (IOException e) {
+      e.printStackTrace();
       logger.error(e.getMessage());
     }
   }
