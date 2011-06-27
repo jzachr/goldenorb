@@ -28,9 +28,12 @@ import org.apache.zookeeper.ZooKeeper;
 import org.goldenorb.conf.OrbConfiguration;
 
 /**
- * This class provides the implementation of a ZooKeeper Barrier for the GoldenOrb project. It can be used to
- * sync its constituent members before and after a computation or can be used at startup to wait for all
- * members to initialize and enter. OrbFastBarrier utilizes a O(n) algorithm for enter().
+ * An implementation of a ZooKeeper barrier.  When all members have joined the barrier, either an
+ * AllClear or AllDone node is created to signal it is safe to exit the barrier.  In general, AllClear is
+ * used to signify it is safe to move past this barrier, but what ever processes have created the barrier need to
+ * continue calculations once exiting this barrier.  The AllDone is used to signify if it is safe to move past the
+ * barrier and if all of the processes that created the barrier are done with their calculations. It uses the same
+ * O(n) algorithm that OrbFastBarrier does.
  * 
  */
 public class OrbFastAllDoneBarrier implements AllDoneBarrier {
