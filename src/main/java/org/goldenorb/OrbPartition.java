@@ -265,7 +265,7 @@ public class OrbPartition extends OrbPartitionMember implements Runnable, OrbPar
     }
     initializeOrbClients();
     
-    if (isLeader()) {
+    if (leaderGroup.isLeader()) {
       executeAsLeader();
     } else {
       executeAsSlave();
