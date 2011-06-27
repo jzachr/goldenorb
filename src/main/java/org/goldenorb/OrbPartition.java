@@ -912,8 +912,8 @@ public class OrbPartition extends OrbPartitionMember implements Runnable, OrbPar
       
       VertexBuilder<?,?,?> vertexBuilder = ReflectionUtils.newInstance(getOrbConf()
           .getVertexInputFormatClass(), getOrbConf());
+      vertexBuilder.setOrbConf(getOrbConf());
       vertexBuilder.setPartitionID(getPartitionID());
-      LOG.debug(Long.toString(rawsplit.getDataLength()));
       vertexBuilder.setRawSplit(rawsplit.getBytes());
       vertexBuilder.setSplitClass(rawsplit.getClassName());
       vertexBuilder.initialize();
