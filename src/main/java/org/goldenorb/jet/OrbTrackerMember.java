@@ -139,8 +139,10 @@ public class OrbTrackerMember implements org.goldenorb.zookeeper.Member, org.gol
     InetSocketAddress addr = new InetSocketAddress(hostname, port);
     logger.info("Trying to initialize: " + hostname + ":" + port);
     try {
-      client = (OrbTrackerCommunicationProtocol) RPC.waitForProxy(OrbTrackerCommunicationProtocol.class,
+      client = (OrbTrackerCommunicationProtocol) RPC.getProxy(OrbTrackerCommunicationProtocol.class,
       OrbTrackerCommunicationProtocol.versionID, addr, orbConf);
+    logger.info("Trying to initialize: " + hostname + ":" + port);
+
     } catch (IOException e){
       e.printStackTrace();
     }

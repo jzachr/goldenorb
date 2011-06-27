@@ -1,8 +1,7 @@
 #!/bin/sh
 
 ORB_JAR="org.goldenorb.refactor-0.0.1-SNAPSHOT.jar"
-export ORB_HOME=~/ORB
-export OBR_LIBS=~/ORB/lib
+
 if [ "x$ORB_HOME" = "x" ]
 then
 	ORB_HOME="../../.."
