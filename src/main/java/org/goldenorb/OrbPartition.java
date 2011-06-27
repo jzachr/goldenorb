@@ -180,6 +180,7 @@ public class OrbPartition extends OrbPartitionMember implements Runnable, OrbPar
     }
     if (jobConf != null) {
       setOrbConf(jobConf);
+      LOG.debug("setOrbConf with requested, reserved", jobConf.getOrbRequestedPartitions(), jobConf.getOrbReservedPartitions());
     }
     setSuperStep(1);
     setNumberOfVertices(0);
@@ -247,10 +248,15 @@ public class OrbPartition extends OrbPartitionMember implements Runnable, OrbPar
     
     leaderGroup = new LeaderGroup<OrbPartitionMember>(zk, new OrbPartitionCallback(), jobInProgressPath + "/OrbPartitionLeaderGroup",
         this, OrbPartitionMember.class);
+    
+    LOG.debug("leaderGroup member paths {}", leaderGroup.getMembersPath().toString());
+    LOG.debug("requested {}, reserved {}", getOrbConf().getOrbRequestedPartitions(), getOrbConf().getOrbReservedPartitions());
+    
     synchronized (this) {
       while (leaderGroup.getNumOfMembers() < (getOrbConf().getOrbRequestedPartitions() + getOrbConf()
           .getOrbReservedPartitions())) {
         try {
+          LOG.debug("partition {} is waiting", getPartitionID());
           wait(PARTITION_JOIN_TIMEOUT);
         } catch (InterruptedException e) {
           e.printStackTrace();
@@ -274,6 +280,7 @@ public class OrbPartition extends OrbPartitionMember implements Runnable, OrbPar
     for (OrbPartitionMember orbPartitionMember : leaderGroup.getMembers()) {
       try {
         orbPartitionMember.initProxy(getOrbConf());
+        LOG.debug("partition {} proxy initialized", getPartitionID());
       } catch (IOException e) {
         // TODO This is a significant error and should start the killing of the partition
         e.printStackTrace();
@@ -990,10 +997,12 @@ public class OrbPartition extends OrbPartitionMember implements Runnable, OrbPar
    *          barrierName
    */
   private void enterBarrier(String barrierName) {
+    LOG.debug("creating barrier {}", barrierName);
     Barrier barrier = new OrbFastBarrier(getOrbConf(), jobInProgressPath + "/" + barrierName,
         leaderGroup.getNumOfMembers(), Integer.toString(getPartitionID()), zk);
     try {
       barrier.enter();
+      LOG.debug("{} entered", barrierName);
     } catch (OrbZKFailure e) {
       LOG.error("Failed to complete barrier: " + barrierName, e);
       e.printStackTrace();
