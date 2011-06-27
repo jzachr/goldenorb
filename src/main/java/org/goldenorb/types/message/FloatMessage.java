@@ -22,46 +22,56 @@ import org.apache.hadoop.io.FloatWritable;
 import org.goldenorb.Message;
 
 public class FloatMessage extends Message<FloatWritable> {
-/**
- * Constructor
- *
- */
-	public FloatMessage(){
-		super(FloatWritable.class);
-	}
-/**
- * Constructor
- *
- * @param  String destinationVertex
- * @param  FloatWritable messageValue
- */
-	public FloatMessage(String destinationVertex, FloatWritable messageValue){
-		super(FloatWritable.class);
-		this.setDestinationVertex(destinationVertex);
-		this.setMessageValue(messageValue);
-	}
-/**
- * Constructor
- *
- * @param  String destinationVertex
- * @param  float value
- */
-	public FloatMessage(String destinationVertex, float value){
-		super(FloatWritable.class);
-		this.setDestinationVertex(destinationVertex);
-		this.setMessageValue(new FloatWritable(value));
-	}
-/**
- * Return the 
- */
-	public float get(){
-		return ((FloatWritable)this.getMessageValue()).get();
-	}
-/**
- * Set the 
- * @param  float value
- */
-	public void set(float value){
-		((FloatWritable)this.getMessageValue()).set(value);
-	}
+  /**
+   * Constructor
+   * 
+   */
+  public FloatMessage() {
+    super(FloatWritable.class);
+  }
+  
+  /**
+   * Constructor
+   * 
+   * @param destinationVertex
+   *          - String
+   * @param messageValue
+   *          - FloatWritable
+   */
+  public FloatMessage(String destinationVertex, FloatWritable messageValue) {
+    super(FloatWritable.class);
+    this.setDestinationVertex(destinationVertex);
+    this.setMessageValue(messageValue);
+  }
+  
+  /**
+   * Constructor
+   * 
+   * @param destinationVertex
+   *          - String
+   * @param value
+   *          - float
+   */
+  public FloatMessage(String destinationVertex, float value) {
+    super(FloatWritable.class);
+    this.setDestinationVertex(destinationVertex);
+    this.setMessageValue(new FloatWritable(value));
+  }
+  
+  /**
+   * Return the primitive float value stored in the Writable.
+   */
+  public float get() {
+    return ((FloatWritable) this.getMessageValue()).get();
+  }
+  
+  /**
+   * Set the Writable value to the specified float.
+   * 
+   * @param value
+   *          - boolean
+   */
+  public void set(float value) {
+    ((FloatWritable) this.getMessageValue()).set(value);
+  }
 }

@@ -21,47 +21,57 @@ package org.goldenorb.types.message;
 import org.apache.hadoop.io.IntWritable;
 import org.goldenorb.Message;
 
-public class IntMessage extends Message<IntWritable>{
-/**
- * Constructor
- *
- */
-	public IntMessage(){
-		super(IntWritable.class);
-	}
-/**
- * Constructor
- *
- * @param  String destinationVertex
- * @param  IntWritable messageValue
- */
-	public IntMessage(String destinationVertex, IntWritable messageValue){
-		super(IntWritable.class);
-		this.setDestinationVertex(destinationVertex);
-		this.setMessageValue(messageValue);
-	}
-/**
- * Constructor
- *
- * @param  String destinationVertex
- * @param  int value
- */
-	public IntMessage(String destinationVertex, int value){
-		super(IntWritable.class);
-		this.setDestinationVertex(destinationVertex);
-		this.setMessageValue(new IntWritable(value));
-	}
-/**
- * Return the 
- */
-	public int get(){
-		return ((IntWritable)this.getMessageValue()).get();
-	}
-/**
- * Set the 
- * @param  int value
- */
-	public void set(int value){
-		((IntWritable)this.getMessageValue()).set(value);
-	}
+public class IntMessage extends Message<IntWritable> {
+  /**
+   * Constructor
+   * 
+   */
+  public IntMessage() {
+    super(IntWritable.class);
+  }
+  
+  /**
+   * Constructor
+   * 
+   * @param destinationVertex
+   *          - String
+   * @param messageValue
+   *          - IntWritable
+   */
+  public IntMessage(String destinationVertex, IntWritable messageValue) {
+    super(IntWritable.class);
+    this.setDestinationVertex(destinationVertex);
+    this.setMessageValue(messageValue);
+  }
+  
+  /**
+   * Constructor
+   * 
+   * @param destinationVertex
+   *          - String
+   * @param value
+   *          - int
+   */
+  public IntMessage(String destinationVertex, int value) {
+    super(IntWritable.class);
+    this.setDestinationVertex(destinationVertex);
+    this.setMessageValue(new IntWritable(value));
+  }
+  
+  /**
+   * Return the primitive int value stored in the Writable.
+   */
+  public int get() {
+    return ((IntWritable) this.getMessageValue()).get();
+  }
+  
+  /**
+   * Set the Writable value to the specified int.
+   * 
+   * @param value
+   *          - boolean
+   */
+  public void set(int value) {
+    ((IntWritable) this.getMessageValue()).set(value);
+  }
 }

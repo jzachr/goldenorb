@@ -21,48 +21,57 @@ package org.goldenorb.types.message;
 import org.apache.hadoop.io.BooleanWritable;
 import org.goldenorb.Message;
 
-
 public class BooleanMessage extends Message<BooleanWritable> {
-/**
- * Constructor
- *
- */
-	public BooleanMessage(){
-		super(BooleanWritable.class);
-	}
-/**
- * Constructor
- *
- * @param  String destinationVertex
- * @param  BooleanWritable messageValue
- */
-	public BooleanMessage(String destinationVertex, BooleanWritable messageValue){
-		super(BooleanWritable.class);
-		this.setDestinationVertex(destinationVertex);
-		this.setMessageValue(messageValue);
-	}
-/**
- * Constructor
- *
- * @param  String destinationVertex
- * @param  boolean value
- */
-	public BooleanMessage(String destinationVertex, boolean value){
-		super(BooleanWritable.class);
-		this.setDestinationVertex(destinationVertex);
-		this.setMessageValue(new BooleanWritable(value));
-	}
-/**
- * Return the 
- */
-	public boolean get(){
-		return ((BooleanWritable)this.getMessageValue()).get();
-	}
-/**
- * Set the 
- * @param  boolean value
- */
-	public void set(boolean value){
-		((BooleanWritable)this.getMessageValue()).set(value);
-	}
+  /**
+   * Constructor
+   * 
+   */
+  public BooleanMessage() {
+    super(BooleanWritable.class);
+  }
+  
+  /**
+   * Constructor
+   * 
+   * @param destinationVertex
+   *          - String
+   * @param messageValue
+   *          - BooleanWritable
+   */
+  public BooleanMessage(String destinationVertex, BooleanWritable messageValue) {
+    super(BooleanWritable.class);
+    this.setDestinationVertex(destinationVertex);
+    this.setMessageValue(messageValue);
+  }
+  
+  /**
+   * Constructor
+   * 
+   * @param destinationVertex
+   *          - String
+   * @param value
+   *          - boolean
+   */
+  public BooleanMessage(String destinationVertex, boolean value) {
+    super(BooleanWritable.class);
+    this.setDestinationVertex(destinationVertex);
+    this.setMessageValue(new BooleanWritable(value));
+  }
+  
+  /**
+   * Return the primitive boolean value stored in the Writable.
+   */
+  public boolean get() {
+    return ((BooleanWritable) this.getMessageValue()).get();
+  }
+  
+  /**
+   * Set the Writable value to the specified boolean.
+   * 
+   * @param value
+   *          - boolean
+   */
+  public void set(boolean value) {
+    ((BooleanWritable) this.getMessageValue()).set(value);
+  }
 }

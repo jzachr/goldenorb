@@ -22,46 +22,56 @@ import org.apache.hadoop.io.DoubleWritable;
 import org.goldenorb.Message;
 
 public class DoubleMessage extends Message<DoubleWritable> {
-/**
- * Constructor
- *
- */
-	public DoubleMessage(){
-		super(DoubleWritable.class);
-	}
-/**
- * Constructor
- *
- * @param  String destinationVertex
- * @param  DoubleWritable messageValue
- */
-	public DoubleMessage(String destinationVertex, DoubleWritable messageValue){
-		super(DoubleWritable.class);
-		this.setDestinationVertex(destinationVertex);
-		this.setMessageValue(messageValue);
-	}
-/**
- * Constructor
- *
- * @param  String destinationVertex
- * @param  double value
- */
-	public DoubleMessage(String destinationVertex, double value){
-		super(DoubleWritable.class);
-		this.setDestinationVertex(destinationVertex);
-		this.setMessageValue(new DoubleWritable(value));
-	}
-/**
- * Return the 
- */
-	public double get(){
-		return ((DoubleWritable)this.getMessageValue()).get();
-	}
-/**
- * Set the 
- * @param  double value
- */
-	public void set(double value){
-		((DoubleWritable)this.getMessageValue()).set(value);
-	}
+  /**
+   * Constructor
+   * 
+   */
+  public DoubleMessage() {
+    super(DoubleWritable.class);
+  }
+  
+  /**
+   * Constructor
+   * 
+   * @param destinationVertex
+   *          - String
+   * @param messageValue
+   *          - DoubleWritable
+   */
+  public DoubleMessage(String destinationVertex, DoubleWritable messageValue) {
+    super(DoubleWritable.class);
+    this.setDestinationVertex(destinationVertex);
+    this.setMessageValue(messageValue);
+  }
+  
+  /**
+   * Constructor
+   * 
+   * @param destinationVertex
+   *          - String
+   * @param value
+   *          - double
+   */
+  public DoubleMessage(String destinationVertex, double value) {
+    super(DoubleWritable.class);
+    this.setDestinationVertex(destinationVertex);
+    this.setMessageValue(new DoubleWritable(value));
+  }
+  
+  /**
+   * Return the primitive double value stored in the Writable.
+   */
+  public double get() {
+    return ((DoubleWritable) this.getMessageValue()).get();
+  }
+  
+  /**
+   * Set the Writable value to the specified double.
+   * 
+   * @param value
+   *          - boolean
+   */
+  public void set(double value) {
+    ((DoubleWritable) this.getMessageValue()).set(value);
+  }
 }

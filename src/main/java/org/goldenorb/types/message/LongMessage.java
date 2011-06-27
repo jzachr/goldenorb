@@ -22,46 +22,56 @@ import org.apache.hadoop.io.LongWritable;
 import org.goldenorb.Message;
 
 public class LongMessage extends Message<LongWritable> {
-/**
- * Constructor
- *
- */
-	public LongMessage(){
-		super(LongWritable.class);
-	}
-/**
- * Constructor
- *
- * @param  String destinationVertex
- * @param  LongWritable messageValue
- */
-	public LongMessage(String destinationVertex, LongWritable messageValue){
-		super(LongWritable.class);
-		this.setDestinationVertex(destinationVertex);
-		this.setMessageValue(messageValue);
-	}
-/**
- * Constructor
- *
- * @param  String destinationVertex
- * @param  long value
- */
-	public LongMessage(String destinationVertex, long value){
-		super(LongWritable.class);
-		this.setDestinationVertex(destinationVertex);
-		this.setMessageValue(new LongWritable(value));
-	}
-/**
- * Return the 
- */
-	public long get(){
-		return ((LongWritable)this.getMessageValue()).get();
-	}
-/**
- * Set the 
- * @param  long value
- */
-	public void set(long value){
-		((LongWritable)this.getMessageValue()).set(value);
-	}
+  /**
+   * Constructor
+   * 
+   */
+  public LongMessage() {
+    super(LongWritable.class);
+  }
+  
+  /**
+   * Constructor
+   * 
+   * @param destinationVertex
+   *          - String
+   * @param messageValue
+   *          - LongWritable
+   */
+  public LongMessage(String destinationVertex, LongWritable messageValue) {
+    super(LongWritable.class);
+    this.setDestinationVertex(destinationVertex);
+    this.setMessageValue(messageValue);
+  }
+  
+  /**
+   * Constructor
+   * 
+   * @param destinationVertex
+   *          - String
+   * @param value
+   *          - long
+   */
+  public LongMessage(String destinationVertex, long value) {
+    super(LongWritable.class);
+    this.setDestinationVertex(destinationVertex);
+    this.setMessageValue(new LongWritable(value));
+  }
+  
+  /**
+   * Return the primitive long value stored in the Writable.
+   */
+  public long get() {
+    return ((LongWritable) this.getMessageValue()).get();
+  }
+  
+  /**
+   * Set the Writable value to the specified long.
+   * 
+   * @param value
+   *          - boolean
+   */
+  void set(long value) {
+    ((LongWritable) this.getMessageValue()).set(value);
+  }
 }

@@ -22,46 +22,56 @@ import org.apache.hadoop.io.Text;
 import org.goldenorb.Message;
 
 public class TextMessage extends Message<Text> {
-/**
- * Constructor
- *
- */
-	public TextMessage() {
-		super(Text.class);
-	}
-/**
- * Constructor
- *
- * @param  String destinationVertex
- * @param  Text messageValue
- */
-	public TextMessage(String destinationVertex, Text messageValue){
-		super(Text.class);
-		this.setDestinationVertex(destinationVertex);
-		this.setMessageValue(messageValue);
-	}
-/**
- * Constructor
- *
- * @param  String destinationVertex
- * @param  String value
- */
-	public TextMessage(String destinationVertex, String value){
-		super(Text.class);
-		this.setDestinationVertex(destinationVertex);
-		this.setMessageValue(new Text(value));
-	}
-/**
- * Return the 
- */
-	public String get(){
-		return ((Text)this.getMessageValue()).toString();
-	}
-/**
- * Set the 
- * @param  String value
- */
-	public void set(String value){
-		((Text)this.getMessageValue()).set(value);
-	}
+  /**
+   * Constructor
+   * 
+   */
+  public TextMessage() {
+    super(Text.class);
+  }
+  
+  /**
+   * Constructor
+   * 
+   * @param destinationVertex
+   *          - String
+   * @param messageValue
+   *          - Text
+   */
+  public TextMessage(String destinationVertex, Text messageValue) {
+    super(Text.class);
+    this.setDestinationVertex(destinationVertex);
+    this.setMessageValue(messageValue);
+  }
+  
+  /**
+   * Constructor
+   * 
+   * @param destinationVertex
+   *          - String
+   * @param value
+   *          - String
+   */
+  public TextMessage(String destinationVertex, String value) {
+    super(Text.class);
+    this.setDestinationVertex(destinationVertex);
+    this.setMessageValue(new Text(value));
+  }
+  
+  /**
+   * Return the primitive boolean value stored in the Writable.
+   */
+  public String get() {
+    return ((Text) this.getMessageValue()).toString();
+  }
+  
+  /**
+   * Set the Writable value to the specified boolean.
+   * 
+   * @param value
+   *          - boolean
+   */
+  public void set(String value) {
+    ((Text) this.getMessageValue()).set(value);
+  }
 }
