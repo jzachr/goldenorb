@@ -20,6 +20,7 @@ package org.goldenorb;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -97,13 +98,13 @@ public class OrbPartitionManager<M extends PartitionProcess> implements OrbConfi
         partition.setPartitionID(-1);
       }
       
-      FileOutputStream outStream = null;
-      FileOutputStream errStream = null;
+      OutputStream outStream = null;
+      OutputStream errStream = null;
       
       try {
-        outStream = new FileOutputStream(new File(ipAddress + Integer.toString(3000 + partition.getPartitionID()) + ".out"));
-        errStream = new FileOutputStream(new File(ipAddress + Integer.toString(3000 + partition.getPartitionID()) + ".err"));
-      } catch (IOException e) {
+        outStream = System.out; //new FileOutputStream(new File(ipAddress + Integer.toString(3000 + partition.getPartitionID()) + ".out"));
+        errStream = System.err; //new FileOutputStream(new File(ipAddress + Integer.toString(3000 + partition.getPartitionID()) + ".err"));
+      } catch (Exception e) {
         logger.error(e.getMessage());
       }
       

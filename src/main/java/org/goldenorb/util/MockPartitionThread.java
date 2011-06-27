@@ -17,8 +17,8 @@
  */
 package org.goldenorb.util;
 
-import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.UnknownHostException;
 
 import org.apache.hadoop.io.LongWritable;
@@ -71,7 +71,7 @@ public class MockPartitionThread extends OrbPartitionMember implements OrbConfig
 //  }
   
   @Override
-  public void launch(FileOutputStream outStream, FileOutputStream errStream) {
+  public void launch(OutputStream outStream, OutputStream errStream) {
     thread = new Thread(this);
     partitionsPort = getOrbConf().getOrbBasePort() + processNum;
     managerPort = getOrbConf().getOrbBasePort() + processNum + 100;

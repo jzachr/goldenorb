@@ -18,6 +18,7 @@
 package org.goldenorb;
 
 import java.io.FileOutputStream;
+import java.io.OutputStream;
 
 import org.goldenorb.conf.OrbConfiguration;
 import org.goldenorb.util.MockPartitionThread;
@@ -32,7 +33,7 @@ public interface PartitionProcess {
  * @param  FileOutputStream outStream
  * @param  FileOutputStream errStream
  */
-  public void launch(FileOutputStream outStream, FileOutputStream errStream);
+  public void launch(OutputStream outStream, OutputStream errStream);
 /**
  * 
  */

@@ -17,8 +17,8 @@
  */
 package org.goldenorb;
 
-import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -72,7 +72,7 @@ public class OrbPartitionProcess implements PartitionProcess {
    *          errStream
    */
   @Override
-  public void launch(FileOutputStream outStream, FileOutputStream errStream) {
+  public void launch(OutputStream outStream, OutputStream errStream) {
     try {
       String customClassPath = buildClassPathPart();
       int orbBasePort = conf.getOrbBasePort();
