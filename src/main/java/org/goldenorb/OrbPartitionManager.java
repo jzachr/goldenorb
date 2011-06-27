@@ -30,9 +30,16 @@ import org.apache.hadoop.ipc.RPC;
 import org.apache.hadoop.net.DNS;
 import org.goldenorb.conf.OrbConfigurable;
 import org.goldenorb.conf.OrbConfiguration;
+import org.goldenorb.jet.OrbPartitionMember;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * {@link OrbPartitionManager} launches partitions via the proxy object {@link PartitionProcess}. It 
+ * communicates with {@link OrbPartitionMember} processes via Hadoop RPC.   
+ *
+ * @param <M> The class of {@link PartitionProcess} that will be launched by {@link OrbPartitionManager}
+ */
 public class OrbPartitionManager<M extends PartitionProcess> implements OrbConfigurable {
   
   private final Logger logger = LoggerFactory.getLogger(OrbPartitionManager.class);

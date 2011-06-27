@@ -20,6 +20,10 @@ package org.goldenorb;
 
 import org.apache.hadoop.ipc.VersionedProtocol;
 
+/**
+ * {@link OrbPartitionManagerProtocol} is the protocol used to facilitate communication between 
+ * {@link OrbPartition} processes and {@link OrbPartitionManager}.
+ */
 public interface OrbPartitionManagerProtocol extends VersionedProtocol {
   public static final long versionID = 0L;
 /**

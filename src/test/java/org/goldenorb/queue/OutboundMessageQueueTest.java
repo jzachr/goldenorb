@@ -35,8 +35,6 @@ import org.junit.Test;
 
 /**
  * Tests the OutboundMessageQueue by multithreading and sending messages.
- * @author longcao
- *
  */
 public class OutboundMessageQueueTest {
   
@@ -86,8 +84,6 @@ public class OutboundMessageQueueTest {
 
 /**
  * This class defines the Threads that can be used to add messages to an OutboundMessageQueue simultaneously.
- * 
- * @author long
  * 
  */
 class OutboundMessageThread extends Thread {

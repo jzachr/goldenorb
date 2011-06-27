@@ -46,10 +46,17 @@ import org.goldenorb.jet.PartitionRequest;
 import org.goldenorb.util.ResourceAllocator;
 import org.goldenorb.zookeeper.OrbZKFailure;
 import org.goldenorb.zookeeper.ZookeeperUtils;
-import org.mortbay.log.Log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * JobManager is created by the lead OrbTracker to aid in putting jobs-in-the-queue and pulling
+ * them into jobs-in-progress. It tells the OrbTrackerMembers in the LeaderGroup to launch their
+ * partitions. Then it watches the jobs (via heart beat field in ZooKeeper) to make sure they're 
+ * still running,   
+ *
+ * @param <M> The class of type that JobManager will actually manage
+ */
 public class JobManager<M extends OrbTrackerMember> implements OrbConfigurable {
   
   private final Logger logger = LoggerFactory.getLogger(JobManager.class);

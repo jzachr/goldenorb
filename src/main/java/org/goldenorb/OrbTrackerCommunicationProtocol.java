@@ -22,6 +22,10 @@ import org.apache.hadoop.ipc.VersionedProtocol;
 import org.goldenorb.jet.PartitionRequest;
 import org.goldenorb.jet.PartitionRequestResponse;
 
+/**
+ * {@link OrbTrackerCommunicationProtocol} is the protocol used to facilitate communication between 
+ * running {@link OrbTracker} objects over Hadoop RPC.
+ */
 public interface OrbTrackerCommunicationProtocol extends VersionedProtocol {
   
   long versionID = 1L;

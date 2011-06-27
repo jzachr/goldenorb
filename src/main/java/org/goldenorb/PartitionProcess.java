@@ -20,7 +20,12 @@ package org.goldenorb;
 import java.io.FileOutputStream;
 
 import org.goldenorb.conf.OrbConfiguration;
+import org.goldenorb.util.MockPartitionThread;
 
+/**
+ * {@link PartitionProcess} is a proxy object used when spawning {@link OrbPartition} processes 
+ * (or {@link MockPartitionThread} threads) from {@link OrbPartitionManager}. 
+ */
 public interface PartitionProcess {
 /**
  * 

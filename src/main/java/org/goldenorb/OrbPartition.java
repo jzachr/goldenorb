@@ -71,6 +71,13 @@ import org.goldenorb.zookeeper.ZookeeperUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ *  OrbPartition, spawned from via {@link OrbPartitionProcess}, is responsible for loading
+ *  input data, assigning file splits to other {@link OrbPartition} processes and coordinating with 
+ *  other {@link OrbPartition} processes via the exchange of {@link Messages} and {@link Vertices}. 
+ *  In addition to start up and coordination, {@link OrbPartition} processes are run responsible for 
+ *  stepping through the graph algorithms themselves, via the compute method. 
+ */
 public class OrbPartition extends OrbPartitionMember implements Runnable, OrbPartitionCommunicationProtocol,
     OrbPartitionManagerProtocol {
   

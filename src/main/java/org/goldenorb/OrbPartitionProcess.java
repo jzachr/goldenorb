@@ -26,6 +26,10 @@ import org.goldenorb.util.StreamWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * {@link OrbPartitionProcess} is the {@link OrbPartition} process launcher. It sets the 
+ * command-line arguments and output/error streams for each process.
+ */
 public class OrbPartitionProcess implements PartitionProcess {
   private Process process;
   private OrbConfiguration conf;

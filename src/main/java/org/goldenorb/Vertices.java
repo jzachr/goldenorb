@@ -21,8 +21,6 @@ package org.goldenorb;
  * This class is used to aggregate Vertex objects and is an extension of ArrayListWritable, where most of the
  * methods and data structures for Vertices exist.
  * 
- * @author longcao
- * 
  */
 @SuppressWarnings("rawtypes")
 public class Vertices extends ArrayListWritable<Vertex> {

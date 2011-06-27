@@ -21,6 +21,10 @@ package org.goldenorb;
 import org.goldenorb.conf.OrbConfigurable;
 import org.goldenorb.conf.OrbConfiguration;
 
+/**
+ * OrbJob encompasses the pieces necessary for JobManager to start/watch/complete/kill jobs
+ */
+
 public class OrbJob implements OrbConfigurable, Comparable<OrbJob> {
   
   private String jobNumber;

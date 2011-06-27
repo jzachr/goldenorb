@@ -31,8 +31,6 @@ import org.slf4j.LoggerFactory;
  * This class provides a basis upon which to run a Job given a specified OrbConfiguration. It should be
  * extended to actually run a Job within GoldenOrb.
  * 
- * @author long
- * 
  */
 public class OrbRunner {
   

@@ -33,7 +33,6 @@ import org.goldenorb.jet.OrbTrackerMember;
 import org.goldenorb.jet.PartitionRequest;
 import org.goldenorb.jet.PartitionRequestResponse;
 import org.goldenorb.net.OrbDNS;
-import org.goldenorb.util.MockPartitionThread;
 import org.goldenorb.util.ResourceAllocator;
 import org.goldenorb.zookeeper.LeaderGroup;
 import org.goldenorb.zookeeper.OrbZKFailure;
@@ -41,6 +40,13 @@ import org.goldenorb.zookeeper.ZookeeperUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * OrbTracker extends {@link OrbTrackerMember}, which allows them to run as either 
+ * leaders or slaves. The leader OrbTracker is responsible for creating the LeaderGroup and coordinating 
+ * with other OrbTrackers via ZooKeeper and Hadoop RPC. OrbTracker also starts the {@link JobManager} 
+ * and {@link OrbPartitionManager}.
+ *
+ */
 public class OrbTracker extends OrbTrackerMember implements Runnable, OrbConfigurable {
   
   public static final String ZK_BASE_PATH = "/GoldenOrb";

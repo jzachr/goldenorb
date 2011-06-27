@@ -114,8 +114,6 @@ public class InboundMessageQueueTest {
 /**
  * This class defines the Threads that can be used to add messages to an InboundMessageQueue simultaneously.
  * 
- * @author long
- * 
  */
 class MessageThread extends Thread {
   
