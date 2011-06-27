@@ -687,10 +687,12 @@ public class OrbPartition extends OrbPartitionMember implements Runnable, OrbPar
           LOG.error(e.getMessage());
         }
       }
-      if (leaderGroup.isLeader()) {
-        executeAsLeader();
-      } else {
-        executeAsSlave();
+      if ((leaderGroup.isLeader() && !isLeader()) || (!leaderGroup.isLeader() && isLeader())){
+        if (leaderGroup.isLeader()) {
+          executeAsLeader();
+        } else {
+          executeAsSlave();
+        }
       }
     }
   }
@@ -910,7 +912,8 @@ public class OrbPartition extends OrbPartitionMember implements Runnable, OrbPar
       
       VertexBuilder<?,?,?> vertexBuilder = ReflectionUtils.newInstance(getOrbConf()
           .getVertexInputFormatClass(), getOrbConf());
-      vertexBuilder.setPartitionID(1);
+      vertexBuilder.setPartitionID(getPartitionID());
+      LOG.debug(Long.toString(rawsplit.getDataLength()));
       vertexBuilder.setRawSplit(rawsplit.getBytes());
       vertexBuilder.setSplitClass(rawsplit.getClassName());
       vertexBuilder.initialize();
