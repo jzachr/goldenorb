@@ -40,7 +40,7 @@
 
   <property>
     <name>goldenOrb.orb.requestedPartitions</name>
-    <value>0</value>
+    <value>2</value>
     <description>Requested number of partitions for this job
     </description>
   </property>
@@ -156,5 +156,25 @@
     <description>Number of threads used for computation per vertex
     </description>
   </property>
+  
+  <property>
+    <name>goldenOrb.orb.classpaths</name>
+    <value></value>
+    <description>Comma delimited absolute paths to additional jar files
+    </description>
+  </property>
 
+  <property>
+    <name>goldenOrb.orb.partition.javaopts</name>
+    <value>-Xms512m -Xmx1024m</value>
+    <description>Java VM options passed to OrbPartition processes
+    </description>
+  </property>
+  
+  <property>
+    <name>goldenOrb.orb.vertexHandlerThreads</name>
+    <value>10</value>
+    <description>The number of threads used to handle vertices
+    </description>
+  </property>
 </configuration>
