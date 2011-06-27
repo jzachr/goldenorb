@@ -126,7 +126,7 @@ public class OrbTrackerMember implements org.goldenorb.zookeeper.Member, org.gol
 /**
  * 
  */
-  public void initProxy() throws IOException {
+  public void initProxy()  {
     initProxy(this.orbConf);
   }
   
@@ -135,10 +135,15 @@ public class OrbTrackerMember implements org.goldenorb.zookeeper.Member, org.gol
  * @param  OrbConfiguration orbConf
  * @throws IOException 
  */
-  public void initProxy(OrbConfiguration orbConf) throws IOException  {
+  public void initProxy(OrbConfiguration orbConf)  {
     InetSocketAddress addr = new InetSocketAddress(hostname, port);
-    client = (OrbTrackerCommunicationProtocol) RPC.waitForProxy(OrbTrackerCommunicationProtocol.class,
+    logger.info("Trying to initialize: " + hostname + ":" + port);
+    try {
+      client = (OrbTrackerCommunicationProtocol) RPC.waitForProxy(OrbTrackerCommunicationProtocol.class,
       OrbTrackerCommunicationProtocol.versionID, addr, orbConf);
+    } catch (IOException e){
+      e.printStackTrace();
+    }
   }
   
 /**
