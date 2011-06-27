@@ -34,6 +34,9 @@ import org.goldenorb.Vertex;
 import org.goldenorb.Vertices;
 import org.junit.Test;
 
+/**
+ * Tests the OutboundVertexQueue by using multithreading and sending large numbers of vertices.
+ */
 public class OutboundVertexQueueTest {
   
   QueueInfoCollector infoCollector = new QueueInfoCollector();
@@ -86,9 +89,6 @@ public class OutboundVertexQueueTest {
 
 /**
  * This class defines the Threads that can be used to add vertices to an OutboundVertexQueue simultaneously.
- * 
- * @author long
- * 
  */
 class OutboundVertexThread extends Thread {
   

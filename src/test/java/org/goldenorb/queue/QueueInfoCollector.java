@@ -33,58 +33,60 @@ import org.goldenorb.io.input.RawSplit;
  * This class is a test implementation of OrbPartitionCommunicationProtocol used to collect outbound messages
  * or vertices.
  * 
- * @author longcao
- * 
  */
 public class QueueInfoCollector implements OrbPartitionCommunicationProtocol {
   
   List<Message> mList = Collections.synchronizedList(new ArrayList<Message>());
   List<Vertex> vList = Collections.synchronizedList(new ArrayList<Vertex>());
   
-/**
- * 
- * @param  Messages messages
- */
+  /**
+   * When sendMessages is called, the QueueInfoCollector stores all the messages in a List.
+   * 
+   * @param messages
+   */
   @Override
   public void sendMessages(Messages messages) {
     // add all outgoing Messages to a synchronizedList to check if any Messages are lost
     mList.addAll(messages.getList());
   }
   
-/**
- * 
- * @param  Vertices vertices
- */
+  /**
+   * When sendVertices is called, the QueueInfoCollector stores all the vertices in a List.
+   * 
+   * @param vertices
+   */
   @Override
   public void sendVertices(Vertices vertices) {
     // add all outgoing Vertices to a synchronizedList to check if any messages are lost
     vList.addAll(vertices.getArrayList());
   }
   
-/**
- * Return the protocolVersion
- */
+  /**
+   * Return the protocolVersion.
+   */
   @Override
   public long getProtocolVersion(String arg0, long arg1) throws IOException {
     return versionID;
   }
-
-/**
- * 
- * @param  int partitionID
- */
+  
+  /**
+   * Unimplemented in this test class.
+   * 
+   * @param partitionID
+   */
   @Override
   public void becomeActive(int partitionID) {
-    
-  }
 
-/**
- * 
- * @param  RawSplit rawsplit
- */
+  }
+  
+  /**
+   * Unimplemented in this test class.
+   * 
+   * @param rawsplit
+   */
   @Override
   public void loadVerticesFromInputSplit(RawSplit rawsplit) {
-    
+
   }
   
 }

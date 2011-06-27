@@ -27,32 +27,33 @@ import org.goldenorb.types.message.TextMessage;
 
 public class TestVertex extends Vertex<IntWritable,IntWritable,TextMessage> {
   
-/**
- * Constructor
- *
- */
+  /**
+   * Constructor
+   * 
+   */
   public TestVertex() {
     super(IntWritable.class, IntWritable.class, TextMessage.class);
   }
   
-/**
- * Constructor
- *
- * @param  String _vertexID
- * @param  IntWritable _value
- * @param  List<Edge<IntWritable>> _edges
- */
-  public TestVertex(String _vertexID, IntWritable _value, List<Edge<IntWritable>> _edges){
-    super(_vertexID, _value, _edges);
+  /**
+   * Constructor
+   * 
+   * @param vertexID
+   * @param value
+   * @param edges
+   */
+  public TestVertex(String vertexID, IntWritable value, List<Edge<IntWritable>> edges) {
+    super(vertexID, value, edges);
   }
-
-/**
- * 
- * @param  Collection<TextMessage> messages
- */
+  
+  /**
+   * Empty compute method.
+   * 
+   * @param messages
+   */
   @Override
   public void compute(Collection<TextMessage> messages) {
     this.voteToHalt();
   }
-
+  
 }

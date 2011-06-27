@@ -27,12 +27,15 @@ import java.util.Collection;
 import org.apache.hadoop.io.Writable;
 
 /**
- * An Abstract Class for a vertex. Vertex stores out bound edges. The vertex value, edge value, and
- * message value must extend Writable.
+ * An Abstract Class for a vertex. Vertex stores out bound edges. The vertex value, edge value, and message
+ * value must extend Writable.
  * 
- * @param <VV> The class of the vertex value.
- * @param <EV> The class of the edge value.
- * @param <MV> The class of the message value.
+ * @param <VV>
+ *          The class of the vertex value.
+ * @param <EV>
+ *          The class of the edge value.
+ * @param <MV>
+ *          The class of the message value.
  */
 
 public abstract class Vertex<VV extends Writable,EV extends Writable,MV extends Message<? extends Writable>>
@@ -47,20 +50,24 @@ public abstract class Vertex<VV extends Writable,EV extends Writable,MV extends 
   private Class<VV> vertexValue;
   private Class<EV> edgeValue;
   
-/**
- * Constructor
- *
- */
+  /**
+   * Constructor
+   * 
+   */
   public Vertex() {}
   
-/**
- * Constructor
- *
- * @param  OrbPartition.OrbCommunicationInterface oci
- * @param  String vertexID Unique String to represent the vertex
- * @param  VV value A Writable that is the vertex's value
- * @param  Collection<Edge<EV>> edges 
- */
+  /**
+   * Constructor
+   * 
+   * @param oci
+   *          - OrbPartition.OrbCommunicationInterface
+   * @param vertexID
+   *          - unique String to represent the vertex
+   * @param value
+   *          - a Writable that is the vertex's value
+   * @param edges
+   *          - a Collection of the vertex's edges
+   */
   public Vertex(OrbPartition.OrbCommunicationInterface oci,
                 String vertexID,
                 VV value,
@@ -71,27 +78,34 @@ public abstract class Vertex<VV extends Writable,EV extends Writable,MV extends 
     this.edges = edges;
   }
   
-/**
- * Constructor
- *
- * @param  String vertexID
- * @param  VV value
- * @param  Collection<Edge<EV>> edges
- */
+  /**
+   * Constructor
+   * 
+   * @param vertexID
+   *          - unique String to represent the vertex
+   * @param value
+   *          - a Writable that is the vertex's value
+   * @param edges
+   *          - a Collection of the vertex's edges
+   */
   public Vertex(String vertexID, VV value, Collection<Edge<EV>> edges) {
     this.vertexID = vertexID;
     this.value = value;
     this.edges = edges;
   }
   
-/**
- * Constructor
- *
- * @param  OrbPartition.OrbCommunicationInterface oci
- * @param  Class<VV> vertexValue
- * @param  Class<EV> edgeValue
- * @param  Class<MV> messageValue
- */
+  /**
+   * Constructor
+   * 
+   * @param OrbPartition
+   *          .OrbCommunicationInterface oci
+   * @param Class
+   *          <VV> vertexValue
+   * @param Class
+   *          <EV> edgeValue
+   * @param Class
+   *          <MV> messageValue
+   */
   public Vertex(OrbPartition.OrbCommunicationInterface oci,
                 Class<VV> vertexValue,
                 Class<EV> edgeValue,
@@ -101,96 +115,104 @@ public abstract class Vertex<VV extends Writable,EV extends Writable,MV extends 
     this.edgeValue = edgeValue;
   }
   
-/**
- * Constructor
- *
- * @param  Class<VV> vertexValue
- * @param  Class<EV> edgeValue
- * @param  Class<MV> messageValue
- */
+  /**
+   * Constructor
+   * 
+   * @param Class
+   *          <VV> vertexValue
+   * @param Class
+   *          <EV> edgeValue
+   * @param Class
+   *          <MV> messageValue
+   */
   public Vertex(Class<VV> vertexValue, Class<EV> edgeValue, Class<MV> messageValue) {
     this.vertexValue = vertexValue;
     this.edgeValue = edgeValue;
   }
   
-/**
- * 
- * @returns String
- */
+  /**
+   * Gets the vertexID.
+   * 
+   * @returns String
+   */
   public String vertexID() {
     return vertexID;
   }
   
-/**
- * 
- * @param  Collection<MV> messages
- */
+  /**
+   * 
+   * @param messages
+   */
   public abstract void compute(Collection<MV> messages);
   
-/**
- * 
- * @returns long
- */
+  /**
+   * Gets the superStep.
+   * 
+   * @returns long
+   */
   protected long superStep() {
     return oci.superStep();
   }
   
-/**
- * Set the value
- * @param  VV value
- */
+  /**
+   * Set the value.
+   * 
+   * @param value
+   */
   protected void setValue(VV value) {
     this.value = value;
   }
   
-/**
- * Return the value
- */
+  /**
+   * Return the value.
+   */
   public VV getValue() {
     return value;
   }
   
-/**
- * Return the edges
- */
+  /**
+   * Return the edges.
+   */
   protected Collection<Edge<EV>> getEdges() {
     return edges;
   }
   
-/**
- * 
- * @param  MV message
- */
+  /**
+   * 
+   * @param message
+   */
   public void sendMessage(MV message) {
     oci.sendMessage(message);
   }
   
-/**
- * 
- */
+  /**
+   * Votes to halt.
+   */
   public void voteToHalt() {
     oci.voteToHalt(vertexID);
   }
   
-/**
- * Return the oci
- */
+  /**
+   * Return the oci.
+   */
   public OrbPartition.OrbCommunicationInterface getOci() {
     return oci;
   }
   
-/**
- * Set the oci
- * @param  OrbPartition.OrbCommunicationInterface oci
- */
+  /**
+   * Set the oci.
+   * 
+   * @param oci
+   */
   public void setOci(OrbPartition.OrbCommunicationInterface oci) {
     this.oci = oci;
   }
   
-/**
- * 
- * @param  DataInput in
- */
+  /**
+   * 
+   * @param DataInput
+   *          in
+   */
   public void readFields(DataInput in) throws IOException {
     vertexID = in.readUTF();
     
@@ -208,10 +230,11 @@ public abstract class Vertex<VV extends Writable,EV extends Writable,MV extends 
     edges = _edges;
   }
   
-/**
- * 
- * @param  DataOutput out
- */
+  /**
+   * 
+   * @param DataOutput
+   *          out
+   */
   public void write(DataOutput out) throws IOException {
     out.writeUTF(vertexID);
     value.write(out);
@@ -221,10 +244,10 @@ public abstract class Vertex<VV extends Writable,EV extends Writable,MV extends 
     }
   }
   
-/**
- * 
- * @returns VV
- */
+  /**
+   * 
+   * @returns VV
+   */
   protected VV newVertexValue() {
     VV vv = null;
     try {
@@ -238,18 +261,14 @@ public abstract class Vertex<VV extends Writable,EV extends Writable,MV extends 
     return vv;
   }
   
-/**
- * 
- * @returns String
- */
   @Override
   public String toString() {
     return "Vertex: " + vertexID + "  Contents: { " + value.toString() + " }";
   }
   
-/**
- * Return the vertexID
- */
+  /**
+   * Return the vertexID.
+   */
   public String getVertexID() {
     return vertexID;
   }

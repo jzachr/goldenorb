@@ -33,6 +33,9 @@ import org.goldenorb.Messages;
 import org.goldenorb.types.message.TextMessage;
 import org.junit.Test;
 
+/**
+ * Tests the InboundMessageQueue by using multithreading and sending large numbers of messages.
+ */
 public class InboundMessageQueueTest {
   
   /**

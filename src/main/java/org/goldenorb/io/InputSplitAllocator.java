@@ -39,6 +39,10 @@ import org.goldenorb.jet.OrbPartitionMember;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * This class provides a construct and methods to evenly distribute raw splits created by Hadoop/HDFS amongst
+ * active partitions in a Job.
+ */
 @SuppressWarnings("deprecation")
 public class InputSplitAllocator implements OrbConfigurable {
   
@@ -168,7 +172,7 @@ public class InputSplitAllocator implements OrbConfigurable {
   }
   
   /**
-   * Return a List of viable host
+   * Return a List of viable hosts, i.e. all the available hosts currently seen by InputSplitAllocator.
    * 
    * @param hosts
    *          - a String array of hosts

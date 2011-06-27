@@ -34,7 +34,7 @@ import org.goldenorb.types.message.TextMessage;
 import org.junit.Test;
 
 /**
- * Tests the OutboundMessageQueue by multithreading and sending messages.
+ * Tests the OutboundMessageQueue by using multithreading and sending large numbers of messages.
  */
 public class OutboundMessageQueueTest {
   

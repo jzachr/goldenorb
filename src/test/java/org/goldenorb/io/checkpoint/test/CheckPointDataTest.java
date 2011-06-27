@@ -36,14 +36,17 @@ import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 
+/**
+ * This class provides testing for the checkpointing mechanism, both input and output.
+ */
 public class CheckPointDataTest {
   
   private static MiniDFSCluster cluster;
   private static FileSystem fs;
   
-/**
- * Set the upCluster
- */
+  /**
+   * Set up the MiniDFSCluster.
+   */
   @BeforeClass
   public static void setUpCluster() throws Exception {
     Configuration conf = new Configuration(true);
@@ -51,6 +54,11 @@ public class CheckPointDataTest {
     fs = cluster.getFileSystem();
   }
   
+  /**
+   * Tests the CheckPointDataOutput class by writing several different types of Writables to the checkpoint.
+   * 
+   * @throws Exception
+   */
   @Test
   public void testCheckpointOutput() throws Exception {
     
@@ -80,6 +88,12 @@ public class CheckPointDataTest {
     assertThat(checkpointOutput, notNullValue());
   }
   
+  /**
+   * Tests the CheckPointDataInput class by reading several different types of Writables from the checkpoint.
+   * Asserts that Writables that were written in are of the same value and type when reading in from HDFS.
+   * 
+   * @throws Exception
+   */
   @Test
   public void testCheckpointInput() throws Exception {
     
@@ -115,9 +129,9 @@ public class CheckPointDataTest {
     assertTrue(floatInput.get() == 3.14159F);
   }
   
-/**
- * 
- */
+  /**
+   * Shuts down MiniDFSCluster and closes the associated FileSystem.
+   */
   @AfterClass
   public static void tearDownCluster() throws IOException {
     if (fs != null) {
