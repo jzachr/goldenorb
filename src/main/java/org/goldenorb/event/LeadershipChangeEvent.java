@@ -20,6 +20,9 @@ package org.goldenorb.event;
 
 import org.goldenorb.event.OrbEvent;
 
+/**
+ * An OrbEvent that signifies that the leader has changed.
+ */
 public class LeadershipChangeEvent extends OrbEvent {
 
 /**

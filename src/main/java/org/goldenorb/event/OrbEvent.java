@@ -18,6 +18,11 @@
  */
 package org.goldenorb.event;
 
+/**
+ * OrbEvents are passed through OrbCallback interfaces in order to notify the group
+ * when certain events have happened.
+ */
+
 public class OrbEvent {
   public final static int LOST_MEMBER = 1;
   public final static int NEW_MEMBER = 2;
@@ -34,20 +39,20 @@ public class OrbEvent {
 /**
  * Constructor
  *
- * @param  int type
+ * @param  int type - The type of event this OrbEvent is to signify.
  */
   public OrbEvent(int type){
     this.type = type;
   }
    
 /**
- * Return the type
+ * Return the type of event that it is
  */
   public int getType(){
     return type;
   }
 /**
- * Set the type
+ * Set the type of event that it is.
  * @param  int type
  */
   public void setType(int type){

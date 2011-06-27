@@ -20,6 +20,9 @@ package org.goldenorb.event;
 
 import org.goldenorb.event.OrbEvent;
 
+/**
+ * An OrbEvent that signifies a new member has joined the group.
+ */
 public class NewMemberEvent extends OrbEvent {
 
 /**

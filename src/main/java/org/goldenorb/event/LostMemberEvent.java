@@ -20,6 +20,10 @@ package org.goldenorb.event;
 
 import org.goldenorb.event.OrbEvent;
 
+/**
+ * An OrbEvent that signifies a member has dropped out of the group.
+ */
+
 public class LostMemberEvent extends OrbEvent {
 
 /**

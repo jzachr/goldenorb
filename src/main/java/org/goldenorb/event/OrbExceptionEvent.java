@@ -18,6 +18,9 @@
  */
 package org.goldenorb.event;
 
+/**
+ * An OrbEvent that signifies that an Exception has occurred.
+ */
 public class OrbExceptionEvent extends OrbEvent {
   
   private Exception exception;
@@ -25,7 +28,7 @@ public class OrbExceptionEvent extends OrbEvent {
 /**
  * Constructor
  *
- * @param  Exception exception
+ * @param  Exception exception - The exception that occurred
  */
   public OrbExceptionEvent(Exception exception){
     super(OrbEvent.ORB_EXCEPTION);

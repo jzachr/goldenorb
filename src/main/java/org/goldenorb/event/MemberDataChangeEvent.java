@@ -18,6 +18,10 @@
  */
 package org.goldenorb.event;
 
+/**
+ * An OrbEvent that signifies that members data has changed.
+ */
+
 public class MemberDataChangeEvent extends OrbEvent {
   
 /**
