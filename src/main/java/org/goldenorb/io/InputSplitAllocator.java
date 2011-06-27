@@ -89,6 +89,7 @@ public class InputSplitAllocator implements OrbConfigurable {
   public Map<OrbPartitionMember,List<RawSplit>> assignInputSplits() {
     List<RawSplit> rawSplits = null;
     JobConf job = new JobConf(orbConf);
+    LOG.debug(orbConf.getJobNumber());
     JobContext jobContext = new JobContext(job, new JobID(orbConf.getJobNumber(), 0));
     org.apache.hadoop.mapreduce.InputFormat<?,?> input;
     try {
