@@ -19,7 +19,9 @@ package org.goldenorb;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import org.goldenorb.conf.OrbConfiguration;
 import org.goldenorb.util.StreamWriter;
@@ -27,8 +29,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * {@link OrbPartitionProcess} is the {@link OrbPartition} process launcher. It sets the 
- * command-line arguments and output/error streams for each process.
+ * {@link OrbPartitionProcess} is the {@link OrbPartition} process launcher. It sets the command-line
+ * arguments and output/error streams for each process.
  */
 public class OrbPartitionProcess implements PartitionProcess {
   private Process process;
@@ -72,20 +74,28 @@ public class OrbPartitionProcess implements PartitionProcess {
   @Override
   public void launch(FileOutputStream outStream, FileOutputStream errStream) {
     try {
-      String cp = buildClassPathPart();
+      String customClassPath = buildClassPathPart();
       int orbBasePort = conf.getOrbBasePort();
-      String orbPartitionJavaopts = conf.getOrbPartitionJavaopts();
-      // TODO: the class path to the GoldenOrb jar needs to be examined
-      String[] args = new String[] {"java", orbPartitionJavaopts, "-cp",
-                                    "target/org.goldenorb.refactor-0.0.1-SNAPSHOT-jar-with-dependencies.jar" + cp,
-                                    "org.goldenorb.OrbPartition", jobNumber, Integer.toString(partitionID),
-                                    Boolean.toString(reserved), Integer.toString(orbBasePort + processNum)};
-      logger.debug("process args: {} {} {} {} {} {} {} {} {}", args);
+      String[] orbPartitionJavaopts = conf.getOrbPartitionJavaopts().split(" ");
+      String sysClassPath = System.getProperties().getProperty("java.class.path", null);
+      
+      List<String> args = new ArrayList<String>();
+
+      args.add("java");
+      args.addAll(Arrays.asList(orbPartitionJavaopts));
+      args.add("-cp");
+      args.add(sysClassPath + customClassPath);
+      args.add("org.goldenorb.OrbPartition");
+      args.add(jobNumber);
+      args.add(Integer.toString(partitionID));
+      args.add(Boolean.toString(reserved));
+      args.add(Integer.toString(orbBasePort + processNum));
+      logger.debug("process args: {}", args.toString());
       
       ProcessBuilder builder = new ProcessBuilder();
-      builder.command(Arrays.asList(args));
+      builder.command(args);
       process = builder.start();
-      
+
       new StreamWriter(process.getErrorStream(), errStream);
       new StreamWriter(process.getInputStream(), outStream);
       
