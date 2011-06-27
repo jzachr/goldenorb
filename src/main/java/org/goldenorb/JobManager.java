@@ -446,6 +446,7 @@ public class JobManager<M extends OrbTrackerMember> implements OrbConfigurable {
     synchronized (activeJobs) {
       activeJobs.remove(job.getJobNumber());
       logger.info("Removing job: " + job.getJobNumber() + " from activeJobs.");
+      // TODO tell the other OrbTrackers to kill the partitions associated with the job.
     }
     tryToLaunchJob();
   }
