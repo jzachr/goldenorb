@@ -19,18 +19,34 @@ package org.goldenorb;
 
 import java.io.IOException;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.ipc.RPC;
 import org.apache.hadoop.ipc.Server;
+import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.JobContext;
+import org.apache.hadoop.mapreduce.JobID;
+import org.apache.hadoop.mapreduce.RecordWriter;
+import org.apache.hadoop.mapreduce.TaskAttemptContext;
+import org.apache.hadoop.mapreduce.TaskAttemptID;
+import org.apache.hadoop.mapreduce.TaskID;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputCommitter;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.apache.hadoop.util.ReflectionUtils;
+import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.ZooKeeper;
 import org.goldenorb.conf.OrbConfiguration;
 import org.goldenorb.event.OrbCallback;
@@ -39,12 +55,18 @@ import org.goldenorb.event.OrbExceptionEvent;
 import org.goldenorb.io.InputSplitAllocator;
 import org.goldenorb.io.input.RawSplit;
 import org.goldenorb.io.input.VertexBuilder;
+import org.goldenorb.io.output.OrbContext;
+import org.goldenorb.io.output.VertexWriter;
 import org.goldenorb.jet.OrbPartitionMember;
 import org.goldenorb.net.OrbDNS;
+import org.goldenorb.queue.InboundMessageQueue;
+import org.goldenorb.queue.OutboundMessageQueue;
 import org.goldenorb.queue.OutboundVertexQueue;
+import org.goldenorb.zookeeper.AllDoneBarrier;
 import org.goldenorb.zookeeper.Barrier;
 import org.goldenorb.zookeeper.LeaderGroup;
-import org.goldenorb.zookeeper.OrbBarrier;
+import org.goldenorb.zookeeper.OrbFastAllDoneBarrier;
+import org.goldenorb.zookeeper.OrbFastBarrier;
 import org.goldenorb.zookeeper.OrbZKFailure;
 import org.goldenorb.zookeeper.ZookeeperUtils;
 import org.slf4j.Logger;
@@ -83,32 +105,44 @@ public class OrbPartition extends OrbPartitionMember implements Runnable, OrbPar
   
   private boolean runPartition;
   
-  private HeartbeatGenerator heartbeatGenerator;
-  
   private boolean loadedVerticesComplete = false;
   
   private Set<InputSplitLoaderHandler> inputSplitLoaderHandlers = new HashSet<InputSplitLoaderHandler>();
+  private Set<MessagesHandler> messagesHandlers = new HashSet<MessagesHandler>();
   private Set<LoadVerticesHandler> loadVerticesHandlers = new HashSet<LoadVerticesHandler>();
+  
+  private InboundMessageQueue currentInboundMessageQueue;
+  private InboundMessageQueue processingInboundMessageQueue;
+  
+  private OutboundMessageQueue outboundMessageQueue;
+  
+  private VoteToHaltSet processingVoteToHaltSet;
+  
+  private boolean hasMoreToProcess = true;
+  
+  private int superStep;
+  private boolean computing = true;
   
   private ExecutorService inputSplitHandlerExecutor;
   private ExecutorService verticesLoaderHandlerExecutor;
   private ExecutorService messageHandlerExecutor;
   private ExecutorService computeExecutor;
   
-  private Map<String, Vertex<?,?,?>> vertices;
+  private Map<String,Vertex<?,?,?>> vertices;
   
   private OrbCommunicationInterface oci = new OrbCommunicationInterface();
   
   Map<Integer,OrbPartitionCommunicationProtocol> orbClients;
   
-/**
- * Constructor
- *
- * @param  String jobNumber
- * @param  int partitionID
- * @param  boolean standby
- * @param  int partitionBasePort
- */
+  /**
+   * Constructor
+   * 
+   * @param String
+   *          jobNumber
+   * @param int partitionID
+   * @param boolean standby
+   * @param int partitionBasePort
+   */
   public OrbPartition(String jobNumber, int partitionID, boolean standby, int partitionBasePort) {
     this.setOrbConf(new OrbConfiguration(true));
     this.standby = standby;
@@ -143,10 +177,11 @@ public class OrbPartition extends OrbPartitionMember implements Runnable, OrbPar
     }
   }
   
-/**
- * 
- * @param  String[] args
- */
+  /**
+   * 
+   * @param String
+   *          [] args
+   */
   public static void main(String[] args) {
     if (args.length != 4) {
       LOG.error("OrbPartition cannot start unless it is passed both the partitionID and the jobNumber to the Jobs OrbConfiguration");
@@ -158,7 +193,7 @@ public class OrbPartition extends OrbPartitionMember implements Runnable, OrbPar
     new OrbPartition(jobNumber, partitionID, standby, partitionBasePort);
   }
   
-/**
+  /**
  * 
  */
   @Override
@@ -210,14 +245,14 @@ public class OrbPartition extends OrbPartitionMember implements Runnable, OrbPar
     }
     initializeOrbClients();
     
-    if(isLeader()){
+    if (isLeader()) {
       executeAsLeader();
     } else {
       executeAsSlave();
     }
   }
   
-/**
+  /**
  * 
  */
   private void initializeOrbClients() {
@@ -233,11 +268,11 @@ public class OrbPartition extends OrbPartitionMember implements Runnable, OrbPar
     }
   }
   
-/**
+  /**
  * 
  */
   private void executeAsSlave() {
-    if(standby){
+    if (standby) {
       waitForActivate();
     }
     synchronized (this) {
@@ -249,7 +284,7 @@ public class OrbPartition extends OrbPartitionMember implements Runnable, OrbPar
     waitLoop();
   }
   
-/**
+  /**
  * 
  */
   private void executeAsLeader() {
@@ -258,12 +293,12 @@ public class OrbPartition extends OrbPartitionMember implements Runnable, OrbPar
       if (!loadedVerticesComplete) {
         loadVerticesLeader();
       }
-      heartbeatGenerator = new HeartbeatGenerator();
+      new Thread(new HeartbeatGenerator()).start();
     }
     waitLoop();
   }
   
-  private void waitForActivate(){
+  private void waitForActivate() {
     synchronized (this) {
       while (standby) {
         try {
@@ -272,44 +307,153 @@ public class OrbPartition extends OrbPartitionMember implements Runnable, OrbPar
           e.printStackTrace();
         }
       }
-      //need to have separate code for if it becomes active as a leader or as a slave
+      // TODO need to have separate code for if it becomes active as a leader or as a slave
     }
   }
   
-/**
+  /**
  * 
  */
   private void loadVerticesSlave() {
     enterBarrier("startLoadVerticesBarrier");
+    
+    // since we are a slave we immediately jump into this barrier
     enterBarrier("sentInputSplitsBarrier");
     
-//    while(!inputSplitLoaderHandlers.isEmpty()){
-//      synchronized(this){
-//        try {
-//          wait(1000);
-//        } catch (InterruptedException e) {
-//          e.printStackTrace();
-//        }
-//      }
-//    }
+    // here we are handling our InputSplits by loading and sending vertices
+    while (!inputSplitLoaderHandlers.isEmpty()) {
+      synchronized (this) {
+        try {
+          wait(1000);
+        } catch (InterruptedException e) {
+          e.printStackTrace();
+        }
+      }
+    }
     
     enterBarrier("inputSplitHandlersCompleteBarrier");
-
-//    while(!loadVerticesHandlers.isEmpty()){
-//      synchronized(this){
-//        try {
-//          wait(1000);
-//          
-//        } catch (InterruptedException e) {
-//          // TODO Auto-generated catch block
-//          e.printStackTrace();
-//        }
-//      }
-//    }
+    
+    // here we are handling all of the vertices that have been sent to us, and are loading them into vertices
+    while (!loadVerticesHandlers.isEmpty()) {
+      synchronized (this) {
+        try {
+          wait(1000);
+          
+        } catch (InterruptedException e) {
+          // TODO Auto-generated catch block
+          e.printStackTrace();
+        }
+      }
+    }
     
     enterBarrier("loadVerticesIntoPartitionBarrier");
     
-    LOG.debug("Completed Loading vertices --- shutting down!!!");
+    LOG.info("Partition " + partitionID + " completed Loading vertices!!!");
+    
+    process();
+    // try {
+    // ZookeeperUtils.tryToCreateNode(zk, jobInProgressPath + "/messages/complete");
+    // } catch (OrbZKFailure e) {
+    // e.printStackTrace();
+    // }
+    // System.exit(1);
+  }
+  
+  /**
+   * This is where the core processing of the vertices -- and runnning of the algorithm lives.
+   */
+  private void process() {
+    while (computing) {
+      step();
+      compute();
+      LOG.info("Partition " + partitionID + " back in run portion " + Integer.toString(superStep));
+    }
+  }
+  
+  public void compute() {
+    
+    if (superStep == 1) {
+      enterBarrier("superStep1Barrier");
+      
+      processingVoteToHaltSet = new VoteToHaltSet(vertices.keySet());
+      
+      int count = 0;
+      List<Vertex<?,?,?>> vertexList = new ArrayList<Vertex<?,?,?>>();
+      List<List<Message<? extends Writable>>> messageList = new ArrayList<List<Message<? extends Writable>>>();
+      int verticesLeft = vertices.keySet().size();
+      for (Vertex<?,?,?> v : vertices.values()) {
+        count += 1;
+        verticesLeft -= 1;
+        vertexList.add(v);
+        messageList.add(new ArrayList<Message<? extends Writable>>());
+        
+        if (count >= getOrbConf().getVerticesPerBlock() || verticesLeft == 0) {
+          computeExecutor.execute(new VertexComputer(vertexList, messageList));
+          vertexList = new ArrayList<Vertex<?,?,?>>();
+          messageList = new ArrayList<List<Message<? extends Writable>>>();
+          count = 0;
+        }
+      }
+      synchronized (this) {
+        while (!processingVoteToHaltSet.isEmpty()) {
+          try {
+            wait(1000);
+          } catch (InterruptedException e) {
+            e.printStackTrace();
+          }
+        }
+      }
+    } else {
+      if (processingInboundMessageQueue.getVerticesWithMessages().size() == 0) {
+        hasMoreToProcess = false;
+        
+        if (enterAllDoneBarrier("superStepBarrier" + Integer.toString(superStep), true)) {
+          doneComputing();
+        }
+        
+      } else {
+        
+        enterAllDoneBarrier("superStepBarrier" + Integer.toString(superStep), false);
+        
+        int count = 0;
+        List<Vertex<?,?,?>> vertexList = new ArrayList<Vertex<?,?,?>>();
+        List<List<Message<? extends Writable>>> messageList = new ArrayList<List<Message<? extends Writable>>>();
+        int verticesLeft = processingInboundMessageQueue.getVerticesWithMessages().size();
+        for (String s : processingInboundMessageQueue.getVerticesWithMessages()) {
+          count += 1;
+          verticesLeft -= 1;
+          vertexList.add(vertices.get(s));
+          messageList.add(processingInboundMessageQueue.getMessage(s));
+          
+          if (count >= getOrbConf().getVerticesPerBlock() || verticesLeft == 0) {
+            computeExecutor.execute(new VertexComputer(vertexList, messageList));
+            vertexList = new ArrayList<Vertex<?,?,?>>();
+            messageList = new ArrayList<List<Message<? extends Writable>>>();
+            count = 0;
+          }
+        }
+        synchronized (this) {
+          while (!processingVoteToHaltSet.isEmpty()) {
+            try {
+              wait(10000);
+            } catch (InterruptedException e) {
+              e.printStackTrace();
+            }
+          }
+        }
+      }
+    }
+    outboundMessageQueue.sendRemainingMessages();
+    
+    enterBarrier("doneSendingMessagesBarrier", superStep);
+    
+    LOG.info("Partition " + partitionID + " going back to run portion " + Integer.toString(superStep));
+  }
+  
+  private void doneComputing() {
+    computing = false;
+    LOG.info("Partition: (" + Integer.toString(partitionID) + ") Done computing!!!!!!");
+    dumpData();
     try {
       ZookeeperUtils.tryToCreateNode(zk, jobInProgressPath + "/messages/complete");
     } catch (OrbZKFailure e) {
@@ -318,27 +462,198 @@ public class OrbPartition extends OrbPartitionMember implements Runnable, OrbPar
     System.exit(1);
   }
   
-/**
+  private void dumpData() {
+    // TODO Auto-generated method stub
+    Configuration conf = new Configuration();
+    Job job = null;
+    JobContext jobContext = null;
+    TaskAttemptContext tao = null;
+    RecordWriter rw;
+    VertexWriter vw;
+    FileOutputFormat outputFormat;
+    
+    boolean tryAgain = true;
+    int count = 0;
+    while (tryAgain && count < 3)
+      try {
+        count++;
+        tryAgain = false;
+        if (job == null) {
+          job = new Job(conf);
+          job.setOutputFormatClass(TextOutputFormat.class);
+          FileOutputFormat.setOutputPath(job, new Path(new String(getOrbConf().getNameNode()
+                                                                  + getOrbConf().getFileOutputPath())));
+        }
+        if (jobContext == null) {
+          jobContext = new JobContext(job.getConfiguration(), new JobID());
+        }
+        
+        System.out.println(jobContext.getConfiguration().get("mapred.output.dir"));
+        
+        tao = new TaskAttemptContext(jobContext.getConfiguration(), new TaskAttemptID(new TaskID(
+            jobContext.getJobID(), true, partitionID), 0));
+        outputFormat = (FileOutputFormat) tao.getOutputFormatClass().newInstance();
+        rw = outputFormat.getRecordWriter(tao);
+        vw = (VertexWriter) getOrbConf().getVertexOutputFormatClass().newInstance();
+        for (Vertex v : vertices.values()) {
+          OrbContext oc = vw.vertexWrite(v);
+          rw.write(oc.getKey(), oc.getValue());
+          // orbLogger.info("Partition: " + Integer.toString(partitionId) + "writing: " +
+          // oc.getKey().toString() + ", " + oc.getValue().toString());
+        }
+        rw.close(tao);
+        
+        FileOutputCommitter cm = (FileOutputCommitter) outputFormat.getOutputCommitter(tao);
+        if (cm.needsTaskCommit(tao)) {
+          cm.commitTask(tao);
+          cm.cleanupJob(jobContext);
+        } else {
+          cm.cleanupJob(jobContext);
+          tryAgain = true;
+        }
+        
+      } catch (IOException e) {
+        // TODO Auto-generated catch block
+        tryAgain = true;
+        e.printStackTrace();
+      } catch (InstantiationException e) {
+        // TODO Auto-generated catch block
+        tryAgain = true;
+        e.printStackTrace();
+      } catch (IllegalAccessException e) {
+        // TODO Auto-generated catch block
+        tryAgain = true;
+        e.printStackTrace();
+      } catch (ClassNotFoundException e) {
+        // TODO Auto-generated catch block
+        tryAgain = true;
+        e.printStackTrace();
+      } catch (InterruptedException e) {
+        // TODO Auto-generated catch block
+        tryAgain = true;
+        e.printStackTrace();
+      }
+    if (tryAgain) {
+      synchronized (this) {
+        try {
+          wait(1000);
+        } catch (InterruptedException e) {
+          e.printStackTrace();
+        }
+      }
+    }
+  }
+  
+  class VertexComputer implements Runnable {
+    private List<Vertex<?,?,?>> vertexList;
+    private List<List<Message<? extends Writable>>> messageList;
+    
+    VertexComputer(List<Vertex<?,?,?>> vertexList, List<List<Message<? extends Writable>>> messageList) {
+      this.vertexList = vertexList;
+      this.messageList = messageList;
+    }
+    
+    public void run() {
+      for (int i = 0; i < vertexList.size(); i++) {
+        vertexList.get(i).compute((Collection) messageList.get(i));
+      }
+      synchronized (OrbPartition.this) {
+        if (processingVoteToHaltSet.isEmpty()) {
+          OrbPartition.this.notify();
+        }
+      }
+    }
+  }
+  
+  public void step() {
+    synchronized (this) {
+      while (!messagesHandlers.isEmpty()) {
+        try {
+          wait(1000);
+        } catch (InterruptedException e) {
+          e.printStackTrace();
+        }
+      }
+      
+      enterBarrier("messageHandlersDoneReceivingBarrier", superStep);
+      
+      processingInboundMessageQueue = currentInboundMessageQueue;
+      currentInboundMessageQueue = new InboundMessageQueue();
+      try {
+        outboundMessageQueue = new OutboundMessageQueue(getOrbConf().getOrbRequestedPartitions(),
+            getOrbConf().getMessagesPerBlock(), orbClients,
+            (Class<? extends Message<? extends Writable>>) getOrbConf().getMessageClass(), partitionID);
+      } catch (ClassNotFoundException e) {
+        e.printStackTrace();
+        throw new RuntimeException(e);
+      }
+      superStep++;
+      LOG.info("********Starting SuperStep " + superStep + "Partition: " + partitionID + "  *********");
+      if (superStep > 1) {
+        processingVoteToHaltSet = new VoteToHaltSet(processingInboundMessageQueue.getVerticesWithMessages());
+      }
+    }
+  }
+  
+  /**
  * 
  */
   private void loadVerticesLeader() {
     enterBarrier("startLoadVerticesBarrier");
-    // TODO start sending inputsplits to the machines that need to process them
+    
+    // Here InputSplits are sent to their constituent partitions for loading
     InputSplitAllocator inputSplitAllocator = new InputSplitAllocator(getOrbConf(), leaderGroup.getMembers());
+    Map<OrbPartitionMember,List<RawSplit>> inputSplitAssignments = inputSplitAllocator.assignInputSplits();
+    for (OrbPartitionMember orbPartitionMember : inputSplitAssignments.keySet()) {
+      for (RawSplit rawSplit : inputSplitAssignments.get(orbPartitionMember)) {
+        orbPartitionMember.loadVerticesFromInputSplit(rawSplit);
+      }
+    }
+    
     enterBarrier("sentInputSplitsBarrier");
+    
+    // just like the slave we have to wait for the InputSplitHandlers to finish loading and sending vertices
+    while (!inputSplitLoaderHandlers.isEmpty()) {
+      synchronized (this) {
+        try {
+          wait(1000);
+        } catch (InterruptedException e) {
+          e.printStackTrace();
+        }
+      }
+    }
+    
     enterBarrier("inputSplitHandlersCompleteBarrier");
+    
+    // just like the slave here we are handling all of the vertices that have been sent to us, and are loading
+    // them into vertices
+    while (!loadVerticesHandlers.isEmpty()) {
+      synchronized (this) {
+        try {
+          wait(1000);
+        } catch (InterruptedException e) {
+          e.printStackTrace();
+        }
+      }
+    }
     enterBarrier("loadVerticesIntoPartitionBarrier");
     
-    LOG.debug("Completed Loading vertices --- shutting down!!!");
-    try {
-      ZookeeperUtils.tryToCreateNode(zk, jobInProgressPath + "/messages/complete");
-    } catch (OrbZKFailure e) {
-      e.printStackTrace();
+    LOG.debug("Completed Loading vertices!!!");
+    
+    if (standby) {
+      waitForActivate();
     }
-    System.exit(1);
+    
+    process();
+    // try {
+    // ZookeeperUtils.tryToCreateNode(zk, jobInProgressPath + "/messages/complete");
+    // } catch (OrbZKFailure e) {
+    // e.printStackTrace();
+    // }
+    // System.exit(1);
   }
   
-/**
+  /**
  * 
  */
   private void waitLoop() {
@@ -360,10 +675,11 @@ public class OrbPartition extends OrbPartitionMember implements Runnable, OrbPar
   
   private class OrbPartitionCallback implements OrbCallback {
     
-/**
- * 
- * @param  OrbEvent e
- */
+    /**
+     * 
+     * @param OrbEvent
+     *          e
+     */
     @Override
     public void process(OrbEvent e) {
       int eventCode = e.getType();
@@ -387,68 +703,94 @@ public class OrbPartition extends OrbPartitionMember implements Runnable, OrbPar
   }
   
   public class OrbCommunicationInterface {
-/**
- * 
- * @returns int
- */
+    /**
+     * 
+     * @returns int
+     */
     public int superStep() {
       return 0;
     }
     
-/**
- * 
- * @param  String vertexID
- */
+    /**
+     * 
+     * @param String
+     *          vertexID
+     */
     public void voteToHalt(String vertexID) {}
     
-/**
- * 
- * @param  Message<? extends Writable> message
- */
+    /**
+     * 
+     * @param Message
+     *          <? extends Writable> message
+     */
     public void sendMessage(Message<? extends Writable> message) {}
   }
   
-/**
- * Return the protocolVersion
- */
+  /**
+   * Return the protocolVersion
+   */
   @Override
   public long getProtocolVersion(String arg0, long arg1) throws IOException {
     return 0L;
   }
   
-/**
- * 
- * @returns int
- */
+  /**
+   * 
+   * @returns int
+   */
   @Override
   public int stop() {
     // TODO Shutdown stuff
     return 0;
   }
   
-/**
- * Return the unning
- */
+  /**
+   * Return the unning
+   */
   @Override
   public boolean isRunning() {
     // TODO what constitutes that it is no longer running?
     return true;
   }
   
-/**
- * 
- * @param  Messages messages
- */
+  /**
+   * 
+   * @param Messages
+   *          messages
+   */
   @Override
   public void sendMessages(Messages messages) {
-    // TODO this should create a new handler to handle the inbound messages.
-    
+    MessagesHandler messagesHandler = new MessagesHandler(messages);
+    messagesHandlers.add(messagesHandler);
+    messageHandlerExecutor.execute(messagesHandler);
   }
   
-/**
- * 
- * @param  Vertices vertices
- */
+  class MessagesHandler implements Runnable {
+    private Messages messages;
+    
+    MessagesHandler(Messages messages) {
+      this.messages = messages;
+    }
+    
+    public void run() {
+      synchronized (currentInboundMessageQueue) {
+        currentInboundMessageQueue.addMessages(messages);
+        
+        synchronized (OrbPartition.this) {
+          messagesHandlers.remove(OrbPartition.this);
+          LOG.info("Partition " + partitionID + " " + OrbPartition.this + " messagesHandlerNotifying Parent "
+                   + Integer.toString(superStep));
+          OrbPartition.this.notify();
+        }
+      }
+    }
+  }
+  
+  /**
+   * 
+   * @param Vertices
+   *          vertices
+   */
   @Override
   public void sendVertices(Vertices vertices) {
     LoadVerticesHandler loadVerticesHandler = new LoadVerticesHandler(vertices, this);
@@ -459,17 +801,19 @@ public class OrbPartition extends OrbPartitionMember implements Runnable, OrbPar
   class LoadVerticesHandler implements Runnable {
     private Vertices vertices;
     
-/**
- * Constructor
- *
- * @param  Vertices vertices
- * @param  OrbPartition orbPartition
- */
+    /**
+     * Constructor
+     * 
+     * @param Vertices
+     *          vertices
+     * @param OrbPartition
+     *          orbPartition
+     */
     public LoadVerticesHandler(Vertices vertices, OrbPartition orbPartition) {
       this.vertices = vertices;
     }
     
-/**
+    /**
  * 
  */
     public void run() {
@@ -488,10 +832,10 @@ public class OrbPartition extends OrbPartitionMember implements Runnable, OrbPar
     }
   }
   
-/**
- * 
- * @param  int partitionID
- */
+  /**
+   * 
+   * @param int partitionID
+   */
   @Override
   public void becomeActive(int partitionID) {
     if (standby) {
@@ -503,10 +847,11 @@ public class OrbPartition extends OrbPartitionMember implements Runnable, OrbPar
     }
   }
   
-/**
- * 
- * @param  RawSplit rawsplit
- */
+  /**
+   * 
+   * @param RawSplit
+   *          rawsplit
+   */
   @Override
   public void loadVerticesFromInputSplit(RawSplit rawsplit) {
     InputSplitLoaderHandler inputSplitLoaderHandler = new InputSplitLoaderHandler(rawsplit);
@@ -517,16 +862,17 @@ public class OrbPartition extends OrbPartitionMember implements Runnable, OrbPar
   class InputSplitLoaderHandler implements Runnable {
     private RawSplit rawsplit;
     
-/**
- * Constructor
- *
- * @param  RawSplit rawsplit
- */
+    /**
+     * Constructor
+     * 
+     * @param RawSplit
+     *          rawsplit
+     */
     public InputSplitLoaderHandler(RawSplit rawsplit) {
       this.rawsplit = rawsplit;
     }
     
-/**
+    /**
  * 
  */
     @SuppressWarnings("unchecked")
@@ -535,8 +881,8 @@ public class OrbPartition extends OrbPartitionMember implements Runnable, OrbPar
       
       OutboundVertexQueue outboundVertexQueue;
       outboundVertexQueue = new OutboundVertexQueue(getOrbConf().getOrbRequestedPartitions(), getOrbConf()
-          .getVerticesPerBlock(), orbClients, (Class<? extends Vertex<?,?,?>>) getOrbConf()
-          .getVertexClass(), partitionID);
+          .getVerticesPerBlock(), orbClients, (Class<? extends Vertex<?,?,?>>) getOrbConf().getVertexClass(),
+          partitionID);
       
       LOG.info("Loading on machine " + hostname + ":" + interpartitionCommunicationPort);
       
@@ -572,7 +918,7 @@ public class OrbPartition extends OrbPartitionMember implements Runnable, OrbPar
     private boolean active = true;
     private Long heartbeat = 1L;
     
-/**
+    /**
  * 
  */
     @Override
@@ -596,7 +942,7 @@ public class OrbPartition extends OrbPartitionMember implements Runnable, OrbPar
       }
     }
     
-/**
+    /**
  * 
  */
     @Override
@@ -604,7 +950,7 @@ public class OrbPartition extends OrbPartitionMember implements Runnable, OrbPar
       active = false;
     }
     
-/**
+    /**
  * 
  */
     @Override
@@ -614,21 +960,23 @@ public class OrbPartition extends OrbPartitionMember implements Runnable, OrbPar
     
   }
   
-/**
- * 
- * @param  String barrierName
- * @param  int superStep
- */
+  /**
+   * 
+   * @param String
+   *          barrierName
+   * @param int superStep
+   */
   private void enterBarrier(String barrierName, int superStep) {
     enterBarrier(barrierName + Integer.toString(superStep));
   }
   
-/**
- * 
- * @param  String barrierName
- */
+  /**
+   * 
+   * @param String
+   *          barrierName
+   */
   private void enterBarrier(String barrierName) {
-    Barrier barrier = new OrbBarrier(getOrbConf(), jobInProgressPath + "/" + barrierName,
+    Barrier barrier = new OrbFastBarrier(getOrbConf(), jobInProgressPath + "/" + barrierName,
         leaderGroup.getNumOfMembers(), Integer.toString(partitionID), zk);
     try {
       barrier.enter();
@@ -638,4 +986,31 @@ public class OrbPartition extends OrbPartitionMember implements Runnable, OrbPar
     }
   }
   
+  /**
+   * @param boolean iAmDone
+   * @param String
+   *          barrierName
+   * @param int superStep
+   * @return
+   */
+  private boolean enterAllDoneBarrier(String barrierName, int superStep, boolean iAmDone) {
+    return enterAllDoneBarrier(barrierName + Integer.toString(superStep), iAmDone);
+  }
+  
+  /**
+   * @param boolean iAmDone
+   * @param String
+   *          barrierName
+   */
+  private boolean enterAllDoneBarrier(String barrierName, boolean iAmDone) {
+    AllDoneBarrier barrier = new OrbFastAllDoneBarrier(getOrbConf(), jobInProgressPath + "/" + barrierName,
+        leaderGroup.getNumOfMembers(), Integer.toString(partitionID), zk);
+    try {
+      return barrier.enter(iAmDone);
+    } catch (OrbZKFailure e) {
+      LOG.error("Failed to complete barrier: " + barrierName, e);
+      e.printStackTrace();
+    }
+    return false;
+  }
 }
