@@ -50,12 +50,12 @@ public class InputSplitAllocator implements OrbConfigurable {
   
   private Logger LOG;
   
-/**
- * Constructor
- *
- * @param  OrbConfiguration orbConf
- * @param  Collection<OrbPartitionMember> orbPartitionMembers
- */
+  /**
+   * Constructor
+   * 
+   * @param orbConf
+   * @param orbPartitionMembers
+   */
   public InputSplitAllocator(OrbConfiguration orbConf, Collection<OrbPartitionMember> orbPartitionMembers) {
     this.orbConf = orbConf;
     this.orbPartitionMembers = orbPartitionMembers;
@@ -76,10 +76,11 @@ public class InputSplitAllocator implements OrbConfigurable {
     }
   }
   
-/**
- * 
- * @returns Map<OrbPartitionMember,List<RawSplit>>
- */
+  /**
+   * This method gets the raw splits and calls another method to assign them.
+   * 
+   * @returns Map
+   */
   @SuppressWarnings({"deprecation", "rawtypes", "unchecked"})
   public Map<OrbPartitionMember,List<RawSplit>> assignInputSplits() {
     List<RawSplit> rawSplits = null;
@@ -87,25 +88,24 @@ public class InputSplitAllocator implements OrbConfigurable {
     JobContext jobContext = new JobContext(job, new JobID(orbConf.getOrbJobName(), 0));
     org.apache.hadoop.mapreduce.InputFormat<?,?> input;
     try {
-      input = ReflectionUtils.newInstance(
-        jobContext.getInputFormatClass(), orbConf);
-    
-    List<org.apache.hadoop.mapreduce.InputSplit> splits = input.getSplits(jobContext);
-    rawSplits = new ArrayList<RawSplit>(splits.size());
-    DataOutputBuffer buffer = new DataOutputBuffer();
-    SerializationFactory factory = new SerializationFactory(orbConf);
-    Serializer serializer = factory.getSerializer(splits.get(0).getClass());
-    serializer.open(buffer);
-    for (int i = 0; i < splits.size(); i++) {
-      buffer.reset();
-      serializer.serialize(splits.get(i));
-      RawSplit rawSplit = new RawSplit();
-      rawSplit.setClassName(splits.get(i).getClass().getName());
-      rawSplit.setDataLength(splits.get(i).getLength());
-      rawSplit.setBytes(buffer.getData(), 0, buffer.getLength());
-      rawSplit.setLocations(splits.get(i).getLocations());
-      rawSplits.add(rawSplit);
-    }
+      input = ReflectionUtils.newInstance(jobContext.getInputFormatClass(), orbConf);
+      
+      List<org.apache.hadoop.mapreduce.InputSplit> splits = input.getSplits(jobContext);
+      rawSplits = new ArrayList<RawSplit>(splits.size());
+      DataOutputBuffer buffer = new DataOutputBuffer();
+      SerializationFactory factory = new SerializationFactory(orbConf);
+      Serializer serializer = factory.getSerializer(splits.get(0).getClass());
+      serializer.open(buffer);
+      for (int i = 0; i < splits.size(); i++) {
+        buffer.reset();
+        serializer.serialize(splits.get(i));
+        RawSplit rawSplit = new RawSplit();
+        rawSplit.setClassName(splits.get(i).getClass().getName());
+        rawSplit.setDataLength(splits.get(i).getLength());
+        rawSplit.setBytes(buffer.getData(), 0, buffer.getLength());
+        rawSplit.setLocations(splits.get(i).getLocations());
+        rawSplits.add(rawSplit);
+      }
     } catch (ClassNotFoundException e) {
       e.printStackTrace();
       throw new RuntimeException(e);
@@ -119,11 +119,13 @@ public class InputSplitAllocator implements OrbConfigurable {
     return assignInputSplits(rawSplits);
   }
   
-/**
- * 
- * @param  Collection<RawSplit> rawSplits
- * @returns Map<OrbPartitionMember,List<RawSplit>>
- */
+  /**
+   * This method assigns raw splits to partition members given a Collection of raw splits.
+   * 
+   * @param rawSplits
+   *          - a Collection of RawSplit objects
+   * @returns Map
+   */
   public Map<OrbPartitionMember,List<RawSplit>> assignInputSplits(Collection<RawSplit> rawSplits) {
     
     Map<OrbPartitionMember,List<RawSplit>> mapOfSplitsToPartitions = new HashMap<OrbPartitionMember,List<RawSplit>>();
@@ -165,9 +167,12 @@ public class InputSplitAllocator implements OrbConfigurable {
     return mapOfSplitsToPartitions;
   }
   
-/**
- * Return the viableHosts
- */
+  /**
+   * Return a List of viable host
+   * 
+   * @param hosts
+   *          - a String array of hosts
+   */
   private List<String> getViableHosts(String[] hosts) {
     List<String> viableHosts = new ArrayList<String>();
     for (String host : hosts) {
@@ -178,9 +183,12 @@ public class InputSplitAllocator implements OrbConfigurable {
     return viableHosts;
   }
   
-/**
- * Return the lightestHost
- */
+  /**
+   * Return the host with the lightest amount of raw splits.
+   * 
+   * @param hosts
+   *          - a List of hosts
+   */
   private String getLightestHost(List<String> hosts) {
     String lightestHost = null;
     int lightestCount = Integer.MAX_VALUE;
@@ -194,9 +202,12 @@ public class InputSplitAllocator implements OrbConfigurable {
     return lightestHost;
   }
   
-/**
- * Return the lightestPort
- */
+  /**
+   * Return the partition (port) with the lightest amount of raw splits.
+   * 
+   * @param host
+   *          - a hostname
+   */
   private int getLightestPort(String host) {
     int lightestPort = 0;
     int lightestCount = Integer.MAX_VALUE;
@@ -211,9 +222,9 @@ public class InputSplitAllocator implements OrbConfigurable {
     return lightestPort;
   }
   
-/**
- * Return the lightestHostAll
- */
+  /**
+   * Return the lightest overall host.
+   */
   private String getLightestHostAll() {
     String lightestHost = null;
     int lightestCount = Integer.MAX_VALUE;
@@ -227,18 +238,19 @@ public class InputSplitAllocator implements OrbConfigurable {
     return lightestHost;
   }
   
-/**
- * Set the orbConf
- * @param  OrbConfiguration orbConf
- */
+  /**
+   * Set the orbConf.
+   * 
+   * @param orbConf
+   */
   @Override
   public void setOrbConf(OrbConfiguration orbConf) {
     this.orbConf = orbConf;
   }
   
-/**
- * Return the orbConf
- */
+  /**
+   * Return the orbConf.
+   */
   @Override
   public OrbConfiguration getOrbConf() {
     return orbConf;
