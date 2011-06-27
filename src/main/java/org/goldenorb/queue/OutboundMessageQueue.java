@@ -35,15 +35,13 @@ import org.slf4j.LoggerFactory;
  * This class constructs an OutboundMessageQueue which collects Messages to be sent out to other partitions
  * once a certain number has been collected.
  * 
- * @author longcao
- * 
  */
 public class OutboundMessageQueue {
   private Logger omqLogger;
   
   private int numberOfPartitions;
   private int maxMessages;
-  public Map<Integer,OrbPartitionCommunicationProtocol> orbClients;
+  private Map<Integer,OrbPartitionCommunicationProtocol> orbClients;
   private Class<? extends Message<? extends Writable>> messageClass;
   private int partitionId;
   
@@ -54,15 +52,15 @@ public class OutboundMessageQueue {
    * PartitionMessagingObject.
    * 
    * @param numberOfPartitions
-   *          - The number of partitions to be used in the Job.
+   *          - the number of partitions to be used in the Job
    * @param maxMessages
-   *          - The maximum number of messages to be queued up before a send operation.
+   *          - the maximum number of messages to be queued up before a send operation
    * @param orbClients
-   *          - a Map of the communication protocol used by each Orb client.
+   *          - a Map of the communication protocol used by each Orb client
    * @param messageClass
-   *          - The type of Message to be queued. User-defined by extension of Message.
+   *          - the type of Message to be queued. User-defined by extension of Message
    * @param partitionId
-   *          - The ID of the partition that creates and owns this OutboundMessageQueue.
+   *          - the ID of the partition that creates and owns this OutboundMessageQueue
    */
   public OutboundMessageQueue(int numberOfPartitions,
                               int maxMessages,
@@ -98,11 +96,11 @@ public class OutboundMessageQueue {
   }
   
   /**
-   * This method queues up a Message to be sent. Once the Message count reaches the maximum number, it sends the
-   * vertices via Hadoop RPC.
+   * This method queues up a Message to be sent. Once the Message count reaches the maximum number, it sends
+   * the vertices via Hadoop RPC.
    * 
    * @param m
-   *          - A Message to be sent.
+   *          - a Message to be sent
    */
   public void sendMessage(Message<? extends Writable> m) {
     synchronized (pmo) {
@@ -179,10 +177,8 @@ public class OutboundMessageQueue {
   }
   
   /**
-   * This class defines a PartitionMessagingObject, which is used strictly to encapsulate partitionMessageMapsList and
-   * partitionMessageCounter into one object for synchronization purposes.
-   * 
-   * @author longcao
+   * This inner class defines a PartitionMessagingObject, which is used strictly to encapsulate
+   * partitionMessageMapsList and partitionMessageCounter into one object for synchronization purposes.
    * 
    */
   class PartitionMessagingObject {
@@ -190,28 +186,28 @@ public class OutboundMessageQueue {
     List<Map<String,List<Message<? extends Writable>>>> partitionMessageMapsList;
     List<Integer> partitionMessageCounter;
     
-/**
- * Constructor
- *
- * @param  List<Map<String,List<Message<? extends Writable>>>> partitionMessageMapsList
- * @param  List<Integer> partitionMessageCounter
- */
+    /**
+     * Constructor
+     * 
+     * @param partitionMessageMapsList
+     * @param partitionMessageCounter
+     */
     public PartitionMessagingObject(List<Map<String,List<Message<? extends Writable>>>> partitionMessageMapsList,
                                     List<Integer> partitionMessageCounter) {
       this.partitionMessageMapsList = partitionMessageMapsList;
       this.partitionMessageCounter = partitionMessageCounter;
     }
     
-/**
- * Return the mapsList
- */
+    /**
+     * Return the mapsList.
+     */
     public List<Map<String,List<Message<? extends Writable>>>> getMapsList() {
       return partitionMessageMapsList;
     }
     
-/**
- * Return the messageCounter
- */
+    /**
+     * Return the messageCounter.
+     */
     public List<Integer> getMessageCounter() {
       return partitionMessageCounter;
     }

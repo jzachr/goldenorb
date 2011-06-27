@@ -31,8 +31,6 @@ import org.slf4j.LoggerFactory;
  * This class constructs an OutboundVertexQueue which collects Vertices to be sent out to other partitions
  * once a certain number has been collected.
  * 
- * @author longcao
- * 
  */
 public class OutboundVertexQueue {
   private Logger ovqLogger;
@@ -50,15 +48,15 @@ public class OutboundVertexQueue {
    * PartitionVertexObject.
    * 
    * @param numberOfPartitions
-   *          - The number of partitions to be used in the Job.
+   *          - the number of partitions to be used in the Job
    * @param maxVertices
-   *          - The maximum number of vertices to be queued up before a send operation.
+   *          - the maximum number of vertices to be queued up before a send operation
    * @param orbClients
-   *          - a Map of the communication protocol used by each Orb client.
+   *          - a Map of the communication protocol used by each Orb client
    * @param vertexClass
-   *          - The type of Vertex to be queued. User-defined by extension of Vertex.
+   *          - the type of Vertex to be queued. User-defined by extension of Vertex
    * @param partitionId
-   *          - The ID of the partition that creates and owns this OutboundVertexQueue.
+   *          - the ID of the partition that creates and owns this OutboundVertexQueue
    */
   public OutboundVertexQueue(int numberOfPartitions,
                              int maxVertices,
@@ -83,7 +81,7 @@ public class OutboundVertexQueue {
       partitionVertexList.add(vs);
     }
     
-    // initializes a message counter for each outbound partition
+    // initializes a vertex counter for each outbound partition
     partitionVertexCounter = new ArrayList<Integer>(numberOfPartitions);
     for (int i = 0; i < numberOfPartitions; i++) {
       partitionVertexCounter.add(0);
@@ -97,7 +95,7 @@ public class OutboundVertexQueue {
    * vertices via Hadoop RPC.
    * 
    * @param v
-   *          - A Vertex to be sent.
+   *          - a Vertex to be sent
    */
   public void sendVertex(Vertex<?,?,?> v) {
     synchronized (pvo) {
@@ -152,10 +150,8 @@ public class OutboundVertexQueue {
   }
   
   /**
-   * This class defines a PartitionVertexObject, which is used strictly to encapsulate partitionVertexList and
-   * partitionVertexCounter into one object for synchronization purposes.
-   * 
-   * @author longcao
+   * This inner class defines a PartitionVertexObject, which is used strictly to encapsulate
+   * partitionVertexList and partitionVertexCounter into one object for synchronization purposes.
    * 
    */
   class PartitionVertexObject {
@@ -165,6 +161,7 @@ public class OutboundVertexQueue {
     
     /**
      * This constructs a PartitionVertexObject given a partitionVertexList and a partitionVertexCounter.
+     * 
      * @param partitionVertexList
      * @param partitionVertexCounter
      */
@@ -173,18 +170,17 @@ public class OutboundVertexQueue {
       this.partitionVertexCounter = partitionVertexCounter;
     }
     
-/**
- * Return the verticesList
- */
+    /**
+     * Return the verticesList.
+     */
     public List<Vertices> getVerticesList() {
       return partitionVertexList;
     }
     
-/**
- * 
- * @returns List<Integer>
- */
-    public List<Integer> partitionVertexCounter() {
+    /**
+     * Return the vertexCounter.
+     */
+    public List<Integer> getPartitionVertexCounter() {
       return partitionVertexCounter;
     }
     

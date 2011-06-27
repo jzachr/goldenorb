@@ -32,35 +32,43 @@ import org.goldenorb.Messages;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * This class provides a Queue construct that collects inbound messages for a partition. After a certain
+ * number of messages is collected, it sends out the messages to the appropriate destination vertices.
+ * 
+ */
 public class InboundMessageQueue {
   
-  Map<String,List<Message<? extends Writable>>> inboundMessageMap = new HashMap<String,List<Message<? extends Writable>>>();
-  Set<String> verticesWithMessages = new HashSet<String>();
+  private Map<String,List<Message<? extends Writable>>> inboundMessageMap = new HashMap<String,List<Message<? extends Writable>>>();
+  private Set<String> verticesWithMessages = new HashSet<String>();
   private Logger logger;
   
   /**
-   * Constructs the InboundMessageQueue.
+   * Constructs a InboundMessageQueue.
    * 
-   * @param ids
    */
   public InboundMessageQueue() {
     logger = LoggerFactory.getLogger(InboundMessageQueue.class);
   }
   
-/**
- * 
- * @param  Messages ms
- */
+  /**
+   * Adds the Message objects contained in the given Messages object.
+   * 
+   * @param ms
+   *          - a Messages object containing multiple Message objects
+   */
   public void addMessages(Messages ms) {
     for (Message<? extends Writable> m : ms.getList()) {
       addMessage(m);
     }
   }
   
-/**
- * 
- * @param  Message<? extends Writable> m
- */
+  /**
+   * Adds a Message to the InboundMessageQueue.
+   * 
+   * @param m
+   *          - a Message to be added
+   */
   public void addMessage(Message<? extends Writable> m) {
     synchronized (inboundMessageMap) {
       // creates an empty, synchronized ArrayList for a key (a Vertex) if the key doesn't already exist
@@ -76,33 +84,37 @@ public class InboundMessageQueue {
     }
   }
   
-/**
- * 
- * @param  String id
- */
+  /**
+   * Adds a new Vertex to the internal inboundMessageMap.
+   * 
+   * @param id
+   *          - String name of the Vertex
+   */
   public void addNewVertex(String id) {
     synchronized (inboundMessageMap) {
       inboundMessageMap.put(id, Collections.synchronizedList(new ArrayList<Message<? extends Writable>>()));
     }
   }
   
-/**
- * Return the message
- */
+  /**
+   * Return the List of messages currently in the queue for a specificed Vertex.
+   * 
+   * @param vertexID
+   */
   public List<Message<? extends Writable>> getMessage(String vertexID) {
     return inboundMessageMap.get(vertexID);
   }
   
-/**
- * Return the inboundMessageMap
- */
+  /**
+   * Return the inboundMessageMap.
+   */
   public Map<String,List<Message<? extends Writable>>> getInboundMessageMap() {
     return inboundMessageMap;
   }
   
-/**
- * Return the verticesWithMessages
- */
+  /**
+   * Return the verticesWithMessages.
+   */
   public Set<String> getVerticesWithMessages() {
     return verticesWithMessages;
   }
