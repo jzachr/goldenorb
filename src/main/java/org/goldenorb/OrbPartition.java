@@ -20,6 +20,7 @@ package org.goldenorb;
 import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -107,7 +108,7 @@ public class OrbPartition extends OrbPartitionMember implements Runnable, OrbPar
   private int interpartitionCommunicationPort;
   private int trackerTetherCommunicationPort;
   
-  private String hostname;
+//  private String hostname;
   
   private boolean runPartition;
   
@@ -158,6 +159,8 @@ public class OrbPartition extends OrbPartitionMember implements Runnable, OrbPar
     jobInProgressPath = "/GoldenOrb/" + getOrbConf().getOrbClusterName() + "/JobsInProgress/" + jobNumber;
     this.partitionID = partitionID;
     
+    LOG.debug("Starting for job {}", jobInProgressPath);
+    
     inputSplitHandlerExecutor = Executors.newFixedThreadPool(getOrbConf().getInputSplitHandlerThreads());
     messageHandlerExecutor = Executors.newFixedThreadPool(getOrbConf().getMessageHandlerThreads());
     computeExecutor = Executors.newFixedThreadPool(getOrbConf().getComputeThreads());
@@ -181,6 +184,7 @@ public class OrbPartition extends OrbPartitionMember implements Runnable, OrbPar
     if (jobConf != null) {
       setOrbConf(jobConf);
     }
+    
   }
   
   /**
@@ -192,11 +196,13 @@ public class OrbPartition extends OrbPartitionMember implements Runnable, OrbPar
     if (args.length != 4) {
       LOG.error("OrbPartition cannot start unless it is passed both the partitionID and the jobNumber to the Jobs OrbConfiguration");
     }
+
+    LOG.debug("OrbPartition starting with args: {}", Arrays.toString(args));
     String jobNumber = args[0];
     int partitionID = Integer.parseInt(args[1]);
     boolean standby = Boolean.parseBoolean(args[2]);
     int partitionBasePort = Integer.parseInt(args[3]);
-    new OrbPartition(jobNumber, partitionID, standby, partitionBasePort);
+    new Thread(new OrbPartition(jobNumber, partitionID, standby, partitionBasePort)).start();
   }
   
   /**
@@ -214,7 +220,7 @@ public class OrbPartition extends OrbPartitionMember implements Runnable, OrbPar
     
     try {
       // TODO make this use the configuration to set this up
-      interpartitionCommunicationServer = RPC.getServer(this, this.hostname,
+      interpartitionCommunicationServer = RPC.getServer(this, getHostname(),
         this.interpartitionCommunicationPort, 10, false, getOrbConf());
       interpartitionCommunicationServer.start();
       LOG.info("Starting OrbPartition Interpartition Communication Server on: " + getHostname() + ":"
@@ -226,7 +232,7 @@ public class OrbPartition extends OrbPartitionMember implements Runnable, OrbPar
     }
     
     try {
-      trackerTetherCommunicationServer = RPC.getServer(this, this.hostname,
+      trackerTetherCommunicationServer = RPC.getServer(this, getHostname(),
         this.trackerTetherCommunicationPort, getOrbConf());
       trackerTetherCommunicationServer.start();
       LOG.info("Starting OrbPartition Tracker Tether Communication Server on: " + getHostname() + ":"
@@ -890,7 +896,7 @@ public class OrbPartition extends OrbPartitionMember implements Runnable, OrbPar
           .getVerticesPerBlock(), orbClients, (Class<? extends Vertex<?,?,?>>) getOrbConf().getVertexClass(),
           partitionID);
       
-      LOG.info("Loading on machine " + hostname + ":" + interpartitionCommunicationPort);
+      LOG.info("Loading on machine " + getHostname() + ":" + interpartitionCommunicationPort);
       
       VertexBuilder<?,?,?> vertexBuilder = ReflectionUtils.newInstance(getOrbConf()
           .getVertexInputFormatClass(), getOrbConf());
