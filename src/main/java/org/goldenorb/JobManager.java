@@ -430,7 +430,9 @@ public class JobManager<M extends OrbTrackerMember> implements OrbConfigurable {
       job.getHeartbeatWatcher().kill();
     }
     
-    // TODO tell other OrbTrackers to shut down their partition instances.
+    for(OrbTrackerMember orbTrackerMember: orbTrackerMembers){
+      orbTrackerMember.killJob(job.getJobNumber());
+    }
     logger.info("Shutting down partition instances");
     logger.info("Number of tries: " + job.getTries());
     if (job.getTries() > orbConf.getMaximumJobTries()) {

@@ -35,4 +35,7 @@ public interface OrbTrackerCommunicationProtocol extends VersionedProtocol {
  * @returns PartitionRequestResponse
  */
   public PartitionRequestResponse requestPartitions(PartitionRequest partitionRequest);
+  
+  public void killJob(String jobNumber);
+
 }

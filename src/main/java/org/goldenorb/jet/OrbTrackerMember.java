@@ -167,6 +167,12 @@ public class OrbTrackerMember implements org.goldenorb.zookeeper.Member, org.gol
     return client.requestPartitions(partitionRequest);
   }
   
+  
+  @Override
+  public void killJob(String jobNumber){
+    client.killJob(jobNumber);
+  }
+
   /* End of non-generated method code */
   
   /**

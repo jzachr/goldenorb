@@ -263,4 +263,9 @@ public class OrbTracker extends OrbTrackerMember implements Runnable, OrbConfigu
     
     return response;
   }
+  
+  @Override
+  public void killJob(String jobNumber){
+    partitionManager.kill(jobNumber);
+  }
 }
