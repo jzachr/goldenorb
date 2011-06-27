@@ -27,106 +27,124 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableUtils;
 
+/**
+ * This class defines RawSplit, the data that are assigned to partitions.
+ */
 public class RawSplit implements Writable {
-    private String splitClass;
-    private BytesWritable bytes = new BytesWritable();
-    private String[] locations;
-    long dataLength;
-
-/**
- * Set the bytes
- * @param  byte[] data
- * @param  int offset
- * @param  int length
- */
-    public void setBytes(byte[] data, int offset, int length) {
-      bytes.set(data, offset, length);
-    }
-
-/**
- * Set the className
- * @param  String className
- */
-    public void setClassName(String className) {
-      splitClass = className;
-    }
-      
-/**
- * Return the className
- */
-    public String getClassName() {
-      return splitClass;
-    }
-      
-/**
- * Return the bytes
- */
-    public BytesWritable getBytes() {
-      return bytes;
-    }
-
-/**
- * 
- */
-    public void clearBytes() {
-      bytes = null;
-    }
-      
-/**
- * Set the locations
- * @param  String[] locations
- */
-    public void setLocations(String[] locations) {
-      this.locations = locations;
-    }
-      
-/**
- * Return the locations
- */
-    public String[] getLocations() {
-      return locations;
-    }
-      
-/**
- * 
- * @param  DataInput in
- */
-    public void readFields(DataInput in) throws IOException {
-      splitClass = Text.readString(in);
-      dataLength = in.readLong();
-      bytes.readFields(in);
-      int len = WritableUtils.readVInt(in);
-      locations = new String[len];
-      for(int i=0; i < len; ++i) {
-        locations[i] = Text.readString(in);
-      }
-    }
-      
-/**
- * 
- * @param  DataOutput out
- */
-    public void write(DataOutput out) throws IOException {
-      Text.writeString(out, splitClass);
-      out.writeLong(dataLength);
-      bytes.write(out);
-      WritableUtils.writeVInt(out, locations.length);
-      for(int i = 0; i < locations.length; i++) {
-        Text.writeString(out, locations[i]);
-      }        
-    }
-
-/**
- * Return the dataLength
- */
-    public long getDataLength() {
-      return dataLength;
-    }
-/**
- * Set the dataLength
- * @param  long l
- */
-    public void setDataLength(long l) {
-      dataLength = l;
+  private String splitClass;
+  private BytesWritable bytes = new BytesWritable();
+  private String[] locations;
+  long dataLength;
+  
+  /**
+   * Set the bytes.
+   * 
+   * @param data
+   *          - byte[]
+   * @param offset
+   *          - int
+   * @param length
+   *          - int
+   */
+  public void setBytes(byte[] data, int offset, int length) {
+    bytes.set(data, offset, length);
+  }
+  
+  /**
+   * Set the className.
+   * 
+   * @param className
+   *          - String
+   */
+  public void setClassName(String className) {
+    splitClass = className;
+  }
+  
+  /**
+   * Return the className.
+   */
+  public String getClassName() {
+    return splitClass;
+  }
+  
+  /**
+   * Return the bytes.
+   */
+  public BytesWritable getBytes() {
+    return bytes;
+  }
+  
+  /**
+   * Clears the bytes stored within this RawSplit.
+   */
+  public void clearBytes() {
+    bytes = null;
+  }
+  
+  /**
+   * Set the locations.
+   * 
+   * @param locations
+   *          - String array of the locations on which this RawSplit resides.
+   */
+  public void setLocations(String[] locations) {
+    this.locations = locations;
+  }
+  
+  /**
+   * Return the locations.
+   */
+  public String[] getLocations() {
+    return locations;
+  }
+  
+  /**
+   * Reads the fields in a given DataInput.
+   * 
+   * @param in
+   *          - DataInput
+   */
+  public void readFields(DataInput in) throws IOException {
+    splitClass = Text.readString(in);
+    dataLength = in.readLong();
+    bytes.readFields(in);
+    int len = WritableUtils.readVInt(in);
+    locations = new String[len];
+    for (int i = 0; i < len; ++i) {
+      locations[i] = Text.readString(in);
     }
   }
+  
+  /**
+   * Writes to the given DataOutput.
+   * 
+   * @param out
+   *          - DataOutput
+   */
+  public void write(DataOutput out) throws IOException {
+    Text.writeString(out, splitClass);
+    out.writeLong(dataLength);
+    bytes.write(out);
+    WritableUtils.writeVInt(out, locations.length);
+    for (int i = 0; i < locations.length; i++) {
+      Text.writeString(out, locations[i]);
+    }
+  }
+  
+  /**
+   * Return the dataLength.
+   */
+  public long getDataLength() {
+    return dataLength;
+  }
+  
+  /**
+   * Set the dataLength.
+   * 
+   * @param l
+   *          - long
+   */
+  public void setDataLength(long l) {
+    dataLength = l;
+  }
+}

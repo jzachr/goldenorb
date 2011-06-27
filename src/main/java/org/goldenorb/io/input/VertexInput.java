@@ -37,116 +37,125 @@ import org.goldenorb.conf.OrbConfigurable;
 import org.goldenorb.conf.OrbConfiguration;
 
 @SuppressWarnings("deprecation")
-public class VertexInput<INPUT_KEY, INPUT_VALUE> implements OrbConfigurable {
-	
-	private OrbConfiguration orbConf;
-	private BytesWritable rawSplit;
-	private String splitClass;
-	private int partitionID;
-	private RecordReader<INPUT_KEY, INPUT_VALUE> recordReader;
-	
-/**
- * Constructor
- *
- */
-	public VertexInput(){}
-	
-/**
+public class VertexInput<INPUT_KEY,INPUT_VALUE> implements OrbConfigurable {
+  
+  private OrbConfiguration orbConf;
+  private BytesWritable rawSplit;
+  private String splitClass;
+  private int partitionID;
+  private RecordReader<INPUT_KEY,INPUT_VALUE> recordReader;
+  
+  /**
+   * Constructor
+   * 
+   */
+  public VertexInput() {}
+  
+  /**
  * 
  */
-	@SuppressWarnings("unchecked")
-	public void initialize(){
-		// rebuild the input split
-	    org.apache.hadoop.mapreduce.InputSplit split = null;
-	    DataInputBuffer splitBuffer = new DataInputBuffer();
-	    splitBuffer.reset(rawSplit.getBytes(), 0, rawSplit.getLength());
-	    SerializationFactory factory = new SerializationFactory(orbConf);
-	    Deserializer<? extends org.apache.hadoop.mapreduce.InputSplit> deserializer;
-		try {
-			deserializer = (Deserializer<? extends org.apache.hadoop.mapreduce.InputSplit>) 
-	        factory.getDeserializer(orbConf.getClassByName(splitClass));
-			deserializer.open(splitBuffer);
-		    split = deserializer.deserialize(null);
-			JobConf job = new JobConf(orbConf);
-			JobContext jobContext = new JobContext(job, new JobID(getOrbConf().getOrbJobName(),0));
-			InputFormat<INPUT_KEY, INPUT_VALUE> inputFormat;
-			inputFormat = (InputFormat<INPUT_KEY, INPUT_VALUE>) ReflectionUtils.newInstance(jobContext.getInputFormatClass(), orbConf);
-			TaskAttemptContext tao = new TaskAttemptContext(job, new TaskAttemptID(new TaskID(jobContext.getJobID(), true, partitionID), 0));
-			recordReader = inputFormat.createRecordReader(split, tao);
-			recordReader.initialize(split, tao);
-		} catch (ClassNotFoundException e) {
-			throw new RuntimeException(e);
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		} catch (InterruptedException e) {
-			throw new RuntimeException(e);
-		}
-		
-	}
-	
-/**
- * Return the recordReader
- */
-	public RecordReader<INPUT_KEY, INPUT_VALUE> getRecordReader() {
-		return recordReader;
-	}
-	
-/**
- * Set the orbConf
- * @param  OrbConfiguration orbConf
- */
-	public void setOrbConf(OrbConfiguration orbConf) {
-		this.orbConf = orbConf;
-	}
-
-/**
- * Return the orbConf
- */
-	public OrbConfiguration getOrbConf() {
-		return orbConf;
-	}
-/**
- * Return the rawSplit
- */
-	public BytesWritable getRawSplit() {
-		return rawSplit;
-	}
-	
-/**
- * Set the rawSplit
- * @param  BytesWritable rawSplit
- */
-	public void setRawSplit(BytesWritable rawSplit) {
-		this.rawSplit = rawSplit;
-	}
-	
-/**
- * Return the splitClass
- */
-	public String getSplitClass() {
-		return splitClass;
-	}
-	
-/**
- * Set the splitClass
- * @param  String splitClass
- */
-	public void setSplitClass(String splitClass) {
-		this.splitClass = splitClass;
-	}
-	
-/**
- * Return the partitionID
- */
-	public int getPartitionID() {
-		return partitionID;
-	}
-	
-/**
- * Set the partitionID
- * @param  int partitionID
- */
-	public void setPartitionID(int partitionID) {
-		this.partitionID = partitionID;
-	}
+  @SuppressWarnings("unchecked")
+  public void initialize() {
+    // rebuild the input split
+    org.apache.hadoop.mapreduce.InputSplit split = null;
+    DataInputBuffer splitBuffer = new DataInputBuffer();
+    splitBuffer.reset(rawSplit.getBytes(), 0, rawSplit.getLength());
+    SerializationFactory factory = new SerializationFactory(orbConf);
+    Deserializer<? extends org.apache.hadoop.mapreduce.InputSplit> deserializer;
+    try {
+      deserializer = (Deserializer<? extends org.apache.hadoop.mapreduce.InputSplit>) factory
+          .getDeserializer(orbConf.getClassByName(splitClass));
+      deserializer.open(splitBuffer);
+      split = deserializer.deserialize(null);
+      JobConf job = new JobConf(orbConf);
+      JobContext jobContext = new JobContext(job, new JobID(getOrbConf().getOrbJobName(), 0));
+      InputFormat<INPUT_KEY,INPUT_VALUE> inputFormat;
+      inputFormat = (InputFormat<INPUT_KEY,INPUT_VALUE>) ReflectionUtils.newInstance(
+        jobContext.getInputFormatClass(), orbConf);
+      TaskAttemptContext tao = new TaskAttemptContext(job, new TaskAttemptID(new TaskID(
+          jobContext.getJobID(), true, partitionID), 0));
+      recordReader = inputFormat.createRecordReader(split, tao);
+      recordReader.initialize(split, tao);
+    } catch (ClassNotFoundException e) {
+      throw new RuntimeException(e);
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    } catch (InterruptedException e) {
+      throw new RuntimeException(e);
+    }
+    
+  }
+  
+  /**
+   * Return the recordReader.
+   */
+  public RecordReader<INPUT_KEY,INPUT_VALUE> getRecordReader() {
+    return recordReader;
+  }
+  
+  /**
+   * Set the orbConf.
+   * 
+   * @param orbConf
+   */
+  public void setOrbConf(OrbConfiguration orbConf) {
+    this.orbConf = orbConf;
+  }
+  
+  /**
+   * Return the orbConf.
+   */
+  public OrbConfiguration getOrbConf() {
+    return orbConf;
+  }
+  
+  /**
+   * Return the rawSplit.
+   */
+  public BytesWritable getRawSplit() {
+    return rawSplit;
+  }
+  
+  /**
+   * Set the rawSplit.
+   * 
+   * @param rawSplit
+   *          - BytesWritable
+   */
+  public void setRawSplit(BytesWritable rawSplit) {
+    this.rawSplit = rawSplit;
+  }
+  
+  /**
+   * Return the splitClass
+   */
+  public String getSplitClass() {
+    return splitClass;
+  }
+  
+  /**
+   * Set the splitClass
+   * 
+   * @param String
+   *          splitClass
+   */
+  public void setSplitClass(String splitClass) {
+    this.splitClass = splitClass;
+  }
+  
+  /**
+   * Return the partitionID
+   */
+  public int getPartitionID() {
+    return partitionID;
+  }
+  
+  /**
+   * Set the partitionID
+   * 
+   * @param int partitionID
+   */
+  public void setPartitionID(int partitionID) {
+    this.partitionID = partitionID;
+  }
 }

@@ -26,6 +26,14 @@ import org.goldenorb.Vertex;
 import org.goldenorb.conf.OrbConfigurable;
 import org.goldenorb.conf.OrbConfiguration;
 
+
+/**
+ * This class provides an abstract framework to implement a VertexBuilder.
+ *
+ * @param <VERTEX>
+ * @param <INPUT_KEY>
+ * @param <INPUT_VALUE>
+ */
 public abstract class VertexBuilder<VERTEX extends Vertex<?,?,?>, INPUT_KEY extends Writable, INPUT_VALUE extends Writable> implements OrbConfigurable{
 	
 	private OrbConfiguration orbConf;
@@ -33,8 +41,8 @@ public abstract class VertexBuilder<VERTEX extends Vertex<?,?,?>, INPUT_KEY exte
 	
 /**
  * 
- * @param  INPUT_KEY key
- * @param  INPUT_VALUE value
+ * @param key - INPUT_KEY
+ * @param value - INPUT_VALUE
  * @returns VERTEX
  */
 	protected abstract VERTEX buildVertex(INPUT_KEY key, INPUT_VALUE value);
@@ -56,15 +64,15 @@ public abstract class VertexBuilder<VERTEX extends Vertex<?,?,?>, INPUT_KEY exte
 	}
 	
 /**
- * Return the orbConf
+ * Return the orbConf.
  */
 	public OrbConfiguration getOrbConf(){
 		return orbConf;
 	}
 	
 /**
- * Set the orbConf
- * @param  OrbConfiguration orbConf
+ * Set the orbConf.
+ * @param orbConf
  */
 	public void setOrbConf(OrbConfiguration orbConf){
 		this.orbConf = orbConf;
@@ -86,8 +94,8 @@ public abstract class VertexBuilder<VERTEX extends Vertex<?,?,?>, INPUT_KEY exte
 	}
 	
 /**
- * Set the rawSplit
- * @param  BytesWritable rawSplit
+ * Set the rawSplit.
+ * @param rawSplit - BytesWritable
  */
 	public void setRawSplit(BytesWritable rawSplit) {
 		vertexInput.setRawSplit(rawSplit);
@@ -95,7 +103,7 @@ public abstract class VertexBuilder<VERTEX extends Vertex<?,?,?>, INPUT_KEY exte
 	
 /**
  * Set the splitClass
- * @param  String splitClass
+ * @param splitClass - String
  */
 	public void setSplitClass(String splitClass) {
 		vertexInput.setSplitClass(splitClass);
@@ -103,7 +111,7 @@ public abstract class VertexBuilder<VERTEX extends Vertex<?,?,?>, INPUT_KEY exte
 	
 /**
  * Set the partitionID
- * @param  int partitionID
+ * @param partitionID - int
  */
 	public void setPartitionID(int partitionID) {
 		vertexInput.setPartitionID(partitionID);
