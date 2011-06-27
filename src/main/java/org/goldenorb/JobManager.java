@@ -428,7 +428,6 @@ public class JobManager<M extends OrbTrackerMember> implements OrbConfigurable {
       job.getJobStillActiveInterface().kill();
       job.getDeathAndCompleteWatcher().kill();
       job.getHeartbeatWatcher().kill();
-      job.setJobStillActiveInterface(null);
     }
     
     // TODO tell other OrbTrackers to shut down their partition instances.
@@ -460,7 +459,6 @@ public class JobManager<M extends OrbTrackerMember> implements OrbConfigurable {
       job.getJobStillActiveInterface().kill();
       job.getDeathAndCompleteWatcher().kill();
       job.getHeartbeatWatcher().kill();
-      job.setJobStillActiveInterface(null);
     }
     ZookeeperUtils.recursiveDelete(zk, jobsInProgressPath + "/" + job.getJobNumber());
     ZookeeperUtils.deleteNodeIfEmpty(zk, jobsInProgressPath + "/" + job.getJobNumber());
