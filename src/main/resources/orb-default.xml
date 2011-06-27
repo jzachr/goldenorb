@@ -81,13 +81,6 @@
   </property>
 
   <property>
-    <name>goldenOrb.orb.partitions</name>
-    <value>localhost:3616,localhost:3617,localhost:3618</value>
-    <description>Comma delimited list of host:port for each partition to create.
-    </description>
-  </property>
-
-  <property>
     <name>goldenOrb.orb.partition.vertex.threads</name>
     <value>10</value>
     <description>Number of vertex threads per partition.
@@ -166,7 +159,7 @@
 
   <property>
     <name>goldenOrb.orb.partition.javaopts</name>
-    <value>-Xms512m -Xmx1024m</value>
+    <value>-Xmx1024m</value>
     <description>Java VM options passed to OrbPartition processes
     </description>
   </property>
