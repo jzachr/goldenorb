@@ -233,7 +233,7 @@ public class JobManager<M extends OrbTrackerMember> implements OrbConfigurable {
           logger.debug("requesting partitions");
           tracker.initProxy(getOrbConf());
           tracker.requestPartitions(request);
-          Log.info(request.toString());
+          logger.info(request.toString());
           
           JobStillActiveCheck jobStillActiveCheck = new JobStillActiveCheck(job);
           job.setJobStillActiveInterface(jobStillActiveCheck);
