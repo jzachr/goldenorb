@@ -20,6 +20,9 @@ package org.goldenorb.event.job;
 
 import org.goldenorb.event.OrbEvent;
 
+/**
+ * An OrbEvent that signifies that a new job has been created.
+ */
 public class NewJobEvent extends OrbEvent {
 
   private String jobNumber;

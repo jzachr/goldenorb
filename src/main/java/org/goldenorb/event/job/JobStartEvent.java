@@ -20,6 +20,9 @@ package org.goldenorb.event.job;
 
 import org.goldenorb.event.OrbEvent;
 
+/**
+ * An OrbEvent that signifies that a job has started.
+ */
 public class JobStartEvent extends OrbEvent {
 
 /**

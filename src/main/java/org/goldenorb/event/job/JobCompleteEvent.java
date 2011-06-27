@@ -20,6 +20,9 @@ package org.goldenorb.event.job;
 
 import org.goldenorb.event.OrbEvent;
 
+/**
+ * An OrbEvent that signifies that job has completed
+ */
 public class JobCompleteEvent extends OrbEvent {
 
   private String jobNumber;

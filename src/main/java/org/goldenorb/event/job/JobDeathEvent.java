@@ -20,6 +20,9 @@ package org.goldenorb.event.job;
 
 import org.goldenorb.event.OrbEvent;
 
+/**
+ * An OrbEvent that signifies that a job has died.
+ */
 public class JobDeathEvent extends OrbEvent{
   private String jobNumber;
 /**
