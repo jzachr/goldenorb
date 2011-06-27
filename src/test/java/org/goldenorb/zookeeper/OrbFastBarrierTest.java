@@ -109,9 +109,12 @@ public class OrbFastBarrierTest {
     assertTrue(zk.exists("/" + barrierName + "/member2", false) != null);
     //assertTrue(zk.exists("/" + barrierName + "/member3", false) != null);
     
+    
+    testBarrier1.makeInactive();
+    testBarrier2.makeInactive();
     ZookeeperUtils.recursiveDelete(zk, "/" + barrierName);
     ZookeeperUtils.deleteNodeIfEmpty(zk, "/" + barrierName);
-    zk.close();
+    //zk.close();
   }
   
   /**

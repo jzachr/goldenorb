@@ -51,9 +51,9 @@ public class OrbFastAllDoneBarrierTest {
     OrbFastAllDoneBarrier testBarrier2 = new OrbFastAllDoneBarrier(orbConf, barrierName, numOfMembers, "member2", zk);
     OrbFastAllDoneBarrier testBarrier3 = new OrbFastAllDoneBarrier(orbConf, barrierName, numOfMembers, "member3", zk);
     
-    BarrierThread bThread1 = new BarrierThread(testBarrier1, startLatch, everyoneDoneLatch);
-    BarrierThread bThread2 = new BarrierThread(testBarrier2, startLatch, everyoneDoneLatch);
-    BarrierThread bThread3 = new BarrierThread(testBarrier3, startLatch, everyoneDoneLatch);
+    BarrierThread bThread1 = new BarrierThread(testBarrier1, startLatch, everyoneDoneLatch, true);
+    BarrierThread bThread2 = new BarrierThread(testBarrier2, startLatch, everyoneDoneLatch, true);
+    BarrierThread bThread3 = new BarrierThread(testBarrier3, startLatch, everyoneDoneLatch, true);
     
     bThread1.start();
     bThread2.start();
@@ -63,13 +63,64 @@ public class OrbFastAllDoneBarrierTest {
     
     everyoneDoneLatch.await(); // wait until all threads are done
     
+    // the nodes have deleted themselves ont the way out
     assertTrue(zk.exists("/" + barrierName + "/member1", false) == null);
     assertTrue(zk.exists("/" + barrierName + "/member2", false) == null);
     assertTrue(zk.exists("/" + barrierName + "/member3", false) == null);
     
+    // the nodes say they are all done
+    assertTrue(bThread1.allDone());
+    assertTrue(bThread2.allDone());
+    assertTrue(bThread3.allDone());
+    // the AllDone node exits
+    assertTrue(zk.exists("/" + barrierName + "/AllDone", false) != null);
+    
     ZookeeperUtils.recursiveDelete(zk, "/" + barrierName);
     ZookeeperUtils.deleteNodeIfEmpty(zk, "/" + barrierName);
-    zk.close();
+  }
+  
+  /**
+   * Tests the behavior of the barrier if all expected member nodes join in a timely manner.
+   * 
+   * @throws Exception
+   */
+  @Test
+  public void allMembersJoinNotAllDone() throws Exception {
+    numOfMembers = 3;
+    CountDownLatch everyoneDoneLatch = new CountDownLatch(numOfMembers);
+    startLatch = new CountDownLatch(1);
+    ZooKeeper zk = ZookeeperUtils.connect(orbConf.getOrbZooKeeperQuorum());
+    
+    OrbFastAllDoneBarrier testBarrier1 = new OrbFastAllDoneBarrier(orbConf, barrierName, numOfMembers, "member1", zk);
+    OrbFastAllDoneBarrier testBarrier2 = new OrbFastAllDoneBarrier(orbConf, barrierName, numOfMembers, "member2", zk);
+    OrbFastAllDoneBarrier testBarrier3 = new OrbFastAllDoneBarrier(orbConf, barrierName, numOfMembers, "member3", zk);
+    
+    BarrierThread bThread1 = new BarrierThread(testBarrier1, startLatch, everyoneDoneLatch, true);
+    BarrierThread bThread2 = new BarrierThread(testBarrier2, startLatch, everyoneDoneLatch, true);
+    BarrierThread bThread3 = new BarrierThread(testBarrier3, startLatch, everyoneDoneLatch, false);
+    
+    bThread1.start();
+    bThread2.start();
+    bThread3.start();
+    
+    startLatch.countDown(); // start all threads
+    
+    everyoneDoneLatch.await(); // wait until all threads are done
+    
+    // the nodes have deleted themselves ont the way out
+    assertTrue(zk.exists("/" + barrierName + "/member1", false) == null);
+    assertTrue(zk.exists("/" + barrierName + "/member2", false) == null);
+    assertTrue(zk.exists("/" + barrierName + "/member3", false) == null);
+    
+    // the nodes say they are all done
+    assertTrue(!bThread1.allDone());
+    assertTrue(!bThread2.allDone());
+    assertTrue(!bThread3.allDone());
+    // the AllDone node exits
+    assertTrue(zk.exists("/" + barrierName + "/AllClear", false) != null);
+    
+    ZookeeperUtils.recursiveDelete(zk, "/" + barrierName);
+    ZookeeperUtils.deleteNodeIfEmpty(zk, "/" + barrierName);
   }
   
   /**
@@ -80,34 +131,40 @@ public class OrbFastAllDoneBarrierTest {
   @Test
   public void someMembersJoin() throws Exception {
     numOfMembers = 3;
+    startLatch = new CountDownLatch(1);
     CountDownLatch everyoneDoneLatch = new CountDownLatch(numOfMembers);
     CountDownLatch lastMemberLatch = new CountDownLatch(1);
     ZooKeeper zk = ZookeeperUtils.connect(orbConf.getOrbZooKeeperQuorum());
     
     OrbFastAllDoneBarrier testBarrier1 = new OrbFastAllDoneBarrier(orbConf, barrierName, numOfMembers, "member1", zk);
     OrbFastAllDoneBarrier testBarrier2 = new OrbFastAllDoneBarrier(orbConf, barrierName, numOfMembers, "member2", zk);
-    //OrbFastBarrier testBarrier3 = new OrbFastBarrier(orbConf, barrierName, numOfMembers, "member3", zk);
+    OrbFastAllDoneBarrier testBarrier3 = new OrbFastAllDoneBarrier(orbConf, barrierName, numOfMembers, "member3", zk);
     
-    BarrierThread bThread1 = new BarrierThread(testBarrier1, startLatch, everyoneDoneLatch);
-    BarrierThread bThread2 = new BarrierThread(testBarrier2, startLatch, everyoneDoneLatch);
-    //BarrierThread bThread3 = new BarrierThread(testBarrier3, lastMemberLatch, everyoneDoneLatch);
+    BarrierThread bThread1 = new BarrierThread(testBarrier1, startLatch, everyoneDoneLatch, true);
+    BarrierThread bThread2 = new BarrierThread(testBarrier2, startLatch, everyoneDoneLatch, true);
+    BarrierThread bThread3 = new BarrierThread(testBarrier3, lastMemberLatch, everyoneDoneLatch, false);
     
     bThread1.start();
     bThread2.start();
-    //bThread3.start();
+    bThread3.start();
     
     startLatch.countDown(); // start first 2 threads
     
     everyoneDoneLatch.await(500, TimeUnit.MILLISECONDS); // wait on the threads with 500ms timeout, expect to
                                                          // timeout
-    //lastMemberLatch.countDown(); // start the last member
     
-    //everyoneDoneLatch.await();
     
-    //assertTrue((zk.exists("/" + barrierName + "/member1DONE", false) != null)||(zk.exists("/" + barrierName + "/member1", false) != null));
-    //assertTrue((zk.exists("/" + barrierName + "/member2DONE", false) != null)||(zk.exists("/" + barrierName + "/member2", false) != null));
-    //assertTrue(zk.exists("/" + barrierName + "/member3", false) != null);
     
+    
+    assertTrue((zk.exists("/" + barrierName + "/member1DONE", false) != null)||(zk.exists("/" + barrierName + "/member1", false) != null));
+    assertTrue((zk.exists("/" + barrierName + "/member2DONE", false) != null)||(zk.exists("/" + barrierName + "/member2", false) != null));
+    
+    lastMemberLatch.countDown(); // start the last member
+    everyoneDoneLatch.await();
+    assertTrue(zk.exists("/" + barrierName + "/AllClear", false) != null);
+    
+    testBarrier1.makeInactive();
+    testBarrier2.makeInactive();
     ZookeeperUtils.recursiveDelete(zk, "/" + barrierName);
     ZookeeperUtils.deleteNodeIfEmpty(zk, "/" + barrierName);
     zk.close();
@@ -122,8 +179,8 @@ public class OrbFastAllDoneBarrierTest {
   @Test
   public void StressTest() throws IOException, InterruptedException, OrbZKFailure {
     //deleteThreads();
-    int numBarrierStressThreads = 10;
-    int numSteps = 10;
+    int numBarrierStressThreads = 25;
+    int numSteps = 25;
     CountDownLatch complete = new CountDownLatch(numBarrierStressThreads);
     CountDownLatch startLatch = new CountDownLatch(1);
     BarrierStressThread[] threads = new BarrierStressThread[numBarrierStressThreads];
@@ -171,6 +228,8 @@ public class OrbFastAllDoneBarrierTest {
     private OrbFastAllDoneBarrier testBarrier;
     private CountDownLatch startLatch;
     private CountDownLatch everyoneDoneLatch;
+    private boolean allDone;
+    private boolean isDone;
     
     /**
      * Constructs the BarrierThread.
@@ -182,10 +241,12 @@ public class OrbFastAllDoneBarrierTest {
      * @param everyoneDoneLatch
      *          - Used to wait for all Threads to finish
      */
-    public BarrierThread(OrbFastAllDoneBarrier barrier, CountDownLatch startLatch, CountDownLatch everyoneDoneLatch) {
+    public BarrierThread(OrbFastAllDoneBarrier barrier, CountDownLatch startLatch, CountDownLatch everyoneDoneLatch, boolean isDone) {
       this.testBarrier = barrier;
       this.startLatch = startLatch;
       this.everyoneDoneLatch = everyoneDoneLatch;
+      this.allDone = false;
+      this.isDone = isDone;
     }
     
     /**
@@ -195,13 +256,17 @@ public class OrbFastAllDoneBarrierTest {
     public void run() {
       try {
         startLatch.await(); // wait for CountDown signal
-        System.out.println(testBarrier.enter(true));
+        allDone = testBarrier.enter(isDone);
         everyoneDoneLatch.countDown(); // thread completed
       } catch (OrbZKFailure e) {
         e.printStackTrace();
       } catch (InterruptedException e) {
         e.printStackTrace();
       }
+    }
+    
+    public boolean allDone() {
+      return allDone;
     }
     
   }
@@ -221,7 +286,6 @@ public class OrbFastAllDoneBarrierTest {
     private OrbConfiguration orbConf;
     private CountDownLatch waitToStart;
     private String member;
-    
     /**
      * Constructs the BarrierStressThread.
      * 
@@ -256,8 +320,13 @@ public class OrbFastAllDoneBarrierTest {
       try {
         waitToStart.await();
         for(int i=0; i < numSteps; i++) {
-          OrbFastAllDoneBarrier ofb = new OrbFastAllDoneBarrier(orbConf, "barrier"+i, numBarrierStressThreads, member, zk);
-          System.out.println(ofb.enter(false));
+          if (i < numSteps -1) {
+            OrbFastAllDoneBarrier ofb = new OrbFastAllDoneBarrier(orbConf, "barrier"+i, numBarrierStressThreads, member, zk);
+            assertTrue(!ofb.enter(false));
+          } else {
+            OrbFastAllDoneBarrier ofb = new OrbFastAllDoneBarrier(orbConf, "barrier"+i, numBarrierStressThreads, member, zk);
+            assertTrue(ofb.enter(true));
+          }
         }
         everyoneDoneLatch.countDown(); // thread completed
       } catch (OrbZKFailure e) {
@@ -266,6 +335,8 @@ public class OrbFastAllDoneBarrierTest {
         e.printStackTrace();
       }
     }
+    
+    
     
   }
   
