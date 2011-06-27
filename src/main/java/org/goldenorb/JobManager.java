@@ -46,6 +46,7 @@ import org.goldenorb.jet.PartitionRequest;
 import org.goldenorb.util.ResourceAllocator;
 import org.goldenorb.zookeeper.OrbZKFailure;
 import org.goldenorb.zookeeper.ZookeeperUtils;
+import org.mortbay.log.Log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -232,6 +233,7 @@ public class JobManager<M extends OrbTrackerMember> implements OrbConfigurable {
           logger.debug("requesting partitions");
           tracker.initProxy(getOrbConf());
           tracker.requestPartitions(request);
+          Log.info(request.toString());
           
           JobStillActiveCheck jobStillActiveCheck = new JobStillActiveCheck(job);
           job.setJobStillActiveInterface(jobStillActiveCheck);
@@ -246,6 +248,7 @@ public class JobManager<M extends OrbTrackerMember> implements OrbConfigurable {
         jobComplete(job);
       }
     } catch (OrbZKFailure e) {
+      e.printStackTrace();
       logger.error(e.getMessage());
       fireEvent(new OrbExceptionEvent(e));
     } catch (IOException e) {

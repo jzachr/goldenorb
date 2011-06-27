@@ -74,7 +74,10 @@ public class PartitionRequest implements Writable {
    */
   
   /* End of non-generated method code */
-  
+  @Override
+  public String toString(){
+    return getReservedPartitions() + " " + getActivePartitions() + " " + getJobID() + " " + getBasePartitionID();
+  }
   /**
    * gets the number of reserved partitions requested
    * @return
