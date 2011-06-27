@@ -20,6 +20,7 @@ package org.goldenorb.zookeeper;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.SortedMap;
@@ -54,8 +55,8 @@ public class LeaderGroup<MEMBER_TYPE extends Member> implements OrbConfigurable 
   private Class<? extends Member> memberClass;
   private ZooKeeper zk;
   private boolean processWatchedEvents = true;
-  private volatile SortedMap<String,MEMBER_TYPE> members = new TreeMap<String,MEMBER_TYPE>();
-  private SortedMap<String,MemberDataWatcher> watchers = new TreeMap<String,MemberDataWatcher>();
+  private volatile SortedMap<String,MEMBER_TYPE> members = Collections.synchronizedSortedMap(new TreeMap<String,MEMBER_TYPE>());
+  private SortedMap<String,MemberDataWatcher> watchers = Collections.synchronizedSortedMap(new TreeMap<String,MemberDataWatcher>());
   private boolean fireEvents = false;
   
   /**
