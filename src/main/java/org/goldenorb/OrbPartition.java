@@ -312,10 +312,10 @@ public class OrbPartition extends OrbPartitionMember implements Runnable, OrbPar
   private void executeAsLeader() {
     synchronized (this) {
       setLeader(true);
+      new Thread(new HeartbeatGenerator()).start();
       if (!loadedVerticesComplete) {
         loadVerticesLeader();
       }
-      new Thread(new HeartbeatGenerator()).start();
     }
     waitLoop();
   }
