@@ -180,6 +180,7 @@ public class OrbPartition extends OrbPartitionMember implements Runnable, OrbPar
     }
     if (jobConf != null) {
       setOrbConf(jobConf);
+      getOrbConf().setJobNumber(jobNumber);
       LOG.debug("setOrbConf with requested, reserved", jobConf.getOrbRequestedPartitions(), jobConf.getOrbReservedPartitions());
     }
     setSuperStep(0);
