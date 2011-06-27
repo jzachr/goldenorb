@@ -23,7 +23,9 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.ipc.RPC;
@@ -44,7 +46,7 @@ public class OrbPartitionManager<M extends PartitionProcess> implements OrbConfi
   
   private final Logger logger = LoggerFactory.getLogger(OrbPartitionManager.class);
   
-  private List<M> childProcesses = new ArrayList<M>();
+  private Map<String,List<M>> processesByJob = new HashMap<String,List<M>>();
   private Class<M> processClass;
   private OrbConfiguration conf;
   private String ipAddress;
@@ -81,6 +83,7 @@ public class OrbPartitionManager<M extends PartitionProcess> implements OrbConfi
  */
   public void launchPartitions(int requested, int reserved, int basePartitionID, String jobNumber) throws InstantiationException, IllegalAccessException {
     logger.info("requested " + requested + ", reserved " + reserved);
+    List<M> processes = new ArrayList<M>();
     for (int i = 0; i < (requested + reserved); i++) {
       M partition = processClass.newInstance();
       partition.setConf(conf);
@@ -106,37 +109,40 @@ public class OrbPartitionManager<M extends PartitionProcess> implements OrbConfi
       
       logger.debug("launching partition process " + partition.getPartitionID() + " on " + ipAddress);
       partition.launch(outStream, errStream);
-      childProcesses.add(partition);
+      processes.add(partition);
     }
+    processesByJob.put(jobNumber, processes);
   }
   
 /**
  * 
  */
-  public void stop() {
+  public void stop(String jobNumber) {
     Configuration rpcConf = new Configuration();
-    for (M p : childProcesses) {
-      int rpcPort = conf.getOrbPartitionManagementBaseport() + p.getProcessNum() + 100;
-      InetSocketAddress addr = new InetSocketAddress(ipAddress, rpcPort);
-      try {
-        partitionClient = (OrbPartitionManagerProtocol) RPC.waitForProxy(OrbPartitionManagerProtocol.class,
-          OrbPartitionManagerProtocol.versionID, addr, rpcConf);
-        
-        int partitionStatus = partitionClient.stop();
-        if (partitionStatus > 0) {
-          // wait some time before trying to stop it again
-          wait(5000);
-          if (partitionClient.isRunning()) {
+    if (processesByJob.containsKey(jobNumber)) {
+      for (M p : processesByJob.get(jobNumber)) {
+        int rpcPort = conf.getOrbPartitionManagementBaseport() + p.getProcessNum() + 100;
+        InetSocketAddress addr = new InetSocketAddress(ipAddress, rpcPort);
+        try {
+          partitionClient = (OrbPartitionManagerProtocol) RPC.waitForProxy(OrbPartitionManagerProtocol.class,
+            OrbPartitionManagerProtocol.versionID, addr, rpcConf);
+          
+          int partitionStatus = partitionClient.stop();
+          if (partitionStatus > 0) {
+            // wait some time before trying to stop it again
+            wait(5000);
+            if (partitionClient.isRunning()) {
+              p.kill();
+            }
+          } else if (partitionStatus < 0) {
             p.kill();
           }
-        } else if (partitionStatus < 0) {
-          p.kill();
+          
+        } catch (IOException e) {
+          logger.error(e.getMessage());
+        } catch (InterruptedException e) {
+          logger.error(e.getMessage());
         }
-        
-      } catch (IOException e) {
-        logger.error(e.getMessage());
-      } catch (InterruptedException e) {
-        logger.error(e.getMessage());
       }
     }
   }
@@ -144,9 +150,11 @@ public class OrbPartitionManager<M extends PartitionProcess> implements OrbConfi
 /**
  * 
  */
-  public void kill() {
-    for (M p : childProcesses) {
-      p.kill();
+  public void kill(String jobNumber) {
+    if (processesByJob.containsKey(jobNumber)) {
+      for (M p : processesByJob.get(jobNumber)) {
+        p.kill();
+      }
     }
   }
   
@@ -170,8 +178,8 @@ public class OrbPartitionManager<M extends PartitionProcess> implements OrbConfi
 /**
  * Return the childProcesses
  */
-  public List<M> getChildProcesses() {
-    return childProcesses;
+  public Map<String,List<M>> getProcessesByJob() {
+    return processesByJob;
   }
 
 /**
