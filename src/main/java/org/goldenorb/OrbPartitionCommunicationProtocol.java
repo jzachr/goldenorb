@@ -21,30 +21,34 @@ package org.goldenorb;
 import org.apache.hadoop.ipc.VersionedProtocol;
 import org.goldenorb.io.input.RawSplit;
 
+/**
+ * This interface provides a protocol framework for OrbPartitions to send messages and vertices. In most cases
+ * a class will implement the methods using Hadoop RPC for intercommunication between partitions.
+ */
 public interface OrbPartitionCommunicationProtocol extends VersionedProtocol {
-	public static final long versionID = 0L;
-	
-/**
- * 
- * @param  Vertices vertices
- */
-	public void sendVertices(Vertices vertices);
-	
-/**
- * 
- * @param  Messages messages
- */
-	public void sendMessages(Messages messages);
-	
-/**
- * 
- * @param  int partitionID
- */
-	public void becomeActive(int partitionID);
-	
-/**
- * 
- * @param  RawSplit rawsplit
- */
-	public void loadVerticesFromInputSplit(RawSplit rawsplit);
+  public static final long versionID = 0L;
+  
+  /**
+   * 
+   * @param vertices
+   */
+  public void sendVertices(Vertices vertices);
+  
+  /**
+   * 
+   * @param messages
+   */
+  public void sendMessages(Messages messages);
+  
+  /**
+   * 
+   * @param partitionID
+   */
+  public void becomeActive(int partitionID);
+  
+  /**
+   * 
+   * @param rawsplit
+   */
+  public void loadVerticesFromInputSplit(RawSplit rawsplit);
 }
