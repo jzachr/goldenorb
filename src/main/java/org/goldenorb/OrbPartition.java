@@ -446,17 +446,18 @@ public class OrbPartition extends OrbPartitionMember implements Runnable, OrbPar
         List<List<Message<? extends Writable>>> messageList = new ArrayList<List<Message<? extends Writable>>>();
         int verticesLeft = processingInboundMessageQueue.getVerticesWithMessages().size();
         for (String s : processingInboundMessageQueue.getVerticesWithMessages()) {
-          count += 1;
-          verticesLeft -= 1;
-          vertexList.add(vertices.get(s));
-          messageList.add(processingInboundMessageQueue.getMessage(s));
-          
-          if (count >= getOrbConf().getVerticesPerBlock() || verticesLeft == 0) {
-            computeExecutor.execute(new VertexComputer(vertexList, messageList));
-            vertexList = new ArrayList<Vertex<?,?,?>>();
-            messageList = new ArrayList<List<Message<? extends Writable>>>();
-            count = 0;
-          }
+//          count += 1;
+//          verticesLeft -= 1;
+//          vertexList.add(vertices.get(s));
+//          messageList.add(processingInboundMessageQueue.getMessage(s));
+//          
+//          if (count >= getOrbConf().getVerticesPerBlock() || verticesLeft == 0) {
+//            computeExecutor.execute(new VertexComputer(vertexList, messageList));
+//            vertexList = new ArrayList<Vertex<?,?,?>>();
+//            messageList = new ArrayList<List<Message<? extends Writable>>>();
+//            count = 0;
+//          }
+          vertices.get(s).compute((Collection)processingInboundMessageQueue.getMessage(s));
         }
         synchronized (this) {
           while (!processingVoteToHaltSet.isEmpty()) {
