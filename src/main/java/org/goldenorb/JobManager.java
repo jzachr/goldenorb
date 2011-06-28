@@ -463,6 +463,11 @@ public class JobManager<M extends OrbTrackerMember> implements OrbConfigurable {
       job.getDeathAndCompleteWatcher().kill();
       job.getHeartbeatWatcher().kill();
     }
+    
+    for(OrbTrackerMember orbTrackerMember: orbTrackerMembers){
+      orbTrackerMember.killJob(job.getJobNumber());
+    }
+
     ZookeeperUtils.recursiveDelete(zk, jobsInProgressPath + "/" + job.getJobNumber());
     ZookeeperUtils.deleteNodeIfEmpty(zk, jobsInProgressPath + "/" + job.getJobNumber());
     removeJobFromQueue(job);
