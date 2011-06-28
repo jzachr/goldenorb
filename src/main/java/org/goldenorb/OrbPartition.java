@@ -132,7 +132,7 @@ public class OrbPartition extends OrbPartitionMember implements Runnable, OrbPar
   private ExecutorService messageHandlerExecutor;
   private ExecutorService computeExecutor;
   
-  private Map<String,Vertex<?,?,?>> vertices;
+  private Map<String,Vertex<?,?,?>> vertices = new HashMap<String, Vertex<?,?,?>>();
   
   private OrbCommunicationInterface oci = new OrbCommunicationInterface();
   
