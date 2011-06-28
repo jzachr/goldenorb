@@ -1,0 +1,5 @@
+Welcome to GoldenOrb
+
+GoldenOrb is a cloud-based open source project for massive-scale graph analysis, built upon best-of-breed software from the Apache Hadoop (http://hadoop.apache.org) project modeled after Google’s Pregel (http://portal.acm.org/citation.cfm?id=1807184) architecture. Our goal is to foster solutions to complex data problems, remove limits to innovation and contribute to the emerging ecosystem that spans all aspects of big data analysis.
+
+GoldenOrb is open-sourced under the Apache Software Foundation License v2.0.

@@ -2,22 +2,10 @@
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.goldenorb</groupId>
-    <artifactId>org.goldenorb.refactor</artifactId>
-    <version>0.0.2-SNAPSHOT</version>
+    <artifactId>core</artifactId>
+    <version>0.1.0-SNAPSHOT</version>
     <name>Golden Orb</name>
-    <description>This is the temporary Maven Project for the interim refactoring of Golden Orb</description>
-    <distributionManagement>
-        <repository>
-            <id>raveldata-releases</id>
-            <name>raveldata-releases</name>
-            <url>http://raveldata.artifactoryonline.com/raveldata/libs-releases-local</url>
-        </repository>
-        <snapshotRepository>
-            <id>raveldata-snapshots</id>
-            <name>raveldata-snapshots</name>
-            <url>http://raveldata.artifactoryonline.com/raveldata/libs-snapshots-local</url>
-        </snapshotRepository>
-    </distributionManagement>
+    <description>Maven Project for the initial release of Golden Orb</description>
     <pluginRepositories>
         <pluginRepository>
             <id>sonatype-nexus-snapshots</id>
@@ -94,16 +82,16 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
-        	<groupId>org.apache.hadoop</groupId>
-        	<artifactId>hadoop-test</artifactId>
-        	<version>0.20.2</version>
-        	<exclusions>
-       			<!-- Excluding so GWT will compile -->
-       			<exclusion>
-					<groupId>org.eclipse.jdt</groupId>
-					<artifactId>core</artifactId>
-				</exclusion>
-    		</exclusions>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-test</artifactId>
+            <version>0.20.2</version>
+            <exclusions>
+                <!-- Excluding so GWT will compile -->
+                <exclusion>
+                    <groupId>org.eclipse.jdt</groupId>
+                    <artifactId>core</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
@@ -112,7 +100,19 @@
         </dependency>
     </dependencies>
     <build>
-        <sourceDirectory>src</sourceDirectory>
+        <finalName>${groupId}.${artifactId}-${version}</finalName>
+        <sourceDirectory>src/main/java</sourceDirectory>
+        <testSourceDirectory>src/test/java</testSourceDirectory>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+            </resource>
+        </resources>
+        <testResources>
+            <testResource>
+                <directory>src/test/resources</directory>
+            </testResource>
+        </testResources>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -178,11 +178,11 @@
                 </executions>
             </plugin>
             <plugin>
-            	<groupId>com.atlassian.maven.plugins</groupId>
-            	<artifactId>maven-clover2-plugin</artifactId>
-            	<version>3.1.0</version>
-            	<configuration>
-                	<licenseLocation>/home/bamboo/bamboo-agent-home/xml-data/build-dir</licenseLocation>
+                <groupId>com.atlassian.maven.plugins</groupId>
+                <artifactId>maven-clover2-plugin</artifactId>
+                <version>3.1.0</version>
+                <configuration>
+                    <licenseLocation>/home/bamboo/bamboo-agent-home/xml-data/build-dir</licenseLocation>
                 </configuration>
             </plugin>
             <plugin>

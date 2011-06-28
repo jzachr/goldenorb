@@ -1,6 +1,6 @@
 #!/bin/sh
 
-ORB_JAR="org.goldenorb.refactor-0.0.2-SNAPSHOT.jar"
+ORB_JAR="org.goldenorb.core-0.1.0-SNAPSHOT.jar"
 
 if [ "x$ORB_HOME" = "x" ]
 then
