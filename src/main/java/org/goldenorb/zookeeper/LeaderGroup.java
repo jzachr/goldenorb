@@ -273,11 +273,7 @@ public class LeaderGroup<MEMBER_TYPE extends Member> implements OrbConfigurable 
    */
   public Collection<MEMBER_TYPE> getMembers() {
     synchronized (members) {
-      Collection<MEMBER_TYPE> memberNewList = new ArrayList<MEMBER_TYPE>();
-      for(MEMBER_TYPE member: members.values()){
-        memberNewList.add(member);
-      }
-      return memberNewList;
+      return members.values();
     }
   }
   
