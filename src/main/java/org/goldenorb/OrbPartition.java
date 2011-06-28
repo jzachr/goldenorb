@@ -285,7 +285,7 @@ public class OrbPartition extends OrbPartitionMember implements Runnable, OrbPar
     for (OrbPartitionMember orbPartitionMember : leaderGroup.getMembers()) {
       int count = 0;
       boolean connected = false;
-      while(count < 20 || !connected){
+      while(count < 20 && !connected){
         try {
           orbPartitionMember.initProxy(getOrbConf());
           connected = true;
