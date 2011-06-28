@@ -53,7 +53,7 @@ public class ResourceAllocatorTest {
     ResourceAllocator<OrbTracker> ra = new ResourceAllocator<OrbTracker>(conf, orbTrackers);
     Map<OrbTracker,Integer[]> ret = null;
     try {
-      ret = ra.assignResources();
+      ret = ra.assignResources(conf);
     } catch (InvalidJobConfException e) {
       e.printStackTrace();
     }
@@ -87,7 +87,7 @@ public class ResourceAllocatorTest {
     ResourceAllocator<OrbTracker> ra = new ResourceAllocator<OrbTracker>(conf, orbTrackers);
     Map<OrbTracker,Integer[]> ret = null;
     try {
-      ret = ra.assignResources();
+      ret = ra.assignResources(conf);
     } catch (InvalidJobConfException e) {
       e.printStackTrace();
     }
@@ -124,7 +124,7 @@ public class ResourceAllocatorTest {
     ResourceAllocator<OrbTracker> ra = new ResourceAllocator<OrbTracker>(conf, orbTrackers);
     Map<OrbTracker,Integer[]> ret = null;
     try {
-      ret = ra.assignResources();
+      ret = ra.assignResources(conf);
     } catch (InvalidJobConfException e) {
       e.printStackTrace();
     }
@@ -164,7 +164,7 @@ public class ResourceAllocatorTest {
     ResourceAllocator<OrbTracker> ra = new ResourceAllocator<OrbTracker>(conf, orbTrackers);
     Map<OrbTracker,Integer[]> ret = null;
     try {
-      ret = ra.assignResources();
+      ret = ra.assignResources(conf);
     } catch (InvalidJobConfException e) {
       e.printStackTrace();
     }

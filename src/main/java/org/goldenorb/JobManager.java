@@ -217,7 +217,7 @@ public class JobManager<M extends OrbTrackerMember> implements OrbConfigurable {
       logger.info("checking for available OrbTracker resources");
       Map<M,Integer[]> assignments = null;
       try {
-        assignments = resourceAllocator.assignResources();
+        assignments = resourceAllocator.assignResources(job.getOrbConf());
       } catch (InvalidJobConfException e) {
         logger.error(e.getMessage());
       }

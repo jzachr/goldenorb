@@ -65,16 +65,16 @@ public class ResourceAllocator<M extends OrbTrackerMember> {
    * 
    * @returns Map<M,Integer[]>
    */
-  public Map<M,Integer[]> assignResources() throws InvalidJobConfException {
+  public Map<M,Integer[]> assignResources(OrbConfiguration jobConf) throws InvalidJobConfException {
     logger.info("ResourceAllocator: assignResources()");
     
-    int requestedPartitions = conf.getOrbRequestedPartitions();
+    int requestedPartitions = jobConf.getOrbRequestedPartitions();
     // if no partitions are requested, the job is invalid
     if (requestedPartitions <= 0) {
       logger.error("missing number of requested partitions for job");
       throw new InvalidJobConfException("missing number of requested partitions for job");
     }
-    int reservedPartitions = conf.getOrbReservedPartitions();
+    int reservedPartitions = jobConf.getOrbReservedPartitions();
     
     // if this is zero, it screws up the resource allocation so we set it to Int max to move through
     // the allocation process
