@@ -44,7 +44,7 @@ public class BipartiteMatchingVertex extends
 
 	@Override
 	public void compute(Collection<IntMessage> messages) {
-
+/*
 		switch (currentiteration % NUM_PHASES) {
 		case PHASE_0:
 			switch (mygroup) {
@@ -75,20 +75,22 @@ public class BipartiteMatchingVertex extends
 				break;
 			}
 		}
-
+*/
 		this.voteToHalt();
 	}
 
 	private void phase0() {
+		int _maxweight = 0;
+		String _maxid;
 
-		for (Edge<IntWritable> e : getEdges()) {
+		/*for (Edge<IntWritable> e : getEdges()) {
 			if (e.getDestinationVertex().equals(_maxid))
 				sendMessage(new IntMessage(e.getDestinationVertex(),
 						new IntWritable(ACCEPT)));
 			else
 				sendMessage(new IntMessage(e.getDestinationVertex(),
 						new IntWritable(DENY)));
-		}
+		}*/
 	}
 
 	private void phase1(Collection<IntMessage> messages) {
@@ -107,14 +109,14 @@ public class BipartiteMatchingVertex extends
 
 		}
 
-		for (Edge<IntWritable> e : getEdges()) {
+		/*for (Edge<IntWritable> e : getEdges()) {
 			if (e.getDestinationVertex().equals(_maxid))
 				sendMessage(new IntMessage(e.getDestinationVertex(),
 						new IntWritable(ACCEPT)));
 			else
 				sendMessage(new IntMessage(e.getDestinationVertex(),
 						new IntWritable(DENY)));
-		}
+		}*/
 	}
 
 	private void phase2(Collection<IntMessage> messages) {
@@ -133,15 +135,15 @@ public class BipartiteMatchingVertex extends
 
 		}
 
-		for (Edge<IntWritable> e : getEdges()) {
-			if (e.getDestinationVertex().equals(_maxid)) {
-				sendMessage(new IntMessage(e.getDestinationVertex(),
-						new IntWritable(ACCEPT)));
-				this.setValue(new Text(_maxid));
-			} else
-				sendMessage(new IntMessage(e.getDestinationVertex(),
-						new IntWritable(DENY)));
-		}
+//		for (Edge<IntWritable> e : getEdges()) {
+//			if (e.getDestinationVertex().equals(_maxid)) {
+//				sendMessage(new IntMessage(e.getDestinationVertex(),
+//						new IntWritable(ACCEPT)));
+//				this.setValue(new Text(_maxid));
+//			} else
+//				sendMessage(new IntMessage(e.getDestinationVertex(),
+//						new IntWritable(DENY)));
+//		}
 	}
 
 	private void phase3(Collection<IntMessage> messages) {
@@ -157,7 +159,7 @@ public class BipartiteMatchingVertex extends
 
 		}
 
-		this.setValue(_maxid);
+		//this.setValue(_maxid);
 	}
 
 	// sendMessage(new IntMessage(1)

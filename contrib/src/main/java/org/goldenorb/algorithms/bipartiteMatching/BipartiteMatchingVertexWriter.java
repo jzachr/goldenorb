@@ -10,7 +10,7 @@ public class BipartiteMatchingVertexWriter extends VertexWriter<BipartiteMatchin
 	public OrbContext<Text, Text> vertexWrite(BipartiteMatchingVertex vertex) {
 		// TODO Auto-generated method stub
 		OrbContext<Text, Text> orbContext = new OrbContext<Text, Text>();
-		orbContext.write(new Text(vertex.getVertexID()), new Text(Double.toString(vertex.getPageRank())));
+		orbContext.write(new Text(vertex.getVertexID()), vertex.getValue());
 		
 		return orbContext;
 	}
