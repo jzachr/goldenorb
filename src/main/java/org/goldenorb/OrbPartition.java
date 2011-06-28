@@ -404,17 +404,18 @@ public class OrbPartition extends OrbPartitionMember implements Runnable, OrbPar
       List<List<Message<? extends Writable>>> messageList = new ArrayList<List<Message<? extends Writable>>>();
       int verticesLeft = vertices.keySet().size();
       for (Vertex<?,?,?> v : vertices.values()) {
-        count += 1;
-        verticesLeft -= 1;
-        vertexList.add(v);
-        messageList.add(new ArrayList<Message<? extends Writable>>());
-        
-        if (count >= getOrbConf().getVerticesPerBlock() || verticesLeft == 0) {
-          computeExecutor.execute(new VertexComputer(vertexList, messageList));
-          vertexList = new ArrayList<Vertex<?,?,?>>();
-          messageList = new ArrayList<List<Message<? extends Writable>>>();
-          count = 0;
-        }
+//        count += 1;
+//        verticesLeft -= 1;
+//        vertexList.add(v);
+//        messageList.add(new ArrayList<Message<? extends Writable>>());
+//        
+//        if (count >= getOrbConf().getVerticesPerBlock() || verticesLeft == 0) {
+//          computeExecutor.execute(new VertexComputer(vertexList, messageList));
+//          vertexList = new ArrayList<Vertex<?,?,?>>();
+//          messageList = new ArrayList<List<Message<? extends Writable>>>();
+//          count = 0;
+//        }
+        v.compute(new ArrayList());
       }
       synchronized (this) {
         while (!processingVoteToHaltSet.isEmpty()) {
