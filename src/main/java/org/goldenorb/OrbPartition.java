@@ -283,12 +283,17 @@ public class OrbPartition extends OrbPartitionMember implements Runnable, OrbPar
   private void initializeOrbClients() {
     orbClients = new HashMap<Integer,OrbPartitionCommunicationProtocol>();
     for (OrbPartitionMember orbPartitionMember : leaderGroup.getMembers()) {
-      try {
-        orbPartitionMember.initProxy(getOrbConf());
-        LOG.debug("partition {} proxy initialized for {}", getPartitionID(), orbPartitionMember.getPartitionID());
-      } catch (IOException e) {
-        // TODO This is a significant error and should start the killing of the partition
-        e.printStackTrace();
+      int count = 0;
+      boolean connected = false;
+      while(count < 20 || !connected){
+        try {
+          orbPartitionMember.initProxy(getOrbConf());
+          connected = true;
+          LOG.debug("partition {} proxy initialized for {}", getPartitionID(), orbPartitionMember.getPartitionID());
+        } catch (IOException e) {
+          count++;
+          e.printStackTrace();
+        }
       }
       orbClients.put(orbPartitionMember.getPartitionID(), orbPartitionMember);
     }
