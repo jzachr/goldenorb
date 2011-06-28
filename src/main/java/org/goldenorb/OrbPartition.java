@@ -254,17 +254,20 @@ public class OrbPartition extends OrbPartitionMember implements Runnable, OrbPar
     LOG.debug("leaderGroup member paths {}", leaderGroup.getMembersPath().toString());
     LOG.debug("requested {}, reserved {}", getOrbConf().getOrbRequestedPartitions(), getOrbConf().getOrbReservedPartitions());
     
-    synchronized (this) {
-      while (leaderGroup.getNumOfMembers() < (getOrbConf().getOrbRequestedPartitions() + getOrbConf()
-          .getOrbReservedPartitions())) {
-        try {
-          LOG.debug("partition {} is waiting", getPartitionID());
-          wait(PARTITION_JOIN_TIMEOUT);
-        } catch (InterruptedException e) {
-          e.printStackTrace();
-        }
-      }
-    }
+//    synchronized (this) {
+//      while (leaderGroup.getNumOfMembers() < (getOrbConf().getOrbRequestedPartitions() + getOrbConf()
+//          .getOrbReservedPartitions())) {
+//        try {
+//          LOG.debug("partition {} is waiting", getPartitionID());
+//          wait(PARTITION_JOIN_TIMEOUT);
+//        } catch (InterruptedException e) {
+//          e.printStackTrace();
+//        }
+//      }
+//    }
+    
+    enterBarrier("rdyToInitClientsBarrier");
+    
     initializeOrbClients();
     
     if (leaderGroup.isLeader()) {
@@ -282,7 +285,7 @@ public class OrbPartition extends OrbPartitionMember implements Runnable, OrbPar
     for (OrbPartitionMember orbPartitionMember : leaderGroup.getMembers()) {
       try {
         orbPartitionMember.initProxy(getOrbConf());
-        LOG.debug("partition {} proxy initialized", getPartitionID());
+        LOG.debug("partition {} proxy initialized for {}", getPartitionID(), orbPartitionMember.getPartitionID());
       } catch (IOException e) {
         // TODO This is a significant error and should start the killing of the partition
         e.printStackTrace();
