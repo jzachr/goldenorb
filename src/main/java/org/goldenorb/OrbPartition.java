@@ -813,7 +813,7 @@ public class OrbPartition extends OrbPartitionMember implements Runnable, OrbPar
         currentInboundMessageQueue.addMessages(messages);
         
         synchronized (OrbPartition.this) {
-          messagesHandlers.remove(OrbPartition.this);
+          messagesHandlers.remove(this);
           LOG.info("Partition " + getPartitionID() + " " + OrbPartition.this + " messagesHandlerNotifying Parent "
                    + Integer.toString(getSuperStep()));
           OrbPartition.this.notify();
