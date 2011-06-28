@@ -732,7 +732,7 @@ public class OrbPartition extends OrbPartitionMember implements Runnable, OrbPar
      * @returns int
      */
     public int superStep() {
-      return 0;
+      return getSuperStep();
     }
     
     /**
@@ -740,14 +740,18 @@ public class OrbPartition extends OrbPartitionMember implements Runnable, OrbPar
      * @param String
      *          vertexID
      */
-    public void voteToHalt(String vertexID) {}
+    public void voteToHalt(String vertexID) {
+      processingVoteToHaltSet.voteToHalt(vertexID);
+    }
     
     /**
      * 
      * @param Message
      *          <? extends Writable> message
      */
-    public void sendMessage(Message<? extends Writable> message) {}
+    public void sendMessage(Message<? extends Writable> message) {
+      OrbPartition.this.outboundMessageQueue.sendMessage(message);
+    }
   }
   
   /**
