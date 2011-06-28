@@ -485,6 +485,7 @@ public class OrbPartition extends OrbPartitionMember implements Runnable, OrbPar
     computing = false;
     LOG.info("Partition: (" + Integer.toString(getPartitionID()) + ") Done computing!!!!!!");
     dumpData();
+    enterBarrier("doneDumpingDataBarrier");
     try {
       ZookeeperUtils.tryToCreateNode(zk, jobInProgressPath + "/messages/complete");
     } catch (OrbZKFailure e) {
