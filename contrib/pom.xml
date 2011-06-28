@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.goldenorb</groupId>
     <version>0.1.0-SNAPSHOT</version>
-    <artifactId>goldenorb-contrib</artifactId>
+    <artifactId>contrib</artifactId>
     <name>Golden Orb</name>
     <description>This is the Maven Project which contains contributed algorithms.</description>
     <distributionManagement>
@@ -119,8 +119,8 @@
         </dependency>
     </dependencies>
     <build>
+        <finalName>${groupId}.${artifactId}-${version}</finalName>
         <sourceDirectory>src/main/java</sourceDirectory>
-        <testSourceDirectory>src/test/java</testSourceDirectory>
         <resources>
 			<resource>
 				<directory>src/main/resources</directory>
