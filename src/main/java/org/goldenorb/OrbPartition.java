@@ -465,6 +465,9 @@ public class OrbPartition extends OrbPartitionMember implements Runnable, OrbPar
         }
       }
     }
+    
+    enterBarrier("doneComputingVerticesBarrier", getSuperStep());
+    
     outboundMessageQueue.sendRemainingMessages();
     
     enterBarrier("doneSendingMessagesBarrier", getSuperStep());
