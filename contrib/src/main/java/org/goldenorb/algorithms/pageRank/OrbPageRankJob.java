@@ -14,11 +14,12 @@ public class OrbPageRankJob extends OrbRunner{
 		
 		String inputpath = args[0];
 		String outputpath = args[1];
+		String totalpages = args[2];
 		OrbPageRankJob omvj = new OrbPageRankJob();
-		omvj.startJob(inputpath, outputpath);
+		omvj.startJob(inputpath, outputpath, totalpages);
 	}
 	
-	public void startJob(String inputPath, String outputPath){
+	public void startJob(String inputPath, String outputPath, String totalPages){
 		
 		orbConf = new OrbConfiguration(true);
 		
@@ -31,6 +32,9 @@ public class OrbPageRankJob extends OrbRunner{
 		orbConf.setNumberOfMessageHandlers(10);
 		orbConf.setNumberOfVertexThreads(10);
 		orbConf.setNumberOfPartitionsPerMachine(4);
+		
+		// pass totalpages to all nodes
+		
 		runJob(orbConf);
 		
 	}

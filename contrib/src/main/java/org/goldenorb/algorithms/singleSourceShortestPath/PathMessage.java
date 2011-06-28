@@ -6,7 +6,6 @@ import org.apache.hadoop.io.ArrayWritable;
 import org.apache.hadoop.io.IntWritable;
 import org.goldenorb.Message;
 import org.goldenorb.Vertex;
-import org.goldenorb.io.VertexArrayWritable;
 
 public class PathMessage extends Message<PathWritable> {
 

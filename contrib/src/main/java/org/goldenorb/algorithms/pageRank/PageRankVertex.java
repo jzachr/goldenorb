@@ -3,56 +3,77 @@ package org.goldenorb.algorithms.pageRank;
 import java.util.Collection;
 import java.util.List;
 
+import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.IntWritable;
 import org.goldenorb.Edge;
 import org.goldenorb.Vertex;
+import org.goldenorb.types.message.DoubleMessage;
 import org.goldenorb.types.message.IntMessage;
 
-public class PageRankVertex extends Vertex<IntWritable, IntWritable, IntMessage>{
+public class PageRankVertex extends Vertex<DoubleWritable, IntWritable, DoubleMessage>{
 	
-	int maxValue = 0;
+	// this should get passed in by the job
+	int totalpages = 1000;
+	int maxiterations = 10;
+	double dumpfactor = 0.85;
+	
+	int currentiteration = 0;
+	int outgoingEdgeCount = 0;
+	
+	double pageRank = Double.NaN;
 	
 	public PageRankVertex(){
-		super(IntWritable.class, IntWritable.class, IntMessage.class);
+		super(DoubleWritable.class, IntWritable.class, DoubleMessage.class);
 	}
 
-	public PageRankVertex(String _vertexID, IntWritable _value, List<Edge<IntWritable>> _edges) {
+	public PageRankVertex(String _vertexID, DoubleWritable _value, List<Edge<IntWritable>> _edges) {
 		super(_vertexID, _value, _edges);
+		outgoingEdgeCount = _edges.size();
+		pageRank = 1.0/((double)totalpages);
+		if(outgoingEdgeCount == 0){
+			outgoingEdgeCount = totalpages;
+		}
 	}
 
 	@Override
-	public void compute(Collection<IntMessage> messages) {
+	public void compute(Collection<DoubleMessage> messages) {
 		
-		int _maxValue = 0;
+		double _newrank = 0;
+		double _outgoingrank;
 		
-		for(IntMessage m: messages){
+		for(DoubleMessage m: messages){
 			
-			int msgValue = ((IntWritable)m.getMessageValue()).get();
-			if( msgValue > _maxValue ){
-				_maxValue = msgValue;
-			}
+			double msgValue = ((DoubleMessage)m.getMessageValue()).get();
+			_newrank += msgValue;
 		}
 		
-		if(this.getValue().get() > _maxValue){
-			_maxValue = this.getValue().get();
-		}
+		pageRank = _newrank;
 		
-		if(_maxValue > maxValue){
-			maxValue = _maxValue;
+		_outgoingrank = computeOutgoingRank(_newrank);
+		
+		if(currentiteration <= maxiterations){
 			for(Edge<IntWritable> e: getEdges()){
-				sendMessage(new IntMessage(e.getDestinationVertex(), new IntWritable(maxValue)));
+				sendMessage(new DoubleMessage(e.getDestinationVertex(), new DoubleWritable(_outgoingrank)));
 			}
 		}
 		
 		this.voteToHalt();
 	}
 	
-	public int getMaxValue(){
-		return maxValue;
+	private double computeOutgoingRank(double _newrank) {
+		double outPR = 0.0;
+		//outPR = _newrank/((double) outgoingEdgeCount);
+		// correction to account for likelihood of loops
+		outPR = dumpfactor * (_newrank/((double) outgoingEdgeCount)) + (1-dumpfactor)*(_newrank/((double) totalpages));
+		return outPR;
+	}
+
+	public double getPageRank(){
+		return pageRank;
 	}
 	
 	@Override
 	public String toString(){
-		return "\"Value\":\"" + maxValue + "\"";
+		return "\"PageRank\":\"" + pageRank + "\"";
 	}
 }
