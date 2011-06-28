@@ -4,7 +4,7 @@ i = 0
 mod = 2;
 
 while i < 1000:
-	outputLine = str(i)
+	outputLine = str(i) + "\t" + str(i % mod)
 	j = 0
 	p = random.uniform(0.0,0.1)
 	while j < 1000:
