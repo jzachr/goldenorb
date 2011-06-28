@@ -68,7 +68,7 @@ public class VertexInput<INPUT_KEY,INPUT_VALUE> implements OrbConfigurable {
       deserializer.open(splitBuffer);
       split = deserializer.deserialize(null);
       JobConf job = new JobConf(orbConf);
-      JobContext jobContext = new JobContext(job, new JobID(getOrbConf().getOrbJobName(), 0));
+      JobContext jobContext = new JobContext(job, new JobID(getOrbConf().getJobNumber(), 0));
       InputFormat<INPUT_KEY,INPUT_VALUE> inputFormat;
       inputFormat = (InputFormat<INPUT_KEY,INPUT_VALUE>) ReflectionUtils.newInstance(
         jobContext.getInputFormatClass(), orbConf);
