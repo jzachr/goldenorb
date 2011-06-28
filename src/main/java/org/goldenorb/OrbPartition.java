@@ -420,6 +420,8 @@ public class OrbPartition extends OrbPartitionMember implements Runnable, OrbPar
         while (!processingVoteToHaltSet.isEmpty()) {
           try {
             wait(1000);
+            LOG.debug(Integer.toString(processingVoteToHaltSet.size()));
+
           } catch (InterruptedException e) {
             e.printStackTrace();
           }
@@ -461,6 +463,7 @@ public class OrbPartition extends OrbPartitionMember implements Runnable, OrbPar
             } catch (InterruptedException e) {
               e.printStackTrace();
             }
+            LOG.debug(Integer.toString(processingVoteToHaltSet.size()));
           }
         }
       }
@@ -1013,7 +1016,7 @@ public class OrbPartition extends OrbPartitionMember implements Runnable, OrbPar
         leaderGroup.getNumOfMembers(), Integer.toString(getPartitionID()), zk);
     try {
       barrier.enter();
-      LOG.debug("{} entered", barrierName);
+      LOG.debug("{} entered " + getPartitionID(), barrierName);
     } catch (OrbZKFailure e) {
       LOG.error("Failed to complete barrier: " + barrierName, e);
       e.printStackTrace();
