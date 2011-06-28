@@ -506,7 +506,7 @@ public class OrbPartition extends OrbPartitionMember implements Runnable, OrbPar
     
     boolean tryAgain = true;
     int count = 0;
-    while (tryAgain && count < 3)
+    while (tryAgain && count < 15)
       try {
         count++;
         tryAgain = false;
