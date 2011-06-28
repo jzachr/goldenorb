@@ -14,11 +14,12 @@ public class OrbMaximumValueJob extends OrbRunner{
 		
 		String inputpath = args[0];
 		String outputpath = args[1];
+		String classpath = args[2];
 		OrbMaximumValueJob omvj = new OrbMaximumValueJob();
-		omvj.startJob(inputpath, outputpath);
+		omvj.startJob(inputpath, outputpath, classpath);
 	}
 	
-	public void startJob(String inputPath, String outputPath){
+	public void startJob(String inputPath, String outputPath, String classPath){
 		
 		orbConf = new OrbConfiguration(true);
 		
@@ -31,6 +32,9 @@ public class OrbMaximumValueJob extends OrbRunner{
 		orbConf.setNumberOfMessageHandlers(10);
 		orbConf.setNumberOfVertexThreads(10);
 		orbConf.setNumberOfPartitionsPerMachine(4);
+		orbConf.setFileInputPath(inputPath);
+		orbConf.setFileOutputPath(outputPath);
+		orbConf.setOrbClassPaths(classPath);
 		runJob(orbConf);
 		
 	}

@@ -14,11 +14,12 @@ public class OrbSingleSourceShortestPathJob extends OrbRunner{
 		
 		String inputpath = args[0];
 		String outputpath = args[1];
+		String classpath = args[2];
 		OrbSingleSourceShortestPathJob omvj = new OrbSingleSourceShortestPathJob();
-		omvj.startJob(inputpath, outputpath);
+		omvj.startJob(inputpath, outputpath, classpath);
 	}
 	
-	public void startJob(String inputPath, String outputPath){
+	public void startJob(String inputPath, String outputPath, String classPath){
 		
 		orbConf = new OrbConfiguration(true);
 		
