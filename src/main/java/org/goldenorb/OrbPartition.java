@@ -22,6 +22,7 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -112,9 +113,9 @@ public class OrbPartition extends OrbPartitionMember implements Runnable, OrbPar
   
   private boolean loadedVerticesComplete = false;
   
-  private Set<InputSplitLoaderHandler> inputSplitLoaderHandlers = new HashSet<InputSplitLoaderHandler>();
-  private Set<MessagesHandler> messagesHandlers = new HashSet<MessagesHandler>();
-  private Set<LoadVerticesHandler> loadVerticesHandlers = new HashSet<LoadVerticesHandler>();
+  private Set<InputSplitLoaderHandler> inputSplitLoaderHandlers = Collections.synchronizedSet(new HashSet<InputSplitLoaderHandler>());
+  private Set<MessagesHandler> messagesHandlers = Collections.synchronizedSet(new HashSet<MessagesHandler>());
+  private Set<LoadVerticesHandler> loadVerticesHandlers = Collections.synchronizedSet(new HashSet<LoadVerticesHandler>());
   
   private InboundMessageQueue currentInboundMessageQueue;
   private InboundMessageQueue processingInboundMessageQueue;
