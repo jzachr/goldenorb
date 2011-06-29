@@ -158,7 +158,7 @@
 				<version>1.0-SNAPSHOT</version>
 				<configuration>
 					<dataDirectory>${project.build.directory}/zookeeperData/</dataDirectory>
-					<port>12181</port>
+					<port>2181</port>
 				</configuration>
 				<executions>
 					<execution>
