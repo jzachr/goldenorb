@@ -26,6 +26,8 @@ import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.ZooKeeper;
 import org.goldenorb.conf.OrbConfiguration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class provides the implementation of a ZooKeeper Barrier for the GoldenOrb project. It can be used to
@@ -34,6 +36,8 @@ import org.goldenorb.conf.OrbConfiguration;
  * 
  */
 public class OrbFastBarrier implements Barrier {
+  
+  private final Logger logger = LoggerFactory.getLogger(OrbFastBarrier.class);
   
   private OrbConfiguration orbConf;
   private String barrierName;
@@ -82,7 +86,7 @@ public class OrbFastBarrier implements Barrier {
   public void enter() throws OrbZKFailure {
     // general path looks like: "/barrierName/member"
     String memberPath = barrierName + "/" + member;
-    
+    logger.debug("enter(): {}", memberPath);
     /*
      * If this barrier is the first to enter() it will create the barrier node and firstToEnter will be the
      * path of the barrier node. Otherwise firstToEnter will equal null.
@@ -91,6 +95,7 @@ public class OrbFastBarrier implements Barrier {
     ZookeeperUtils.tryToCreateNode(zk, memberPath, CreateMode.EPHEMERAL);
     
     if (firstToEnter != null) { // becomes the counter for this barrier
+      logger.debug("{} is the counter", memberPath);
       try {
         BarrierWatcher bw = new BarrierWatcher(this);
         List<String> memberList = zk.getChildren(barrierName, bw);
@@ -101,6 +106,7 @@ public class OrbFastBarrier implements Barrier {
             memberList = zk.getChildren(barrierName, bw);
           }
         }
+        logger.debug("all {} have joined, sending AllClear", memberList.size());
         // Everyone has joined, give the All Clear to move forward
         ZookeeperUtils.tryToCreateNode(zk, barrierName + "/AllClear", CreateMode.EPHEMERAL);
         // delete its node on they way out
@@ -112,12 +118,14 @@ public class OrbFastBarrier implements Barrier {
       }
     } else { // not first to enter, therefore just watches for the AllClear node
       try {
+        logger.debug("{} not first to enter, waiting", memberPath);
         BarrierWatcher bw = new BarrierWatcher(this);
         while (zk.exists(barrierName + "/AllClear", bw) == null) {
           synchronized (this) {
             this.wait(1000);
           }
         }
+        logger.debug("{} recvd AllClear, moving on", memberPath);
         // delete its node on they way out
         ZookeeperUtils.deleteNodeIfEmpty(zk, memberPath);
       } catch (KeeperException e) {

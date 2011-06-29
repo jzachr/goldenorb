@@ -1029,11 +1029,14 @@ public class OrbPartition extends OrbPartitionMember implements Runnable, OrbPar
    */
   private void enterBarrier(String barrierName) {
     LOG.debug("p{} creating barrier {}", getPartitionID(), barrierName);
-    Barrier barrier = new OrbFastBarrier(getOrbConf(), jobInProgressPath + "/" + barrierName,
-        leaderGroup.getNumOfMembers(), Integer.toString(getPartitionID()), zk);
+    LOG.debug("{} will wait for {} partitions", barrierName, getOrbConf().getOrbRequestedPartitions()
+                                                             + getOrbConf().getOrbReservedPartitions());
+    Barrier barrier = new OrbFastBarrier(getOrbConf(), jobInProgressPath + "/" + barrierName, getOrbConf()
+        .getOrbRequestedPartitions() + getOrbConf().getOrbReservedPartitions(),
+        Integer.toString(getPartitionID()), zk);
     try {
       barrier.enter();
-      LOG.debug("p{} entered {}" + getPartitionID(), barrierName);
+      LOG.debug("p{} entered {}", getPartitionID(), barrierName);
     } catch (OrbZKFailure e) {
       LOG.error("p{} failed to complete barrier {}: " + e.getMessage(), getPartitionID(), barrierName);
       e.printStackTrace();
