@@ -1,0 +1,15 @@
+org.goldenorb
+org.goldenorb.conf
+org.goldenorb.event
+org.goldenorb.event.job
+org.goldenorb.io
+org.goldenorb.io.input
+org.goldenorb.io.input.checkpoint
+org.goldenorb.io.output
+org.goldenorb.io.output.checkpoint
+org.goldenorb.jet
+org.goldenorb.net
+org.goldenorb.queue
+org.goldenorb.types.message
+org.goldenorb.util
+org.goldenorb.zookeeper
