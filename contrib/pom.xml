@@ -62,7 +62,7 @@
         </dependency>
         <dependency>
             <groupId>org.goldenorb</groupId>
-            <artifactId>goldenorb-core</artifactId>
+            <artifactId>core</artifactId>
             <version>0.1.0-SNAPSHOT</version>
             <type>jar</type>
             <scope>compile</scope>
@@ -119,7 +119,7 @@
         </dependency>
     </dependencies>
     <build>
-        <finalName>${groupId}.${artifactId}-${version}</finalName>
+        <finalName>${project.groupId}.${project.artifactId}-${project.version}</finalName>
         <sourceDirectory>src/main/java</sourceDirectory>
         <resources>
 			<resource>
