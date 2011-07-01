@@ -12,6 +12,12 @@ then
 	ORB_LIBS="$ORB_HOME"/lib
 fi
 
+if [ ! -d "$ORB_HOME"/logs ]
+then
+	mkdir "$ORB_HOME"/logs
+fi
+
+ORB_LOGF="$ORB_HOME"/logs/orb-tracker.`date +%Y-%m-%d.%H%M-%Z`.out
 ORB_PIDFILE="$ORB_HOME"/orbtracker.pid
 ORB_CLASSPATH="$ORB_LIBS"/.:"$ORB_LIBS"/\*:"$ORB_HOME"/target/"$ORB_JAR":`cat $ORB_HOME/classpath.txt`
 
@@ -20,7 +26,7 @@ start)
 	echo "using ORB_HOME=$ORB_HOME"
 	echo "using ORB_LIBS=$ORB_LIBS"
 	echo "starting OrbTracker"
-	java -cp "$ORB_CLASSPATH" org.goldenorb.OrbTracker &
+	java -cp "$ORB_CLASSPATH" org.goldenorb.OrbTracker >> "$ORB_LOGF" 2>&1 &
 	/bin/echo -n $! > "$ORB_PIDFILE"
 	echo STARTED
 	;;
