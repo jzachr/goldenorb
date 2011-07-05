@@ -10,29 +10,30 @@ import org.goldenorb.Edge;
 import org.goldenorb.Vertex;
 import org.goldenorb.types.message.DoubleMessage;
 import org.goldenorb.types.message.IntMessage;
+import org.goldenorb.util.message.IntSourceMessage;
 
 public class BipartiteMatchingVertex extends
-		Vertex<Text, IntWritable, IntMessage> {
+		Vertex<Text, IntWritable, IntSourceMessage> {
 
-	static int PHASE_0 = 0;
-	static int PHASE_1 = 1;
-	static int PHASE_2 = 2;
-	static int PHASE_3 = 3;
-	static int NUM_PHASES = 4;
+	final static int PHASE_0 = 0;
+	final static int PHASE_1 = 1;
+	final static int PHASE_2 = 2;
+	final static int PHASE_3 = 3;
+	final static int NUM_PHASES = 4;
 
-	static int GROUP_0 = 0;
-	static int GROUP_1 = 1;
-	static int NUM_GROUPS = 2;
+	final static int GROUP_0 = 0;
+	final static int GROUP_1 = 1;
+	final static int NUM_GROUPS = 2;
 
-	static int ACCEPT = 1;
-	static int DENY = 0;
+	final static int ACCEPT = 1;
+	final static int DENY = 0;
+	final static int REQUEST = 1;
 
 	// this should get passed in by the job
 	int mygroup;
-	int currentiteration = 0;
 
 	public BipartiteMatchingVertex() {
-		super(Text.class, IntWritable.class, IntMessage.class);
+		super(Text.class, IntWritable.class, IntSourceMessage.class);
 	}
 
 	public BipartiteMatchingVertex(String _vertexID, Text _value,
@@ -43,9 +44,9 @@ public class BipartiteMatchingVertex extends
 	}
 
 	@Override
-	public void compute(Collection<IntMessage> messages) {
-/*
-		switch (currentiteration % NUM_PHASES) {
+	public void compute(Collection<IntSourceMessage> messages) {
+
+		switch (Integer.parseInt(Long.toString(superStep() - 1)) % NUM_PHASES) {
 		case PHASE_0:
 			switch (mygroup) {
 			case GROUP_0:
@@ -75,94 +76,91 @@ public class BipartiteMatchingVertex extends
 				break;
 			}
 		}
-*/
+
 		this.voteToHalt();
 	}
 
 	private void phase0() {
-		int _maxweight = 0;
-		String _maxid;
 
-		/*for (Edge<IntWritable> e : getEdges()) {
-			if (e.getDestinationVertex().equals(_maxid))
-				sendMessage(new IntMessage(e.getDestinationVertex(),
-						new IntWritable(ACCEPT)));
-			else
-				sendMessage(new IntMessage(e.getDestinationVertex(),
-						new IntWritable(DENY)));
-		}*/
+		for (Edge<IntWritable> e : getEdges()) {
+			sendMessage(new IntSourceMessage(this, e.getDestinationVertex(),
+					new IntWritable(REQUEST)));
+		}
 	}
 
-	private void phase1(Collection<IntMessage> messages) {
+	private void phase1(Collection<IntSourceMessage> messages) {
 		int _maxweight = 0;
-		String _maxid;
+		String _maxid = null;
 
-		for (IntMessage m : messages) {
+		for (IntSourceMessage m : messages) {
 
-			int msgValue = ((IntMessage) m.getMessageValue()).get();
+			int msgValue = ((IntSourceMessage) m.getMessageValue()).get();
+			String msgSource = ((IntSourceMessage) m.getMessageValue())
+					.getSourceVertex();
 
 			if (msgValue > _maxweight) {
 				_maxweight = msgValue;
 				// needs to pull sourceVertexId from message
-				// _maxid =
+				_maxid = msgSource;
 			}
 
 		}
 
-		/*for (Edge<IntWritable> e : getEdges()) {
+		for (Edge<IntWritable> e : getEdges()) {
 			if (e.getDestinationVertex().equals(_maxid))
-				sendMessage(new IntMessage(e.getDestinationVertex(),
-						new IntWritable(ACCEPT)));
+				sendMessage(new IntSourceMessage(this,
+						e.getDestinationVertex(), new IntWritable(ACCEPT)));
 			else
-				sendMessage(new IntMessage(e.getDestinationVertex(),
-						new IntWritable(DENY)));
-		}*/
+				sendMessage(new IntSourceMessage(this,
+						e.getDestinationVertex(), new IntWritable(DENY)));
+		}
 	}
 
-	private void phase2(Collection<IntMessage> messages) {
+	private void phase2(Collection<IntSourceMessage> messages) {
 		int _maxweight = 0;
-		String _maxid;
+		String _maxid = null;
 
-		for (IntMessage m : messages) {
+		for (IntSourceMessage m : messages) {
 
-			int msgValue = ((IntMessage) m.getMessageValue()).get();
+			int msgValue = ((IntSourceMessage) m.getMessageValue()).get();
+			String msgSource = ((IntSourceMessage) m.getMessageValue())
+					.getSourceVertex();
 
 			if (msgValue > _maxweight) {
 				_maxweight = msgValue;
-				// needs to pull sourceVertexId from message
-				// _maxid =
+				_maxid = msgSource;
 			}
 
 		}
 
-//		for (Edge<IntWritable> e : getEdges()) {
-//			if (e.getDestinationVertex().equals(_maxid)) {
-//				sendMessage(new IntMessage(e.getDestinationVertex(),
-//						new IntWritable(ACCEPT)));
-//				this.setValue(new Text(_maxid));
-//			} else
-//				sendMessage(new IntMessage(e.getDestinationVertex(),
-//						new IntWritable(DENY)));
-//		}
+		for (Edge<IntWritable> e : getEdges()) {
+			if (e.getDestinationVertex().equals(_maxid)) {
+				sendMessage(new IntSourceMessage(this,
+						e.getDestinationVertex(), new IntWritable(ACCEPT)));
+				this.setValue(new Text(_maxid));
+			} else
+				sendMessage(new IntSourceMessage(this,
+						e.getDestinationVertex(), new IntWritable(DENY)));
+		}
 	}
 
-	private void phase3(Collection<IntMessage> messages) {
+	private void phase3(Collection<IntSourceMessage> messages) {
 		int _maxweight = 0;
-		String _maxid;
+		String _maxid = null;
 
-		for (IntMessage m : messages) {
+		for (IntSourceMessage m : messages) {
 
-			int msgValue = ((IntMessage) m.getMessageValue()).get();
+			int msgValue = ((IntSourceMessage) m.getMessageValue()).get();
+			String msgSource = ((IntSourceMessage) m.getMessageValue())
+					.getSourceVertex();
+
 			_maxweight = msgValue;
-				// needs to pull sourceVertexId from message
-				// _maxid =
+			_maxid = msgSource;
 
 		}
 
-		//this.setValue(_maxid);
+		this.setValue(new Text(_maxid));
 	}
-
-	// sendMessage(new IntMessage(1)
 
 	@Override
 	public String toString() {
