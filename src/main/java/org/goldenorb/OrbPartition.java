@@ -774,6 +774,10 @@ public class OrbPartition extends OrbPartitionMember implements Runnable, OrbPar
     public void sendMessage(Message<? extends Writable> message) {
       OrbPartition.this.outboundMessageQueue.sendMessage(message);
     }
+    
+    public String getOrbProperty(String property) {
+    	return OrbPartition.this.getOrbConf().get(property);
+    }
   }
   
   /**
