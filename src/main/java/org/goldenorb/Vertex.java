@@ -173,7 +173,7 @@ public abstract class Vertex<VV extends Writable,EV extends Writable,MV extends 
   /**
    * Return the edges.
    */
-  protected Collection<Edge<EV>> getEdges() {
+  public Collection<Edge<EV>> getEdges() {
     return edges;
   }
   

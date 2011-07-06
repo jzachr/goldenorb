@@ -29,8 +29,8 @@ import org.apache.hadoop.io.Writable;
  * the the type in the constructor of the subclass if you wish to be able to use it in hadoop rpc.
  * 
  * For example: <code>
- * public class IntMessage extends Message<IntWritable/> {
- *   public IntMessage() { 
+ * public class IntSourceMessage extends Message<IntWritable/> {
+ *   public IntSourceMessage() { 
  *     super(IntWritable.class); 
  *   }	
  * }

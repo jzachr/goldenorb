@@ -17,6 +17,8 @@
  */
 package org.goldenorb;
 
+import org.goldenorb.types.ArrayListWritable;
+
 /**
  * This class is used to aggregate Vertex objects and is an extension of ArrayListWritable, where most of the
  * methods and data structures for Vertices exist.
