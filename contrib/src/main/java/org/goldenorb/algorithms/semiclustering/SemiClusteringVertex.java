@@ -34,6 +34,30 @@ public class SemiClusteringVertex extends Vertex<ArrayListWritable, IntWritable,
 		ArrayListWritable<SemiClusterWritable> _array = new ArrayListWritable<SemiClusterWritable>();
 		_array.setWritableType(SemiClusterWritable.class);
 		this.setValue(_array);
+		
+		try { 
+			maxiterations = Integer.parseInt(super.getOci().getOrbProperty(OrbSemiClusteringJob.MAXITERATIONS));
+		} catch( Exception e ) {
+			
+		}
+		
+		try { 
+			vmax = Integer.parseInt(super.getOci().getOrbProperty(OrbSemiClusteringJob.MAXVERTICES));
+		} catch( Exception e ) {
+			
+		}
+		
+		try { 
+			cmax = Integer.parseInt(super.getOci().getOrbProperty(OrbSemiClusteringJob.MAXCLUSTERS));
+		} catch( Exception e ) {
+			
+		}
+		
+		try { 
+			boundaryedgefactor = Double.parseDouble(super.getOci().getOrbProperty(OrbSemiClusteringJob.BOUNDARYFACTOR));
+		} catch( Exception e ) {
+			
+		}
 	}
 
 	@Override
@@ -53,7 +77,7 @@ public class SemiClusteringVertex extends Vertex<ArrayListWritable, IntWritable,
 			this.voteToHalt();
 		} 
 		
-		if( this.superStep() == maxiterations ) {
+		if( this.superStep() == maxiterations+1 ) {
 			this.voteToHalt();
 		}
 		

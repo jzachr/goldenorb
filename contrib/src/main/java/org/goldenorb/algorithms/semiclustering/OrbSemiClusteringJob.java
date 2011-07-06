@@ -8,6 +8,11 @@ import org.goldenorb.types.message.IntMessage;
 
 public class OrbSemiClusteringJob extends OrbRunner{
 	
+	public static String MAXCLUSTERS = "semiclustering.maxclusters";
+	public static String MAXVERTICES = "semiclustering.maxvertices";
+	public static String MAXITERATIONS = "semiclustering.maxiterations";
+	public static String BOUNDARYFACTOR = "semiclustering.boundaryfactor";
+		
 	private OrbConfiguration orbConf;
 	
 	public static void main(String[] args){
@@ -16,11 +21,14 @@ public class OrbSemiClusteringJob extends OrbRunner{
 		String outputpath = args[1];
 		String maxclusters = args[2];
 		String maxvertices = args[3];
+		String maxiterations = args[4];
+		String boundaryfactor = args[5];
+		
 		OrbSemiClusteringJob oscj = new OrbSemiClusteringJob();
-		oscj.startJob(inputpath, outputpath, maxclusters, maxvertices);
+		oscj.startJob(inputpath, outputpath, maxclusters, maxvertices, maxiterations, boundaryfactor);
 	}
 	
-	public void startJob(String inputPath, String outputPath, String maxclusters, String maxvertices){
+	public void startJob(String inputPath, String outputPath, String maxclusters, String maxvertices, String maxiterations, String boundaryfactor){
 		
 		orbConf = new OrbConfiguration(true);
 		
@@ -34,9 +42,10 @@ public class OrbSemiClusteringJob extends OrbRunner{
 		orbConf.setNumberOfVertexThreads(10);
 		orbConf.setNumberOfPartitionsPerMachine(4);
 		
-		// pass maxclusters to all nodes
-		// pass maxvertices to all nodes
-		
+		orbConf.set(MAXCLUSTERS, maxclusters);
+		orbConf.set(MAXVERTICES, maxvertices);
+		orbConf.set(BOUNDARYFACTOR, boundaryfactor);
+		orbConf.set(MAXITERATIONS, maxiterations);
 		runJob(orbConf);
 		
 	}
