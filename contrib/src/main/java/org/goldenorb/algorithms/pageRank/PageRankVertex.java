@@ -7,6 +7,7 @@ import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.IntWritable;
 import org.goldenorb.Edge;
 import org.goldenorb.Vertex;
+import org.goldenorb.algorithms.semiclustering.OrbSemiClusteringJob;
 import org.goldenorb.types.message.DoubleMessage;
 import org.goldenorb.types.message.IntMessage;
 
@@ -15,7 +16,7 @@ public class PageRankVertex extends Vertex<DoubleWritable, IntWritable, DoubleMe
 	// this should get passed in by the job
 	int totalpages = 1000;
 	int maxiterations = 10;
-	double dumpfactor = 0.85;
+	double dampingfactor = 0.85;
 	
 	int currentiteration = 0;
 	int outgoingEdgeCount = 0;
@@ -28,6 +29,23 @@ public class PageRankVertex extends Vertex<DoubleWritable, IntWritable, DoubleMe
 
 	public PageRankVertex(String _vertexID, DoubleWritable _value, List<Edge<IntWritable>> _edges) {
 		super(_vertexID, _value, _edges);
+		
+		try { 
+			maxiterations = Integer.parseInt(super.getOci().getOrbProperty(OrbPageRankJob.MAXITERATIONS));
+		} catch( Exception e ) {
+			
+		}
+		
+		try { 
+			totalpages = Integer.parseInt(super.getOci().getOrbProperty(OrbPageRankJob.TOTALPAGES));		} catch( Exception e ) {
+			
+		}
+		
+		try { 
+			dampingfactor = Double.parseDouble(super.getOci().getOrbProperty(OrbPageRankJob.DAMPINGFACTOR));
+		} catch( Exception e ) {
+			
+		}
 		outgoingEdgeCount = _edges.size();
 		pageRank = 1.0/((double)totalpages);
 		if(outgoingEdgeCount == 0){
@@ -64,7 +82,7 @@ public class PageRankVertex extends Vertex<DoubleWritable, IntWritable, DoubleMe
 		double outPR = 0.0;
 		//outPR = _newrank/((double) outgoingEdgeCount);
 		// correction to account for likelihood of loops
-		outPR = dumpfactor * (_newrank/((double) outgoingEdgeCount)) + (1-dumpfactor)*(_newrank/((double) totalpages));
+		outPR = dampingfactor * (_newrank/((double) outgoingEdgeCount)) + (1-dampingfactor)*(_newrank/((double) totalpages));
 		return outPR;
 	}
 
