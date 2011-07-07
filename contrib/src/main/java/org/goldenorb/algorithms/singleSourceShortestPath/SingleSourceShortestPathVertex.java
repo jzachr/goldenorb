@@ -24,6 +24,7 @@ public class SingleSourceShortestPathVertex extends Vertex<PathWritable, IntWrit
 
 	public SingleSourceShortestPathVertex(String _vertexID, PathWritable _value, List<Edge<IntWritable>> _edges) {
 		super(_vertexID, _value, _edges);
+		shortestPath = _value;
 	}
 
 	@Override
