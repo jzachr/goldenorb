@@ -72,8 +72,8 @@ public class TestInputSplitAllocatorDFS {
     System.out.println("NameNode hostname: " + cluster.getNameNode().getNameNodeAddress().getHostName());
     System.out.println("NameNode port: " + cluster.getNameNode().getNameNodeAddress().getPort());
     
-    DFSTestUtil.createFile(fs, new Path("test/inpath"), 400000000L, (short) 2, rand.nextLong());
-    //fs.copyFromLocalFile(new Path("src/test/resources/InputSplitAllocatorDFSTestData.txt"), new Path("test/inpath"));
+    //DFSTestUtil.createFile(fs, new Path("test/inpath"), 400000000L, (short) 2, rand.nextLong());
+    fs.copyFromLocalFile(new Path("src/test/resources/InputSplitAllocatorDFSTestData.txt"), new Path("test/inpath"));
     
     OrbConfiguration orbConf = new OrbConfiguration();
     orbConf.set("fs.default.name", "hdfs://localhost:" + cluster.getNameNodePort());
@@ -130,7 +130,7 @@ public class TestInputSplitAllocatorDFS {
         }
         System.out.println(rsplit.getDataLength());
       }
-      assertTrue(inputSplitAssignments.get(orbPartitionMember).size() == 1);
+      assertTrue(inputSplitAssignments.get(orbPartitionMember).size() < 2);
     }
     
   }
