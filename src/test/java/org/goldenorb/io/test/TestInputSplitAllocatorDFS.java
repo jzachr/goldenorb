@@ -19,23 +19,21 @@ package org.goldenorb.io.test;
 
 import static org.junit.Assert.assertTrue;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.hdfs.DFSTestUtil;
 import org.apache.hadoop.hdfs.MiniDFSCluster;
-import org.apache.hadoop.hdfs.server.datanode.DataNode;
-import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
 import org.goldenorb.conf.OrbConfiguration;
 import org.goldenorb.io.InputSplitAllocator;
 import org.goldenorb.io.input.RawSplit;
 import org.goldenorb.jet.OrbPartitionMember;
+import org.goldenorb.net.OrbDNS;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -52,61 +50,44 @@ public class TestInputSplitAllocatorDFS {
   @BeforeClass
   public static void setUpCluster() throws Exception {
     Configuration conf = new Configuration(true);
-    cluster = new MiniDFSCluster(conf, 1, true, null);
+    conf.set("dfs.block.size", "16384");
+    cluster = new MiniDFSCluster(conf, 3, true, null);
     fs = cluster.getFileSystem();
-    System.out.println(FileSystem.getDefaultUri(conf));
   }
   
   @Test
   public void testInputSplitAllocator() throws Exception {
     LOG = LoggerFactory.getLogger(TestInputSplitAllocatorDFS.class);
     
-    Random rand = new Random();
+    fs.copyFromLocalFile(new Path("src/test/resources/InputSplitAllocatorDFSTestData.txt"), new Path(
+        "test/inpath"));
     
-    List<DataNode> dnList = cluster.getDataNodes();
-    for (DataNode dn : dnList) {
-      System.out.println("DataNode hostname: " + dn.getSelfAddr().getHostName());
-      System.out.println("DataNode port: " + dn.getSelfAddr().getPort());
-    }
-    
-    System.out.println("NameNode hostname: " + cluster.getNameNode().getNameNodeAddress().getHostName());
-    System.out.println("NameNode port: " + cluster.getNameNode().getNameNodeAddress().getPort());
-    
-    //DFSTestUtil.createFile(fs, new Path("test/inpath"), 400000000L, (short) 2, rand.nextLong());
-    fs.copyFromLocalFile(new Path("src/test/resources/InputSplitAllocatorDFSTestData.txt"), new Path("test/inpath"));
-    
-    OrbConfiguration orbConf = new OrbConfiguration();
+    OrbConfiguration orbConf = new OrbConfiguration(true);
     orbConf.set("fs.default.name", "hdfs://localhost:" + cluster.getNameNodePort());
     orbConf.setJobNumber("0");
     orbConf.setFileInputPath("test/inpath");
     orbConf.setNameNode("hdfs://localhost:" + cluster.getNameNodePort());
-    orbConf.setFileInputFormatClass(TextInputFormat.class);
-    orbConf.setFileOutputFormatClass(TextInputFormat.class);
+    
+    String hostname = OrbDNS.getDefaultHost(orbConf);
     
     OrbPartitionMember opm1 = new OrbPartitionMember();
-    opm1.setHostname(dnList.get(0).getSelfAddr().getHostName());
-    opm1.setPort(dnList.get(0).getSelfAddr().getPort());
-    opm1.setOrbConf(orbConf);
+    opm1.setHostname(hostname);
+    opm1.setPort(0);
     OrbPartitionMember opm2 = new OrbPartitionMember();
-    opm2.setHostname(dnList.get(0).getSelfAddr().getHostName());
+    opm2.setHostname(hostname);
     opm2.setPort(1);
-    opm2.setOrbConf(orbConf);
     OrbPartitionMember opm3 = new OrbPartitionMember();
-    opm3.setHostname(dnList.get(0).getSelfAddr().getHostName());
+    opm3.setHostname(hostname);
     opm3.setPort(2);
-    opm3.setOrbConf(orbConf);
     OrbPartitionMember opm4 = new OrbPartitionMember();
-    opm4.setHostname(dnList.get(0).getSelfAddr().getHostName());
+    opm4.setHostname(hostname);
     opm4.setPort(3);
-    opm4.setOrbConf(orbConf);
     OrbPartitionMember opm5 = new OrbPartitionMember();
-    opm5.setHostname(dnList.get(0).getSelfAddr().getHostName());
+    opm5.setHostname(hostname);
     opm5.setPort(4);
-    opm5.setOrbConf(orbConf);
     OrbPartitionMember opm6 = new OrbPartitionMember();
-    opm6.setHostname(dnList.get(0).getSelfAddr().getHostName());
+    opm6.setHostname(hostname);
     opm6.setPort(5);
-    opm6.setOrbConf(orbConf);
     
     List<OrbPartitionMember> orbPartitionMembers = new ArrayList<OrbPartitionMember>();
     orbPartitionMembers.add(opm1);
@@ -116,23 +97,24 @@ public class TestInputSplitAllocatorDFS {
     orbPartitionMembers.add(opm5);
     orbPartitionMembers.add(opm6);
     
-    // LOG.info(fs.getContentSummary(new Path("test/inpath")).toString());
-    
     InputSplitAllocator isa = new InputSplitAllocator(orbConf, orbPartitionMembers);
     Map<OrbPartitionMember,List<RawSplit>> inputSplitAssignments = isa.assignInputSplits();
+    long totalFileSize = 0;
     for (OrbPartitionMember orbPartitionMember : inputSplitAssignments.keySet()) {
-      for (RawSplit rsplit : inputSplitAssignments.get(orbPartitionMember)) {
-        LOG.info(orbPartitionMember.getHostname() + ":" + orbPartitionMember.getPort() + " | "
-                 + inputSplitAssignments.get(orbPartitionMember));
-        String[] s = rsplit.getLocations();
-        for (String loc : s) {
-          System.out.println("RawSplit locations: " + loc);
-        }
-        System.out.println(rsplit.getDataLength());
+      long rawSplitSize = 0;
+      for (RawSplit rSplit : inputSplitAssignments.get(orbPartitionMember)) {
+        rawSplitSize += rSplit.getDataLength();
       }
-      assertTrue(inputSplitAssignments.get(orbPartitionMember).size() < 2);
+      totalFileSize += rawSplitSize;
+      
+      LOG.info(orbPartitionMember.getHostname() + ":" + orbPartitionMember.getPort() + " | RawSplits count: "
+               + inputSplitAssignments.get(orbPartitionMember).size() + " | RawSplits size: " + rawSplitSize);
+      
+      assertTrue(inputSplitAssignments.get(orbPartitionMember).size() <= 5);
     }
     
+    File testFile = new File("src/test/resources/InputSplitAllocatorDFSTestData.txt");
+    assertTrue(totalFileSize == testFile.length());
   }
   
   @AfterClass
