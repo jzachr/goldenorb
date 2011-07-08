@@ -7,21 +7,24 @@ import org.goldenorb.conf.OrbConfiguration;
 import org.goldenorb.types.message.IntMessage;
 
 public class OrbMaximumValueJob extends OrbRunner{
-	
-	private OrbConfiguration orbConf;
-	
 	public static void main(String[] args){
-		
-		String inputpath = args[0];
-		String outputpath = args[1];
-		String classpath = args[2];
+	  if (args.length != 5) {
+	    System.out.println("Missing arguments");
+	    System.out.println("usage: OrbMaximumValueJob input-dir output-dir requested-partitions reserved-partitions classpath");
+	    System.exit(-1);
+	  }
+	  String inDir = args[0];
+	  String outDir = args[1];
+	  int reqP = Integer.parseInt(args[2]);
+	  int resP = Integer.parseInt(args[3]);
+	  String cp = args[4];
+	  
 		OrbMaximumValueJob omvj = new OrbMaximumValueJob();
-		omvj.startJob(inputpath, outputpath, classpath);
+		omvj.startJob(inDir, outDir, reqP, resP, cp);
 	}
 	
-	public void startJob(String inputPath, String outputPath, String classPath){
-		
-		orbConf = new OrbConfiguration(true);
+	private void startJob(String inputDir, String outputDir, int requested, int reserved, String classPath){
+		OrbConfiguration orbConf = new OrbConfiguration(true);
 		
 		orbConf.setFileInputFormatClass(TextInputFormat.class);
 		orbConf.setFileOutputFormatClass(TextOutputFormat.class);
@@ -31,11 +34,15 @@ public class OrbMaximumValueJob extends OrbRunner{
 		orbConf.setVertexOutputFormatClass(MaximumValueVertexWriter.class);
 		orbConf.setNumberOfMessageHandlers(10);
 		orbConf.setNumberOfVertexThreads(10);
-		orbConf.setNumberOfPartitionsPerMachine(4);
-		orbConf.setFileInputPath(inputPath);
-		orbConf.setFileOutputPath(outputPath);
-		orbConf.setOrbClassPaths(classPath);
-		runJob(orbConf);
 		
+		orbConf.setFileInputPath(inputDir);
+		orbConf.setFileOutputPath(outputDir);
+		
+		orbConf.setOrbRequestedPartitions(requested);
+		orbConf.setOrbReservedPartitions(reserved);
+		
+		orbConf.setOrbClassPaths(classPath);
+		
+		runJob(orbConf);
 	}
 }
