@@ -69,6 +69,9 @@ public class TestInputSplitAllocatorDFS {
     orbConf.setNameNode("hdfs://localhost:" + cluster.getNameNodePort());
     
     String hostname = OrbDNS.getDefaultHost(orbConf);
+    if (hostname.endsWith(".")) {
+      hostname = hostname.substring(0, hostname.length() - 1);
+    }
     
     OrbPartitionMember opm1 = new OrbPartitionMember();
     opm1.setHostname(hostname);
