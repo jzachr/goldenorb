@@ -6,7 +6,9 @@ import java.io.IOException;
 
 import org.apache.hadoop.io.ArrayWritable;
 import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.Text;
 import org.goldenorb.Vertex;
+import org.goldenorb.types.ArrayListWritable;
 
 /*
  * Start of non-generated import declaration code -- any code written outside of this block will be
@@ -24,12 +26,12 @@ public class PathWritable implements org.apache.hadoop.io.WritableComparable {
 	/**
 	 * the total weight of this path
 	 */
-	private IntWritable weight = new IntWritable(Integer.MAX_VALUE);
+	private IntWritable weight;
 
 	/**
 	 * the vertices on this path
 	 */
-	private ArrayWritable vertices = new ArrayWritable(new String[0]);
+	private ArrayListWritable<Text> vertices;
 
 	/*
 	 * Start of non-generated variable declaration code -- any code written
@@ -42,7 +44,9 @@ public class PathWritable implements org.apache.hadoop.io.WritableComparable {
    * 
    */
 	public PathWritable() {
-		
+	  weight  = new IntWritable(Integer.MAX_VALUE);
+		vertices = new ArrayListWritable<Text>();
+		vertices.setWritableType(Text.class);
 	}
 
 	/*
@@ -75,7 +79,7 @@ public class PathWritable implements org.apache.hadoop.io.WritableComparable {
 	 * 
 	 * @return
 	 */
-	public ArrayWritable getVertices() {
+	public ArrayListWritable getVertices() {
 		return vertices;
 	}
 
@@ -84,7 +88,7 @@ public class PathWritable implements org.apache.hadoop.io.WritableComparable {
 	 * 
 	 * @param vertices
 	 */
-	public void setVertices(ArrayWritable vertices) {
+	public void setVertices(ArrayListWritable<Text> vertices) {
 		this.vertices = vertices;
 	}
 
@@ -94,13 +98,7 @@ public class PathWritable implements org.apache.hadoop.io.WritableComparable {
 	 * @param vertices
 	 */
 	public void addVertex(Vertex vertex) {
-		this.vertices = vertices;
-		String[] path = vertices.toStrings();
-		String[] newpath = new String[path.length+1];
-		for(int i=0; i < path.length; i++) {
-			newpath[i] = path[i];
-		}
-		newpath[path.length] = vertex.vertexID();
+	  vertices.add(new Text(vertex.getVertexID()));
 	}
 
 	// /////////////////////////////////////

@@ -4,8 +4,10 @@ import java.util.ArrayList;
 
 import org.apache.hadoop.io.ArrayWritable;
 import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.Text;
 import org.goldenorb.Message;
 import org.goldenorb.Vertex;
+import org.goldenorb.types.ArrayListWritable;
 
 public class PathMessage extends Message<PathWritable> {
 
@@ -63,13 +65,14 @@ public class PathMessage extends Message<PathWritable> {
 	 *            - boolean
 	 */
 	public void setWeight(int value) {
-		((PathWritable) this.getMessageValue()).getWeight().set(value);
+		((PathWritable) this.getMessageValue()).setWeight(new IntWritable(value));
 	}
 
 	/**
 	 * Add a vertex.
 	 */
-	public ArrayWritable getVertices() {
+	@SuppressWarnings("unchecked")
+  public ArrayListWritable<Text> getVertices() {
 		return ((PathWritable) this.getMessageValue()).getVertices();
 	}
 
@@ -79,7 +82,7 @@ public class PathMessage extends Message<PathWritable> {
 	 * @param value
 	 *            - boolean
 	 */
-	public void setVertices(ArrayWritable value) {
+	public void setVertices(ArrayListWritable<Text> value) {
 		((PathWritable) this.getMessageValue()).setVertices(value);
 	}
 }
