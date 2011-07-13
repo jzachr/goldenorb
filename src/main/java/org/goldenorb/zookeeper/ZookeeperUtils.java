@@ -196,7 +196,6 @@ public class ZookeeperUtils {
       result = zk.create(path, writableToByteArray(node), Ids.OPEN_ACL_UNSAFE, createMode);
     } catch (KeeperException.NodeExistsException e) {
       LOG.debug("Node " + path + " already exists!");
-      System.err.println("Node " + path + " already exists!");
     } catch (KeeperException e) {
       e.printStackTrace();
       throw new OrbZKFailure(e);
@@ -356,6 +355,7 @@ public class ZookeeperUtils {
   }
   
   /**
+   * Deletes a ZooKeeper node if it is empty (has no children).
    * 
    * @param zk
    *          - ZooKeeper
@@ -365,10 +365,12 @@ public class ZookeeperUtils {
   public static void deleteNodeIfEmpty(ZooKeeper zk, String path) throws OrbZKFailure {
     try {
       zk.delete(path, -1);
-    } catch (KeeperException.NoNodeException e) {} catch (KeeperException.BadVersionException e) {
+    } catch (KeeperException.NoNodeException e) {
+      LOG.debug("Node " + path + " does not exist!");
+    } catch (KeeperException.BadVersionException e) {
       e.printStackTrace();
     } catch (KeeperException.NotEmptyException e) {
-      e.printStackTrace();
+      LOG.debug("Node " + path + " is not empty!");
     } catch (InterruptedException e) {
       throw new OrbZKFailure(e);
     } catch (KeeperException e) {
@@ -377,6 +379,7 @@ public class ZookeeperUtils {
   }
   
   /**
+   * Recursively deletes a node and its children.
    * 
    * @param zk
    *          - ZooKeeper
@@ -395,7 +398,9 @@ public class ZookeeperUtils {
           zk.delete(path + "/" + child, -1);
         }
       }
-    } catch (KeeperException.NoNodeException e) {} catch (KeeperException e) {
+    } catch (KeeperException.NoNodeException e) {
+      LOG.debug("Node " + path + " does not exist!");
+    } catch (KeeperException e) {
       throw new OrbZKFailure(e);
     } catch (InterruptedException e) {
       throw new OrbZKFailure(e);
@@ -404,6 +409,7 @@ public class ZookeeperUtils {
   }
   
   /**
+   * Updates data in a node with the given Writable parameter.
    * 
    * @param zk
    *          - ZooKeeper
@@ -415,7 +421,9 @@ public class ZookeeperUtils {
   public static void updateNodeData(ZooKeeper zk, String path, Writable writable) throws OrbZKFailure {
     try {
       zk.setData(path, writableToByteArray(writable), -1);
-    } catch (KeeperException.NoNodeException e) {} catch (KeeperException e) {
+    } catch (KeeperException.NoNodeException e) {
+      LOG.debug("Node " + path + " does not exist!");
+    } catch (KeeperException e) {
       throw new OrbZKFailure(e);
     } catch (InterruptedException e) {
       throw new OrbZKFailure(e);
@@ -425,6 +433,7 @@ public class ZookeeperUtils {
   }
   
   /**
+   * Updates the node data if the node exists.
    * 
    * @param zk
    *          - ZooKeeper
@@ -467,7 +476,14 @@ public class ZookeeperUtils {
   }
   
   /**
-   * Return the children
+   * Returns the children of a given node.
+   * 
+   * @param zk
+   *          is the zookeeper instance
+   * @param path
+   *          is the path of the node
+   * @param watcher
+   * 
    */
   public static List<String> getChildren(ZooKeeper zk, String path, Watcher watcher) throws OrbZKFailure {
     try {
