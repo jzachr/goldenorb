@@ -7,11 +7,14 @@ import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.IntWritable;
 import org.goldenorb.Edge;
 import org.goldenorb.Vertex;
-import org.goldenorb.algorithms.semiclustering.OrbSemiClusteringJob;
+import org.goldenorb.algorithms.singleSourceShortestPath.SingleSourceShortestPathVertex;
 import org.goldenorb.types.message.DoubleMessage;
-import org.goldenorb.types.message.IntMessage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class PageRankVertex extends Vertex<DoubleWritable, IntWritable, DoubleMessage>{
+	
+	private final static Logger logger = LoggerFactory.getLogger(SingleSourceShortestPathVertex.class);
 	
 	// this should get passed in by the job
 	int totalpages = 1000;
@@ -21,55 +24,67 @@ public class PageRankVertex extends Vertex<DoubleWritable, IntWritable, DoubleMe
 	int currentiteration = 0;
 	int outgoingEdgeCount = 0;
 	
-	double pageRank = Double.NaN;
-	
 	public PageRankVertex(){
 		super(DoubleWritable.class, IntWritable.class, DoubleMessage.class);
 	}
 
 	public PageRankVertex(String _vertexID, DoubleWritable _value, List<Edge<IntWritable>> _edges) {
 		super(_vertexID, _value, _edges);
-		
-		try { 
-			maxiterations = Integer.parseInt(super.getOci().getOrbProperty(OrbPageRankJob.MAXITERATIONS));
-		} catch( Exception e ) {
-			
-		}
-		
-		try { 
-			totalpages = Integer.parseInt(super.getOci().getOrbProperty(OrbPageRankJob.TOTALPAGES));		} catch( Exception e ) {
-			
-		}
-		
-		try { 
-			dampingfactor = Double.parseDouble(super.getOci().getOrbProperty(OrbPageRankJob.DAMPINGFACTOR));
-		} catch( Exception e ) {
-			
-		}
-		outgoingEdgeCount = _edges.size();
-		pageRank = 1.0/((double)totalpages);
-		if(outgoingEdgeCount == 0){
-			outgoingEdgeCount = totalpages;
-		}
 	}
 
 	@Override
 	public void compute(Collection<DoubleMessage> messages) {
 		
-		double _newrank = 0;
+		double _newrank = 0.0;
 		double _outgoingrank;
 		
-		for(DoubleMessage m: messages){
+		if( super.superStep() == 1 ) {
 			
-			double msgValue = ((DoubleMessage)m.getMessageValue()).get();
-			_newrank += msgValue;
-		}
-		
-		pageRank = _newrank;
-		
-		_outgoingrank = computeOutgoingRank(_newrank);
-		
-		if(currentiteration <= maxiterations){
+			try { 
+				maxiterations = Integer.parseInt(super.getOci().getOrbProperty(OrbPageRankJob.MAXITERATIONS));
+			} catch( Exception e ) {
+				logger.debug("Max Iterations not set");
+			}
+			
+			try { 
+				totalpages = Integer.parseInt(super.getOci().getOrbProperty(OrbPageRankJob.TOTALPAGES));		
+				if( totalpages == 0 ) {
+					logger.debug("Total Pages not set");
+					totalpages = 1000;
+				}
+			} catch( Exception e ) {
+				logger.debug("Total Pages not set");
+				totalpages = 1000;
+			}
+			
+			try { 
+				dampingfactor = Double.parseDouble(super.getOci().getOrbProperty(OrbPageRankJob.DAMPINGFACTOR));
+			} catch( Exception e ) {
+				logger.debug("Damping Factor not set");
+			}
+			outgoingEdgeCount = super.getEdges().size();
+			super.setValue(new DoubleWritable(1.0/((double)totalpages)));
+			if(outgoingEdgeCount == 0){
+				outgoingEdgeCount = totalpages;
+			}
+			
+			_outgoingrank = computeOutgoingRank(super.getValue().get());
+			
+			for(Edge<IntWritable> e: getEdges()){
+				sendMessage(new DoubleMessage(e.getDestinationVertex(), new DoubleWritable(_outgoingrank)));
+			}
+			
+		} else if (super.superStep() <= maxiterations) {
+			
+			for(DoubleMessage m: messages){
+				
+				double msgValue = ((DoubleMessage)m.getMessageValue()).get();
+				_newrank += msgValue;
+			}
+			
+			super.setValue(new DoubleWritable(_newrank));
+			_outgoingrank = computeOutgoingRank(super.getValue().get());
+			
 			for(Edge<IntWritable> e: getEdges()){
 				sendMessage(new DoubleMessage(e.getDestinationVertex(), new DoubleWritable(_outgoingrank)));
 			}
@@ -87,11 +102,11 @@ public class PageRankVertex extends Vertex<DoubleWritable, IntWritable, DoubleMe
 	}
 
 	public double getPageRank(){
-		return pageRank;
+		return super.getValue().get();
 	}
 	
 	@Override
 	public String toString(){
-		return "\"PageRank\":\"" + pageRank + "\"";
+		return "\"PageRank\":\"" + super.getValue().get() + "\"";
 	}
 }
