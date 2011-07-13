@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module>
+  <!-- Inherit our applications main module.                      -->
+  <inherits name='org.goldenorb.OrbTrackerStatus'/>
+
+  <!-- Specify the path to any remote services.                   -->
+  <servlet path="/OrbTrackerStatus/OrbTrackerMemberDataService" class="org.goldenorb.server.OrbTrackerMemberDataServiceImpl" />
+
+</module>
