@@ -170,9 +170,15 @@ public class OutboundMessageQueue {
           messagesToBeSent.add(message);
         }
       }
-      omqLogger.info("Sending bulk messages.  Count: " + pmo.partitionMessageCounter.get(partitionID) + ", "
-                     + messagesToBeSent.size());
-      orbClients.get(partitionID).sendMessages(messagesToBeSent);
+      
+      if (messagesToBeSent.size() > 0) {
+        omqLogger.info("Partition {} sending bulk messages.  Count: " + pmo.partitionMessageCounter.get(partitionID) + ", "
+                       + messagesToBeSent.size(), partitionID);
+        orbClients.get(partitionID).sendMessages(messagesToBeSent);
+      }
+      else {
+        omqLogger.debug("No messages to be sent from Partition {}", partitionID);
+      }
     }
   }
   
