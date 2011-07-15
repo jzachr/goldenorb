@@ -45,8 +45,13 @@ import org.slf4j.Logger;
 public class ZookeeperUtilsTest {
   
   private static Logger logger;
-  private OrbConfiguration orbConf = new OrbConfiguration(true);
+  private static OrbConfiguration orbConf = new OrbConfiguration(true);
   ZooKeeper ZK;
+  
+  @BeforeClass
+  public static void setUp() {
+    orbConf.setOrbZooKeeperQuorum("localhost:21810");
+  }
   
   @Test
   public void test_connect() {

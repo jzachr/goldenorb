@@ -46,6 +46,7 @@ public class OrbFastBarrierTest {
   public void allMembersJoin() throws Exception {
     numOfMembers = 3;
     CountDownLatch everyoneDoneLatch = new CountDownLatch(numOfMembers);
+    orbConf.setOrbZooKeeperQuorum("localhost:21810");
     ZooKeeper zk = ZookeeperUtils.connect(orbConf.getOrbZooKeeperQuorum());
     
     OrbFastBarrier testBarrier1 = new OrbFastBarrier(orbConf, barrierName, numOfMembers, "member1", zk);
@@ -83,6 +84,7 @@ public class OrbFastBarrierTest {
     numOfMembers = 3;
     CountDownLatch everyoneDoneLatch = new CountDownLatch(numOfMembers);
     CountDownLatch lastMemberLatch = new CountDownLatch(1);
+    orbConf.setOrbZooKeeperQuorum("localhost:21810");
     ZooKeeper zk = ZookeeperUtils.connect(orbConf.getOrbZooKeeperQuorum());
     
     OrbFastBarrier testBarrier1 = new OrbFastBarrier(orbConf, barrierName, numOfMembers, "member1", zk);
@@ -131,6 +133,7 @@ public class OrbFastBarrierTest {
     CountDownLatch complete = new CountDownLatch(numBarrierStressThreads);
     CountDownLatch startLatch = new CountDownLatch(1);
     BarrierStressThread[] threads = new BarrierStressThread[numBarrierStressThreads];
+    orbConf.setOrbZooKeeperQuorum("localhost:21810");
     ZooKeeper zk = ZookeeperUtils.connect(orbConf.getOrbZooKeeperQuorum());
     for(int i =0; i < numBarrierStressThreads; i++) {
       ZookeeperUtils.recursiveDelete(zk, "/barrier"+i);
@@ -155,6 +158,7 @@ public class OrbFastBarrierTest {
  * 
  */
   private void deleteThreads() throws InterruptedException, OrbZKFailure, IOException {
+    orbConf.setOrbZooKeeperQuorum("localhost:21810");
     ZooKeeper zk = ZookeeperUtils.connect(orbConf.getOrbZooKeeperQuorum());
     for(int i=0; i < 100; i++) {
       ZookeeperUtils.recursiveDelete(zk, "/barrier"+i);

@@ -38,7 +38,7 @@ public class OrbSimpleZKTest {
  */
   @Test
   public void connectToZooKeeper() throws IOException, InterruptedException{
-    ZooKeeper zk = new ZooKeeper("localhost", 5000, new Watcher() {
+    ZooKeeper zk = new ZooKeeper("localhost:21810", 5000, new Watcher() {
       @Override
       public void process(WatchedEvent event) {
         System.out.println(event);

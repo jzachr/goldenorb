@@ -31,7 +31,7 @@ public class TestWatchMemberData {
   public void WatchMemberData() throws IOException, InterruptedException, OrbZKFailure, KeeperException {
     
     
-    zk = ZookeeperUtils.connect("localhost");
+    zk = ZookeeperUtils.connect("localhost:21810");
     int data = 1;
     member.setData(data);
     ZookeeperUtils.tryToCreateNode(zk, basePath, CreateMode.PERSISTENT);

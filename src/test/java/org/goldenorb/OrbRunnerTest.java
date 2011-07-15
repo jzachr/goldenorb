@@ -38,11 +38,13 @@ import org.goldenorb.zookeeper.ZookeeperUtils;
 public class OrbRunnerTest extends OrbRunner {
   
   OrbConfiguration orbConf = new OrbConfiguration(true); // default configuration, also assuming ZooKeeper is
-                                                         // running on localhost:2181
+                                                         // running on localhost:21810
+  
   
   @Test
   public void testOrbRunner() throws Exception {
     orbConf.setOrbClusterName("TestOrbCluster");
+    orbConf.setOrbZooKeeperQuorum("localhost:21810");
     runJob(orbConf);
     
     List<String> jobList = ZK.getChildren("/GoldenOrb/" + orbConf.getOrbClusterName() + "/JobQueue", false);

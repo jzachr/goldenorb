@@ -39,6 +39,7 @@ public class CommandLineUtils {
   
   private static SortedMap<String,String> helpMap;
   private static SortedMap<String,SortedMap<String,String>> validArguments;
+  private static String connectString;
   
   /**
    * Main method for the CLI.
@@ -52,8 +53,14 @@ public class CommandLineUtils {
       System.exit(-1);
     }
     if (args[0].equalsIgnoreCase("Help")) {
+      if(args[args.length -1].startsWith("-connectString=")) {
+        connectString = args[args.length - 1].substring(15);
+      }
       help(args);
     } else if (args[0].equalsIgnoreCase("Job")) {
+      if(args[args.length -1].startsWith("-connectString=")) {
+        connectString = args[args.length - 1].substring(15);
+      }
       if (args.length >= 1) job(args);
       else {
         System.out.println("Job command requires arguments.");
@@ -263,8 +270,11 @@ public class CommandLineUtils {
   public static ZooKeeper connectZookeeper() {
     OrbConfiguration orbConf = new OrbConfiguration(true);
     ZooKeeper zk = null;
+    if (connectString == null) {
+      connectString = orbConf.getOrbZooKeeperQuorum();
+    }
     try {
-      zk = ZookeeperUtils.connect(orbConf.getOrbZooKeeperQuorum());
+      zk = ZookeeperUtils.connect(connectString);
     } catch (IOException e) {
       System.err.println("Could not connect : ");
       e.printStackTrace();
@@ -275,5 +285,9 @@ public class CommandLineUtils {
       System.exit(-1);
     }
     return zk;
+  }
+  
+  public static void setConnectString(String _connectString) {
+    connectString = _connectString;
   }
 }

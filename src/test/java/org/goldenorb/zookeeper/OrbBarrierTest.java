@@ -49,6 +49,7 @@ public class OrbBarrierTest {
   public void allMembersJoin() throws Exception {
     numOfMembers = 3;
     CountDownLatch everyoneDoneLatch = new CountDownLatch(numOfMembers);
+    orbConf.setOrbZooKeeperQuorum("localhost:21810");
     ZooKeeper zk = ZookeeperUtils.connect(orbConf.getOrbZooKeeperQuorum());
     
     OrbBarrier testBarrier1 = new OrbBarrier(orbConf, barrierName, numOfMembers, "member1", zk);
@@ -88,6 +89,7 @@ public class OrbBarrierTest {
     numOfMembers = 3;
     CountDownLatch everyoneDoneLatch = new CountDownLatch(numOfMembers);
     CountDownLatch lastMemberLatch = new CountDownLatch(1);
+    orbConf.setOrbZooKeeperQuorum("localhost:21810");
     ZooKeeper zk = ZookeeperUtils.connect(orbConf.getOrbZooKeeperQuorum());
     
     OrbBarrier testBarrier1 = new OrbBarrier(orbConf, barrierName, numOfMembers, "member1", zk);

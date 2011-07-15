@@ -46,7 +46,8 @@ public class TestCommandLineUtils {
  */
   @BeforeClass
   public static void setupZooKeeperNodes() throws OrbZKFailure, IOException, InterruptedException {
-    zk = ZookeeperUtils.connect("localhost");
+    zk = ZookeeperUtils.connect("localhost:21810");
+    CommandLineUtils.setConnectString("localhost:21810");
     ZookeeperUtils.tryToCreateNode(zk, "/GoldenOrb");
     ZookeeperUtils.tryToCreateNode(zk, "/GoldenOrb/"+clusterName);
     ZookeeperUtils.tryToCreateNode(zk, "/GoldenOrb/"+clusterName+"/JobQueue");

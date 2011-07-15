@@ -25,6 +25,7 @@ public class OrbPartitionManagerTest {
   @BeforeClass
   public static void setUpTest() throws IOException, InterruptedException, OrbZKFailure {
     orbConf = new OrbConfiguration(true);
+    orbConf.setOrbZooKeeperQuorum("localhost:21810");
     ZK = ZookeeperUtils.connect(orbConf.getOrbZooKeeperQuorum());
   }
   

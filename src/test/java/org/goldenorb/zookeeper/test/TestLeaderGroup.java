@@ -44,7 +44,7 @@ public class TestLeaderGroup {
   @Test
   public void leaderGroupTest() throws IOException, InterruptedException, OrbZKFailure {
 
-    ZooKeeper zk = ZookeeperUtils.connect("localhost");
+    ZooKeeper zk = ZookeeperUtils.connect("localhost:21810");
     String basePath = "/" + "Job";
     CountDownLatch startCountDownLatch = new CountDownLatch(NUM_OF_MEMBERS);
     CountDownLatch leaderChangeCdl = new CountDownLatch(NUM_OF_MEMBERS -1);

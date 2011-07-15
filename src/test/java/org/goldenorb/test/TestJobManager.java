@@ -45,7 +45,7 @@ public class TestJobManager extends OrbRunner{
  */
   @Test
   public void jobManagerTest() throws IOException, InterruptedException, OrbZKFailure {
-    zk = ZookeeperUtils.connect("localhost");
+    zk = ZookeeperUtils.connect("localhost:21810");
     ZookeeperUtils.tryToCreateNode(zk, "/GoldenOrb");
     ZookeeperUtils.tryToCreateNode(zk, "/GoldenOrb/OrbCluster");    
     CountDownLatch joinLeaderGroup = new CountDownLatch(NUM_OF_MEMBERS); //everyone join?
@@ -65,7 +65,7 @@ public class TestJobManager extends OrbRunner{
       threads.get(i).start();
     }
     joinLeaderGroup.await();
-    orbConf.setOrbZooKeeperQuorum("localhost");
+    orbConf.setOrbZooKeeperQuorum("localhost:21810");
     
     String path1 = runJob(orbConf);
     String path2 = runJob(orbConf);
