@@ -23,7 +23,9 @@ public class OrbTrackerStatus implements EntryPoint {
   
   private FlexTable orbTrackerFlexTable;
   private Label lastUpdatedLabel;
-  private Label errorLabel;
+  private Label errorLabelOTM;
+  private Label errorLabelJQ;
+  private Label errorLabelJIP;
   private static final int REFRESH_INTERVAL = 5000;
   private OrbTrackerMemberDataServiceAsync dataService = GWT.create(OrbTrackerMemberDataService.class);
   private VerticalPanel mainPanel;
@@ -61,12 +63,6 @@ public class OrbTrackerStatus implements EntryPoint {
     orbTrackerFlexTable.setText(0, 6, "Leader");
     orbTrackerFlexTable.setText(0, 7, "Port");
     
-    errorLabel = new Label("");
-    mainPanel.add(errorLabel);
-    
-    // Label jobsLabel = new Label("Jobs");
-    // mainPanel.add(jobsLabel);
-    
     jobsGroupedPanel = new HorizontalPanel();
     mainPanel.add(jobsGroupedPanel);
     jobsGroupedPanel.setSize("258px", "100px");
@@ -82,9 +78,17 @@ public class OrbTrackerStatus implements EntryPoint {
     jobsInProgressPanel.setTitle("Jobs In Progress");
     jobsInQueuePanel.setTitle("Jobs in Queue");
     
+    errorLabelOTM = new Label("");
+    mainPanel.add(errorLabelOTM);
+    
+    errorLabelJIP = new Label("");
+    mainPanel.add(errorLabelJIP);
+    
+    errorLabelJQ = new Label("");
+    mainPanel.add(errorLabelJQ);
+    
     Timer refreshTimer = new Timer() {
       public void run() {
-        errorLabel.setVisible(false);
         refreshWatchDataList();
         refreshJobsInProgress();
         refreshJobsInQueue();
@@ -114,11 +118,11 @@ public class OrbTrackerStatus implements EntryPoint {
         } else if (caught instanceof NodeDoesNotExistException) {
           details = ((NodeDoesNotExistException) caught).getErrorMessage();
         }
-        errorLabel.setText(details);
-        errorLabel.setVisible(true);
+        errorLabelJIP.setText(details);
+        errorLabelJIP.setVisible(true);
         lastUpdatedLabel.setText("Last Updated : "
                                  + DateTimeFormat.getMediumDateTimeFormat().format(new Date()));
-        clearTables();
+        clearTables(jobsInProgressPanel);
       }
       
       @SuppressWarnings("deprecation")
@@ -126,6 +130,7 @@ public class OrbTrackerStatus implements EntryPoint {
         updateJobTable(result, jobsInProgressPanel);
         lastUpdatedLabel.setText("Last Updated : "
                                  + DateTimeFormat.getMediumDateTimeFormat().format(new Date()));
+        errorLabelJIP.setVisible(false);
       }
     };
     dataService.getJobsInProgress(callback);
@@ -150,11 +155,11 @@ public class OrbTrackerStatus implements EntryPoint {
         } else if (caught instanceof NodeDoesNotExistException) {
           details = ((NodeDoesNotExistException) caught).getErrorMessage();
         }
-        errorLabel.setText(details);
-        errorLabel.setVisible(true);
+        errorLabelJQ.setText(details);
+        errorLabelJQ.setVisible(true);
         lastUpdatedLabel.setText("Last Updated : "
                                  + DateTimeFormat.getMediumDateTimeFormat().format(new Date()));
-        clearTables();
+        clearTables(jobsInQueuePanel);
       }
       
       @SuppressWarnings("deprecation")
@@ -162,6 +167,7 @@ public class OrbTrackerStatus implements EntryPoint {
         updateJobTable(result, jobsInQueuePanel);
         lastUpdatedLabel.setText("Last Updated : "
                                  + DateTimeFormat.getMediumDateTimeFormat().format(new Date()));
+        errorLabelJQ.setVisible(false);
       }
     };
     dataService.getJobsInQueue(callback);
@@ -185,11 +191,11 @@ public class OrbTrackerStatus implements EntryPoint {
         } else if (caught instanceof NodeDoesNotExistException) {
           details = ((NodeDoesNotExistException) caught).getErrorMessage();
         }
-        errorLabel.setText(details);
-        errorLabel.setVisible(true);
+        errorLabelOTM.setText(details);
+        errorLabelOTM.setVisible(true);
         lastUpdatedLabel.setText("Last Updated : "
                                  + DateTimeFormat.getMediumDateTimeFormat().format(new Date()));
-        clearTables();
+        clearTables(orbTrackerFlexTable);
       }
       
       @SuppressWarnings("deprecation")
@@ -197,6 +203,7 @@ public class OrbTrackerStatus implements EntryPoint {
         updateTable(result);
         lastUpdatedLabel.setText("Last Updated : "
                                  + DateTimeFormat.getMediumDateTimeFormat().format(new Date()));
+        errorLabelOTM.setVisible(false);
       }
       
     };
@@ -240,18 +247,10 @@ public class OrbTrackerStatus implements EntryPoint {
     }
   }
   
-  private void clearTables() {
-    int num_rows = orbTrackerFlexTable.getRowCount();
+  private void clearTables(FlexTable table) {
+    int num_rows = table.getRowCount();
     for (int r = num_rows - 1; r > 0; r--) {
-      orbTrackerFlexTable.removeRow(r);
-    }
-    num_rows = jobsInQueuePanel.getRowCount();
-    for (int r = num_rows - 1; r > 0; r--) {
-      jobsInQueuePanel.removeRow(r);
-    }
-    num_rows = jobsInProgressPanel.getRowCount();
-    for (int r = num_rows - 1; r > 0; r--) {
-      jobsInProgressPanel.removeRow(r);
+      table.removeRow(r);
     }
   }
 }

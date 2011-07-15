@@ -98,6 +98,9 @@ public class OrbTrackerMemberDataServiceImpl extends RemoteServiceServlet implem
    */
   private void initializeZooKeeper() throws IOException, InterruptedException {
     // String connectString = getServletConfig().getInitParameter("connectString");
+	if(testingMode) {
+		orbConf.setOrbZooKeeperQuorum("localhost:21810");
+	}
     zk = ZookeeperUtils.connect(orbConf.getOrbZooKeeperQuorum());
   }
   

@@ -31,6 +31,7 @@ public class TestLeaderGroupMonitor {
   @BeforeClass
   public static void setUpBeforeClass() throws Exception {
     OrbConfiguration orbConf = new OrbConfiguration(true);
+    orbConf.setOrbZooKeeperQuorum("localhost:21810");
     zk = ZookeeperUtils.connect(orbConf.getOrbZooKeeperQuorum());
     ZookeeperUtils.tryToCreateNode(zk, "/GoldenOrb");
     ZookeeperUtils.tryToCreateNode(zk, "/GoldenOrb/Test");

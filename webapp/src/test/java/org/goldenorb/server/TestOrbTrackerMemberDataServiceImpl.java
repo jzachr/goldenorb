@@ -31,6 +31,7 @@ public class TestOrbTrackerMemberDataServiceImpl {
   @BeforeClass
   public static void setUpBeforeClass() throws Exception {
     OrbConfiguration orbConf = new OrbConfiguration(true);
+    orbConf.setOrbZooKeeperQuorum("localhost:21810");
     zk = ZookeeperUtils.connect(orbConf.getOrbZooKeeperQuorum());
     ZookeeperUtils.tryToCreateNode(zk, "/GoldenOrb");
     ZookeeperUtils.tryToCreateNode(zk, "/GoldenOrb/" + orbConf.getOrbClusterName());
@@ -221,6 +222,8 @@ public class TestOrbTrackerMemberDataServiceImpl {
     }
     OrbTrackerMemberDataServiceImpl server = new OrbTrackerMemberDataServiceImpl();
     // initialize watchers
+    CountDownLatch notUsed = new CountDownLatch(1);
+    server.enterTestingMode(notUsed, notUsed, notUsed);
     String[] jobQueue = server.getJobsInQueue();
     String[] jobsInProgress = server.getJobsInProgress();
     OrbTrackerMemberData[] members = server.getOrbTrackerMemberData();
