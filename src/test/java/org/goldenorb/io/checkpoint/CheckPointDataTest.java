@@ -16,7 +16,7 @@
  * limitations under the License.
  * 
  */
-package org.goldenorb.io.checkpoint.test;
+package org.goldenorb.io.checkpoint;
 
 import org.goldenorb.io.output.checkpoint.CheckPointDataOutput;
 import org.goldenorb.io.input.checkpoint.CheckPointDataInput;

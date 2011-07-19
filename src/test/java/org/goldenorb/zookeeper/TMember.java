@@ -16,7 +16,7 @@
  * limitations under the License.
  * 
  */
-package org.goldenorb.zookeeper.test;
+package org.goldenorb.zookeeper;
 
 import java.io.DataInput;
 import java.io.DataOutput;

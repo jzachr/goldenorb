@@ -16,7 +16,7 @@
  * limitations under the License.
  * 
  */
-package org.goldenorb.jet.test;
+package org.goldenorb.jet;
 
 import static org.junit.Assert.*;
 

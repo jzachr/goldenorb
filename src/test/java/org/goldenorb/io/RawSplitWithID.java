@@ -16,7 +16,7 @@
  * limitations under the License.
  * 
  */
-package org.goldenorb.io.test;
+package org.goldenorb.io;
 
 import org.goldenorb.io.input.RawSplit;
 

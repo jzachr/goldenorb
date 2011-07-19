@@ -16,7 +16,7 @@
  * limitations under the License.
  * 
  */
-package org.goldenorb.test;
+package org.goldenorb;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -29,8 +29,8 @@ import org.apache.zookeeper.ZooKeeper;
 import org.goldenorb.OrbRunner;
 import org.goldenorb.conf.OrbConfiguration;
 import org.goldenorb.zookeeper.OrbZKFailure;
+import org.goldenorb.zookeeper.TJTracker;
 import org.goldenorb.zookeeper.ZookeeperUtils;
-import org.goldenorb.zookeeper.test.TJTracker;
 import org.junit.Test;
 
 public class TestJobManager extends OrbRunner{
