@@ -9,21 +9,6 @@
   <servlet>
     <servlet-name>OrbTrackerServlet</servlet-name>
     <servlet-class>org.goldenorb.server.OrbTrackerMemberDataServiceImpl</servlet-class>
-    <init-param>
-        <!-- connectString :
-        Set this value to connectString parameter you would
-        pass to zookeeper when trying connect to a new zookeeper instance.
-        ex. ZooKeeper zk = new ZooKeeper(String connectString, int timeout, Watcher watcher); -->
-  		<param-name>connectString</param-name>
-  		<param-value>localhost</param-value>
-  	</init-param>
-  	<init-param>
-  		<!-- pathToLeaderGroup :
-  		Set this value to the full ZooKeeper path to the leader group you are monitoring
-  		This usually looks like /GoldenOrb/<Cluster Name>/OrbTrackerLeaderGroup -->
-  		<param-name>clusterName</param-name>
-  		<param-value>Ryan_Test</param-value>
-  	</init-param>
   </servlet>
 
   <servlet-mapping>
