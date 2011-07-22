@@ -137,9 +137,6 @@ public class CheckPointDataTest {
     if (fs != null) {
       fs.close();
     }
-    if (cluster != null) {
-      cluster.shutdown();
-    }
   }
   
 }

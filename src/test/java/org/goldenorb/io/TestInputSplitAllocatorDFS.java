@@ -125,8 +125,5 @@ public class TestInputSplitAllocatorDFS {
     if (fs != null) {
       fs.close();
     }
-    if (cluster != null) {
-      cluster.shutdown();
-    }
   }
 }
