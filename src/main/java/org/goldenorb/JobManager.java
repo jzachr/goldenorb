@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -222,6 +223,7 @@ public class JobManager<M extends OrbTrackerMember> implements OrbConfigurable {
         logger.error(e.getMessage());
       }
       logger.info("Starting Job");
+      logger.info("********** Job {} started: {}", job.getJobNumber(), new Date().getTime());
       if (assignments != null) {
         logger.info("Allocating partitions");
         
@@ -471,6 +473,9 @@ public class JobManager<M extends OrbTrackerMember> implements OrbConfigurable {
     ZookeeperUtils.recursiveDelete(zk, jobsInProgressPath + "/" + job.getJobNumber());
     ZookeeperUtils.deleteNodeIfEmpty(zk, jobsInProgressPath + "/" + job.getJobNumber());
     removeJobFromQueue(job);
+    
+    logger.info("********** Job {} removed: {}", job.getJobNumber(), new Date().getTime());
+
     tryToLaunchJob();
   }
   
