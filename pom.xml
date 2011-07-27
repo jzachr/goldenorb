@@ -135,12 +135,24 @@
 				</configuration>
 			</plugin>
 			<plugin>
+          		<groupId>org.apache.maven.plugins</groupId>
+          		<artifactId>maven-jar-plugin</artifactId>
+          		<version>2.3.1</version>
+          		<configuration>
+					<excludes>
+						<exclude>*site*</exclude>
+						<exclude>*.sh</exclude>
+					</excludes>
+				</configuration>
+        	</plugin>
+			<plugin>
 				<artifactId>maven-assembly-plugin</artifactId>
 				<version>2.2.1</version>
 				<configuration>
-					<descriptorRefs>
-						<descriptorRef>jar-with-dependencies</descriptorRef>
-					</descriptorRefs>
+					<descriptors>
+						<descriptor>src/main/assembly/src.xml</descriptor>
+					</descriptors>
+					<finalName>${project.build.finalName}-distribution</finalName>
 				</configuration>
 				<executions>
 					<execution>

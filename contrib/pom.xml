@@ -4,7 +4,7 @@
     <groupId>org.goldenorb</groupId>
     <version>0.1.0-SNAPSHOT</version>
     <artifactId>contrib</artifactId>
-    <name>Golden Orb</name>
+    <name>Golden Orb Algorithms</name>
     <description>This is the Maven Project which contains contributed algorithms.</description>
     <distributionManagement>
         <repository>
