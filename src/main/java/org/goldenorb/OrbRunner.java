@@ -101,20 +101,26 @@ public class OrbRunner {
 
 	protected void parseArgs(OrbConfiguration orbConf, String[] args, String algorithmName) {
 		// TODO Auto-generated method stub
-		for (int i = 0; i < args.length; i++) {
-			String arg = args[i];
-			if (arg.startsWith("-D")) { 
-				String currentJavaOpts = orbConf.get("goldenOrb.orb.partition.javaopts");
-				String newJavaOpts = arg.substring(2);
-				orbConf.set("goldenOrb.orb.partition.javaopts", currentJavaOpts + " " + newJavaOpts);
-			} else if (arg.contains(".")) {
-				String[] keyVal = arg.substring(2).split("=");
-				orbConf.set(keyVal[0], keyVal[1]);
-			} else {
-				String argKey = algorithmName+"."+arg.substring(1);
-				String argValue = args[++i];
-				orbConf.set(argKey, argValue);
+		try {
+			for (int i = 0; i < args.length; i++) {
+				String arg = args[i];
+				if (arg.startsWith("-D")) { 
+					String currentJavaOpts = orbConf.get("goldenOrb.orb.partition.javaopts");
+					String newJavaOpts = arg.substring(2);
+					orbConf.set("goldenOrb.orb.partition.javaopts", currentJavaOpts + " " + newJavaOpts);
+				} else if (arg.contains(".")) {
+					String[] keyVal = arg.substring(2).split("=");
+					orbConf.set(keyVal[0], keyVal[1]);
+				} else {
+					String argKey = algorithmName+"."+arg.substring(1);
+					String argValue = args[++i];
+					orbConf.set(argKey, argValue);
+				}
 			}
+		} catch (Exception e) {
+			try {
+				throw new IllegalArgumentException();
+			} catch (Exception e1) {}
 		}
 	}
 	

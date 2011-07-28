@@ -95,7 +95,12 @@ public class OrbSingleSourceShortestPathJob extends OrbRunner {
 //		orbConf.set(SOURCE_VERTEX, sourceVertex);
 
 		
-		parseArgs(orbConf, args, ALGORITHM_NAME);		
+		try {
+			parseArgs(orbConf, args, ALGORITHM_NAME);		
+		} catch (IllegalArgumentException e) {
+			printHelpMessage();
+			System.exit(-1);
+		}
 		runJob(orbConf);
 	}
 
