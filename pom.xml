@@ -140,7 +140,7 @@
           		<version>2.3.1</version>
           		<configuration>
 					<excludes>
-						<exclude>*site*</exclude>
+						<exclude>*.xml</exclude>
 						<exclude>*.sh</exclude>
 					</excludes>
 				</configuration>

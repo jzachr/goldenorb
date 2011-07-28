@@ -35,7 +35,7 @@
       <outputDirectory>conf</outputDirectory>
       <useDefaultExcludes>true</useDefaultExcludes>
       <includes>
-        <include>*site*</include>
+        <include>*.xml</include>
         <include>*.properties</include>
       </includes>
     </fileSet>
@@ -47,6 +47,12 @@
       </includes>
     </fileSet>
   </fileSets>
+  <files>
+  	<file>
+  		<source>classpath.txt</source>
+  		<outputDirectory>/</outputDirectory>
+  	</file>
+  </files>
   <dependencySets>
     <dependencySet>
       <outputDirectory>lib</outputDirectory>
