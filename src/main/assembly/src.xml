@@ -3,7 +3,6 @@
   xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/2.2.1 http://maven.apache.org/xsd/assembly-2.2.1.xsd">
   <id>src</id>
   <formats>
-  	<format>tar.gz</format>
     <format>zip</format>
   </formats>
   <fileSets>

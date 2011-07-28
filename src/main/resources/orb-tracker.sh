@@ -12,6 +12,11 @@ then
 	ORB_LIBS="$ORB_HOME"/lib
 fi
 
+if [ "x$ORB_CONF" = "x" ]
+then
+	ORB_CONF="$ORB_HOME"/conf
+fi
+
 if [ ! -d "$ORB_HOME"/logs ]
 then
 	mkdir "$ORB_HOME"/logs
@@ -19,8 +24,7 @@ fi
 
 ORB_LOGF="$ORB_HOME"/logs/orb-tracker.`date +%Y-%m-%d.%H%M-%Z`.out
 ORB_PIDFILE="$ORB_HOME"/orbtracker.pid
-ORB_CLASSPATH="$ORB_LIBS"/.:"$ORB_LIBS"/\*:"$ORB_HOME"/target/"$ORB_JAR":`cat $ORB_HOME/classpath.txt`
-
+ORB_CLASSPATH="$ORB_LIBS"/.:"$ORB_LIBS"/\*:"$ORB_CONF"/.:"$ORB_CONF"/\*:"$ORB_HOME"/"$ORB_JAR":`cat $ORB_HOME/classpath.txt`
 case $1 in
 start)
 	echo "using ORB_HOME=$ORB_HOME"
