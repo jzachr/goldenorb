@@ -29,6 +29,8 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.mapred.InvalidJobConfException;
 import org.apache.zookeeper.CreateMode;
@@ -232,6 +234,13 @@ public class JobManager<M extends OrbTrackerMember> implements OrbConfigurable {
           logger.debug("OrbTracker - " + tracker.getHostname() + ":" + tracker.getPort());
           Integer[] assignment = assignments.get(tracker);
           
+          try {
+          tracker.getRequiredFiles(job.getOrbConf());
+          } catch (OrbZKFailure e) {
+            logger.error("EXCEPTION : An OrbTrackerMember failed to copy files from HDFS to local machine");
+            logger.error(e.getMessage());
+            throw e;
+          }
           PartitionRequest request = new PartitionRequest();
           request.setActivePartitions(assignment[ResourceAllocator.TRACKER_AVAILABLE]);
           request.setReservedPartitions(assignment[ResourceAllocator.TRACKER_RESERVED]);
@@ -475,8 +484,31 @@ public class JobManager<M extends OrbTrackerMember> implements OrbConfigurable {
     removeJobFromQueue(job);
     
     logger.info("********** Job {} removed: {}", job.getJobNumber(), new Date().getTime());
-
+    removeJobsHDFSfiles(job);
+    
     tryToLaunchJob();
+  }
+  
+  /**
+   * Deletes the files in HDFS under the /Distributed directory for this job.
+   * @param job
+   */
+  public void removeJobsHDFSfiles(OrbJob job) {
+    Path[] hdfsPaths = job.getOrbConf().getHDFSdistributedFiles();
+    if (hdfsPaths != null) {
+      try {
+        FileSystem fs = FileSystem.get(job.getOrbConf());
+        for (Path path : hdfsPaths) {
+          fs.delete(path, false);
+          logger.info("Removed file " + path.toString() + " from HDFS because job " + job.getJobNumber() + " is complete");
+        }
+      } catch (IOException e) {
+        logger.error("Exception occured while trying to remove files from HDFS for job " + job.getJobNumber());
+        logger.error(e.getMessage());
+        e.printStackTrace();
+      }
+      
+    }
   }
   
   private class JobsInQueueWatcher implements Watcher {

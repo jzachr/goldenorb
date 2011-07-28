@@ -21,6 +21,9 @@ package org.goldenorb.jet;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
+
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
 
 /*
@@ -29,17 +32,21 @@ import org.apache.hadoop.io.Text;
  */
 import org.goldenorb.OrbTrackerCommunicationProtocol;
 import org.goldenorb.conf.OrbConfiguration;
+import org.goldenorb.zookeeper.OrbZKFailure;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.hadoop.ipc.RPC;
 import java.net.InetSocketAddress;
+import java.util.ArrayList;
+import java.util.List;
 
 /* End of non-generated import declaraction code */
 
 /**
  * This class is the proxy object for an OrbTracker into the LeaderGroup
  */
-public class OrbTrackerMember implements org.goldenorb.zookeeper.Member, org.goldenorb.OrbTrackerCommunicationProtocol, org.goldenorb.conf.OrbConfigurable {
+public class OrbTrackerMember implements org.goldenorb.zookeeper.Member,
+    org.goldenorb.OrbTrackerCommunicationProtocol, org.goldenorb.conf.OrbConfigurable {
   
   /**
    * the total number of partitions that this OrbTracker can handle
@@ -97,86 +104,91 @@ public class OrbTrackerMember implements org.goldenorb.zookeeper.Member, org.gol
    * subsequent code generations.
    */
 
-/**
- * Set the orbConf
- * @param  OrbConfiguration orbConf
- */
+  /**
+   * Set the orbConf
+   * 
+   * @param OrbConfiguration
+   *          orbConf
+   */
   @Override
   public void setOrbConf(OrbConfiguration orbConf) {
     this.orbConf = orbConf;
   }
   
-/**
- * Return the orbConf
- */
+  /**
+   * Return the orbConf
+   */
   @Override
   public OrbConfiguration getOrbConf() {
     return orbConf;
   }
   
-/**
- * 
- * @param  Object rhs
- * @returns boolean
- */
+  /**
+   * 
+   * @param Object
+   *          rhs
+   * @returns boolean
+   */
   public boolean equals(Object rhs) {
     return hostname.equals(((OrbTrackerMember) rhs).getHostname());
   }
   
-/**
+  /**
  * 
  */
-  public void initProxy()  {
+  public void initProxy() {
     initProxy(this.orbConf);
   }
   
-/**
- * 
- * @param  OrbConfiguration orbConf
- * @throws IOException 
- */
-  public void initProxy(OrbConfiguration orbConf)  {
+  /**
+   * 
+   * @param OrbConfiguration
+   *          orbConf
+   * @throws IOException
+   */
+  public void initProxy(OrbConfiguration orbConf) {
     InetSocketAddress addr = new InetSocketAddress(hostname, port);
     logger.info("Trying to initialize: " + hostname + ":" + port);
     try {
       client = (OrbTrackerCommunicationProtocol) RPC.getProxy(OrbTrackerCommunicationProtocol.class,
-      OrbTrackerCommunicationProtocol.versionID, addr, orbConf);
-    logger.info("Trying to initialize: " + hostname + ":" + port);
-
-    } catch (IOException e){
+        OrbTrackerCommunicationProtocol.versionID, addr, orbConf);
+      logger.info("Trying to initialize: " + hostname + ":" + port);
+      
+    } catch (IOException e) {
       e.printStackTrace();
     }
   }
   
-/**
- * Return the protocolVersion
- */
+  /**
+   * Return the protocolVersion
+   */
   @Override
   public long getProtocolVersion(String arg0, long arg1) throws IOException {
     return versionID;
   }
   
-/**
- * 
- * @param  PartitionRequest partitionRequest
- * @returns PartitionRequestResponse
- */
+  /**
+   * 
+   * @param PartitionRequest
+   *          partitionRequest
+   * @returns PartitionRequestResponse
+   */
   @Override
   public PartitionRequestResponse requestPartitions(PartitionRequest partitionRequest) {
     logger.info("requestPartitions");
     return client.requestPartitions(partitionRequest);
   }
   
-  
   @Override
-  public void killJob(String jobNumber){
+  public void killJob(String jobNumber) {
     client.killJob(jobNumber);
   }
-
-  /* End of non-generated method code */
   
+  /* End of non-generated method code */
+
   /**
    * gets the total number of partitions that this OrbTracker can handle
+   * 
    * @return
    */
   public int getPartitionCapacity() {
@@ -185,6 +197,7 @@ public class OrbTrackerMember implements org.goldenorb.zookeeper.Member, org.gol
   
   /**
    * sets the total number of partitions that this OrbTracker can handle
+   * 
    * @param partitionCapacity
    */
   public void setPartitionCapacity(int partitionCapacity) {
@@ -193,6 +206,7 @@ public class OrbTrackerMember implements org.goldenorb.zookeeper.Member, org.gol
   
   /**
    * gets the total number of partitions that the OrbTracker currently has available
+   * 
    * @return
    */
   public int getAvailablePartitions() {
@@ -201,6 +215,7 @@ public class OrbTrackerMember implements org.goldenorb.zookeeper.Member, org.gol
   
   /**
    * sets the total number of partitions that the OrbTracker currently has available
+   * 
    * @param availablePartitions
    */
   public void setAvailablePartitions(int availablePartitions) {
@@ -209,6 +224,7 @@ public class OrbTrackerMember implements org.goldenorb.zookeeper.Member, org.gol
   
   /**
    * gets the total number of partitions that are reserved for failures on this OrbTracker
+   * 
    * @return
    */
   public int getReservedPartitions() {
@@ -217,6 +233,7 @@ public class OrbTrackerMember implements org.goldenorb.zookeeper.Member, org.gol
   
   /**
    * sets the total number of partitions that are reserved for failures on this OrbTracker
+   * 
    * @param reservedPartitions
    */
   public void setReservedPartitions(int reservedPartitions) {
@@ -225,6 +242,7 @@ public class OrbTrackerMember implements org.goldenorb.zookeeper.Member, org.gol
   
   /**
    * gets the total number of partitions that are currently in on this OrbTracker
+   * 
    * @return
    */
   public int getInUsePartitions() {
@@ -233,6 +251,7 @@ public class OrbTrackerMember implements org.goldenorb.zookeeper.Member, org.gol
   
   /**
    * sets the total number of partitions that are currently in on this OrbTracker
+   * 
    * @param inUsePartitions
    */
   public void setInUsePartitions(int inUsePartitions) {
@@ -241,6 +260,7 @@ public class OrbTrackerMember implements org.goldenorb.zookeeper.Member, org.gol
   
   /**
    * gets the host name of the machine running this OrbTracker
+   * 
    * @return
    */
   public String getHostname() {
@@ -249,6 +269,7 @@ public class OrbTrackerMember implements org.goldenorb.zookeeper.Member, org.gol
   
   /**
    * sets the host name of the machine running this OrbTracker
+   * 
    * @param hostname
    */
   public void setHostname(String hostname) {
@@ -257,6 +278,7 @@ public class OrbTrackerMember implements org.goldenorb.zookeeper.Member, org.gol
   
   /**
    * gets whether this member is the leader
+   * 
    * @return
    */
   public boolean isLeader() {
@@ -265,6 +287,7 @@ public class OrbTrackerMember implements org.goldenorb.zookeeper.Member, org.gol
   
   /**
    * sets whether this member is the leader
+   * 
    * @param leader
    */
   public void setLeader(boolean leader) {
@@ -273,6 +296,7 @@ public class OrbTrackerMember implements org.goldenorb.zookeeper.Member, org.gol
   
   /**
    * gets the port number the OrbTracker provides RPC on
+   * 
    * @return
    */
   public int getPort() {
@@ -281,20 +305,21 @@ public class OrbTrackerMember implements org.goldenorb.zookeeper.Member, org.gol
   
   /**
    * sets the port number the OrbTracker provides RPC on
+   * 
    * @param port
    */
   public void setPort(int port) {
     this.port = port;
   }
   
-  
   // /////////////////////////////////////
   // Writable
   // /////////////////////////////////////
-/**
- * 
- * @param  DataInput in
- */
+  /**
+   * 
+   * @param DataInput
+   *          in
+   */
   public void readFields(DataInput in) throws IOException {
     partitionCapacity = in.readInt();
     availablePartitions = in.readInt();
@@ -305,10 +330,11 @@ public class OrbTrackerMember implements org.goldenorb.zookeeper.Member, org.gol
     port = in.readInt();
   }
   
-/**
- * 
- * @param  DataOutput out
- */
+  /**
+   * 
+   * @param DataOutput
+   *          out
+   */
   public void write(DataOutput out) throws IOException {
     out.writeInt(partitionCapacity);
     out.writeInt(availablePartitions);
@@ -317,6 +343,32 @@ public class OrbTrackerMember implements org.goldenorb.zookeeper.Member, org.gol
     Text.writeString(out, hostname);
     out.writeBoolean(leader);
     out.writeInt(port);
+  }
+  
+  /**
+   * Pulls files from HDFS to the local machine's temp directory.
+   */
+  @Override
+  public void getRequiredFiles(OrbConfiguration orbConf) throws OrbZKFailure {
+    try {
+      Path[] hdfsPaths = orbConf.getHDFSdistributedFiles();
+      if (hdfsPaths != null) {
+        String baseLocalPath = System.getProperty("java.io.tmpdir") + "/GoldenOrb/"
+                               + orbConf.getOrbClusterName() + "/" + orbConf.getJobNumber() + "/";
+        FileSystem fs = FileSystem.get(orbConf);
+        for (Path path : hdfsPaths) {
+          String[] name = path.toString().split("/");
+          fs.copyToLocalFile(path, new Path(baseLocalPath + name[name.length - 1]));
+          logger.info(path.toString() + " copied from HDFS to local machine at " + baseLocalPath
+                      + name[name.length - 1]);
+        }
+      }
+      
+    } catch (IOException e) {
+      logger.error("EXCEPTION occured while copying files from HDFS to local machine : " + e.getMessage());
+      e.printStackTrace();
+      throw new OrbZKFailure(e);
+    }
   }
   
 }

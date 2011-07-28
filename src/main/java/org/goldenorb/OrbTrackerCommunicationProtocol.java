@@ -18,9 +18,13 @@
  */
 package org.goldenorb;
 
+import java.io.IOException;
+
 import org.apache.hadoop.ipc.VersionedProtocol;
+import org.goldenorb.conf.OrbConfiguration;
 import org.goldenorb.jet.PartitionRequest;
 import org.goldenorb.jet.PartitionRequestResponse;
+import org.goldenorb.zookeeper.OrbZKFailure;
 
 /**
  * {@link OrbTrackerCommunicationProtocol} is the protocol used to facilitate communication between 
@@ -37,5 +41,7 @@ public interface OrbTrackerCommunicationProtocol extends VersionedProtocol {
   public PartitionRequestResponse requestPartitions(PartitionRequest partitionRequest);
   
   public void killJob(String jobNumber);
+  
+  public void getRequiredFiles(OrbConfiguration orbConf) throws OrbZKFailure;
 
 }

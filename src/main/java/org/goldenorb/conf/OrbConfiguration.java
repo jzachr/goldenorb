@@ -18,7 +18,11 @@
  */
 package org.goldenorb.conf;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapreduce.InputFormat;
 import org.apache.hadoop.mapreduce.OutputFormat;
 import org.goldenorb.Vertex;
@@ -72,6 +76,9 @@ public class OrbConfiguration extends Configuration {
   public static final String ORB_FILE_OUTPUT_FORMAT_CLASS = "mapreduce.outputformat.class";
   public static final String ORB_FILE_INPUT_DIR = "mapred.input.dir";
   public static final String ORB_FILE_OUTPUT_DIR = "mapred.output.dir";
+  
+  public static final String ORB_LOCAL_FILES_TO_DISTRIBUTE = "goldenOrb.orb.localFilesToDistribute";
+  public static final String ORB_HDFS_FILES_TO_DISTRIBUTE = "goldenOrb.orb.HDFSfilesToDistribute";
   
 /**
  * Constructor
@@ -625,6 +632,38 @@ public class OrbConfiguration extends Configuration {
  */
   public void setVerticesLoaderHandlerThreads(int vertexThreads) {
     this.setInt(this.ORB_VERTICES_HANDLER_THREADS, vertexThreads);
+  }
+  
+  /**
+   * Adds file to be distributed to all machines in the cluster.
+   * @param filePath is the local path to file that will be distributed
+   */
+  public void addFileToDistribute(String filePath) {
+    String tmp = this.get(ORB_LOCAL_FILES_TO_DISTRIBUTE);
+    this.set(ORB_LOCAL_FILES_TO_DISTRIBUTE, tmp == null ? filePath : tmp + "," + filePath);
+  }
+  /**
+   * Returns the String that represents the local file paths to the files that will be
+   * distributed.  The file paths are comma separated and returns an empty string
+   * if there are no files to distribute.
+   * @return The string of all files to be distributed as a comma separated string
+   */
+  public String getDistributedFilePaths() {
+    return this.get(ORB_LOCAL_FILES_TO_DISTRIBUTE);
+  }
+  
+  public void addHDFSDistributedFile(String filePath) {
+    String tmp = this.get(ORB_HDFS_FILES_TO_DISTRIBUTE);
+    this.set(ORB_HDFS_FILES_TO_DISTRIBUTE, tmp == null ? filePath : tmp + "," + filePath);
+  }
+  
+  public Path[] getHDFSdistributedFiles() {
+    String[] paths = this.get(ORB_HDFS_FILES_TO_DISTRIBUTE).split(",");
+    Path[] result = new Path[paths.length];
+    for (int i =0; i < paths.length; i++) {
+      result[i] = new Path(paths[i]);
+    }
+    return result;
   }
 
 }

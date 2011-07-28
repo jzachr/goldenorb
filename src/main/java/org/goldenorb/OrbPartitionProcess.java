@@ -23,8 +23,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.hadoop.fs.Path;
+import org.apache.zookeeper.ZooKeeper;
 import org.goldenorb.conf.OrbConfiguration;
 import org.goldenorb.util.StreamWriter;
+import org.goldenorb.zookeeper.OrbZKFailure;
+import org.goldenorb.zookeeper.ZookeeperUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -80,7 +84,7 @@ public class OrbPartitionProcess implements PartitionProcess {
       String sysClassPath = System.getProperties().getProperty("java.class.path", null);
       
       List<String> args = new ArrayList<String>();
-
+      
       args.add("java");
       args.addAll(Arrays.asList(orbPartitionJavaopts));
       args.add("-cp");
@@ -95,20 +99,28 @@ public class OrbPartitionProcess implements PartitionProcess {
       ProcessBuilder builder = new ProcessBuilder();
       builder.command(args);
       process = builder.start();
-
+      
       new StreamWriter(process.getErrorStream(), errStream);
       new StreamWriter(process.getInputStream(), outStream);
       
     } catch (IOException e) {
+      e.printStackTrace();
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    } catch (OrbZKFailure e) {
+      logger.error("Exception occured while adding distributed files to the class path");
       e.printStackTrace();
     }
   }
   
   /**
    * 
+   * @throws InterruptedException
+   * @throws IOException
+   * @throws OrbZKFailure
    * @returns String
    */
-  private String buildClassPathPart() {
+  private String buildClassPathPart() throws IOException, InterruptedException, OrbZKFailure {
     StringBuilder sb = new StringBuilder();
     String[] orbClassPaths = conf.getOrbClassPaths();
     if (orbClassPaths != null) {
@@ -117,7 +129,50 @@ public class OrbPartitionProcess implements PartitionProcess {
         sb.append(cp);
       }
     }
+    
+    List<String> localFilesPath = getLocalFilesPath();
+    if (localFilesPath != null) {
+      for (String cp : localFilesPath) {
+        sb.append(":");
+        sb.append(cp);
+      }
+    }
+    
     return sb.toString();
+  }
+  
+  /**
+   * Calculates what the class paths for the distributed files that are in this partitions temp directory. All
+   * files are distributed to /temp directory/GoldenOrb/jobNumber/file name.
+   * 
+   * @return A list of the class paths that need to be added to this partitions class path
+   * @throws IOException
+   * @throws InterruptedException
+   * @throws OrbZKFailure
+   */
+  private List<String> getLocalFilesPath() throws IOException, InterruptedException, OrbZKFailure {
+    
+    List<String> paths = null;
+    ZooKeeper zk = ZookeeperUtils.connect(conf.getOrbZooKeeperQuorum());
+    String zkPath = "/GoldenOrb/" + conf.getOrbClusterName() + "/JobQueue/" + jobNumber;
+    logger.info("Getting node " + zkPath + " from ZooKeeper");
+    OrbConfiguration orbConf = (OrbConfiguration) ZookeeperUtils.getNodeWritable(zk, zkPath,
+      OrbConfiguration.class, conf);
+    if (orbConf != null) {
+      Path[] tempPaths = orbConf.getHDFSdistributedFiles();
+      if (tempPaths != null) {
+        paths = new ArrayList<String>();
+        for (Path path : tempPaths) {
+          String[] name = path.toString().split("/");
+          // files are always put in /<temp directory>/GoldenOrb/<jobNumber>/<file name>
+          paths.add(System.getProperty("java.io.tmpdir") + "/GoldenOrb/" + orbConf.getOrbClusterName() + "/"
+                    + jobNumber + "/" + name[name.length - 1]);
+        }
+      }
+    }
+    zk.close();
+    return paths;
+    
   }
   
   /**

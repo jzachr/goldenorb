@@ -24,6 +24,9 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.hdfs.MiniDFSCluster;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.zookeeper.ZooKeeper;
 import org.goldenorb.OrbRunner;
@@ -31,6 +34,7 @@ import org.goldenorb.conf.OrbConfiguration;
 import org.goldenorb.zookeeper.OrbZKFailure;
 import org.goldenorb.zookeeper.TJTracker;
 import org.goldenorb.zookeeper.ZookeeperUtils;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class TestJobManager extends OrbRunner{
@@ -39,6 +43,14 @@ public class TestJobManager extends OrbRunner{
   List<Thread> threads = new ArrayList<Thread>();
   List<TJTracker> trackers = new ArrayList<TJTracker>();
   private ZooKeeper zk;
+  
+  private static MiniDFSCluster cluster;
+  
+  @BeforeClass
+  public static void setUp() throws IOException{
+    OrbConfiguration orbConf = new OrbConfiguration(true);
+    cluster = new MiniDFSCluster(orbConf, 3, true, null);
+  }
   
 /**
  * 
@@ -66,10 +78,13 @@ public class TestJobManager extends OrbRunner{
     }
     joinLeaderGroup.await();
     orbConf.setOrbZooKeeperQuorum("localhost:21810");
+    orbConf.set("fs.default.name", "hdfs://localhost:" + cluster.getNameNodePort());
+    orbConf.addFileToDistribute("src/test/resources/distributeTest1.txt");
+    orbConf.addFileToDistribute("src/test/resources/HelloWorld.jar");
     
     String path1 = runJob(orbConf);
     String path2 = runJob(orbConf);
-    
+    System.out.println(path1+" "+path2);
     new Thread(new HeartbeatUpdater(getJobInProgressPath(path1))).start();
     new Thread(new HeartbeatUpdater(getJobInProgressPath(path2))).start();
     jobCreated.await(2, TimeUnit.SECONDS);
@@ -91,6 +106,7 @@ public class TestJobManager extends OrbRunner{
     ZookeeperUtils.recursiveDelete(zk, "/GoldenOrb");
     ZookeeperUtils.deleteNodeIfEmpty(zk, "/GoldenOrb");
   }
+  
   
   private class HeartbeatUpdater implements Runnable{
     

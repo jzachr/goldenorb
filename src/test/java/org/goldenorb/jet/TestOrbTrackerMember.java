@@ -26,12 +26,19 @@ import java.io.DataInput;
 import java.io.DataInputStream;
 import java.io.DataOutput;
 import java.io.DataOutputStream;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.Scanner;
 
 import org.junit.Before;
 import org.junit.Test;
 
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.hdfs.MiniDFSCluster;
+import org.goldenorb.conf.OrbConfiguration;
 import org.goldenorb.jet.OrbTrackerMember;
+import org.goldenorb.zookeeper.OrbZKFailure;
 
 public class TestOrbTrackerMember {
   
@@ -69,7 +76,7 @@ public class TestOrbTrackerMember {
     orbTrackerMember.setHostname(STRING_HOSTNAME_VALUE);
     orbTrackerMember.setLeader(BOOLEAN_LEADER_VALUE);
     orbTrackerMember.setPort(INT_PORT_VALUE);
-	ByteArrayOutputStream baos = new ByteArrayOutputStream();
+	  ByteArrayOutputStream baos = new ByteArrayOutputStream();
     DataOutput out = new DataOutputStream(baos);
     orbTrackerMember.write(out);
     DataInput in = new DataInputStream(new ByteArrayInputStream(baos.toByteArray()));
@@ -132,4 +139,30 @@ public class TestOrbTrackerMember {
    */
 
   /* End of user / non-generated code */
+  
+  @Test
+  public void testGetRequiredFiles() throws OrbZKFailure, IOException {
+    OrbConfiguration orbConf= new OrbConfiguration(true);
+    orbConf.setJobNumber("0000001");
+    MiniDFSCluster cluster = new MiniDFSCluster(orbConf, 3, true, null);
+    orbConf.set("fs.default.name", "hdfs://localhost:" + cluster.getNameNodePort());
+    FileSystem fs = cluster.getFileSystem();
+    // Adding files to retrieve 
+    fs.copyFromLocalFile(false, true, new Path("src/test/resources/distributeTest1.txt"), new Path("/DistributedFiles/distributeTest1.txt"));
+    fs.copyFromLocalFile(false, true, new Path("src/test/resources/distributeTest2.txt"), new Path("/DistributedFiles/distributeTest2.txt"));
+    fs.copyFromLocalFile(false, true, new Path("src/test/resources/HelloWorld.jar"), new Path("/DistributedFiles/HelloWorld.jar"));
+    // Add files to orbConf
+    orbConf.addHDFSDistributedFile("/DistributedFiles/distributeTest1.txt");
+    orbConf.addHDFSDistributedFile("/DistributedFiles/distributeTest2.txt");
+    orbConf.addHDFSDistributedFile("/DistributedFiles/HelloWorld.jar");
+    
+    orbTrackerMember.getRequiredFiles(orbConf);
+    
+    FileInputStream file = new FileInputStream(System.getProperty("java.io.tmpdir") + "/GoldenOrb/"
+                             + orbConf.getOrbClusterName() + "/" + orbConf.getJobNumber() + "/distributeTest1.txt");
+    Scanner in = new Scanner(file);
+    
+    assertEquals("File is used in OrbRunnerTest.java" , in.nextLine());
+  }
+  
 }
