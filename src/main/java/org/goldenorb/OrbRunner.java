@@ -96,7 +96,7 @@ public class OrbRunner {
       logger.error("Exception", e);
     }
     
-//    writeLogToDisk(orbConf, System.getProperty("HOME"));
+    writePropertiesToLogger(orbConf);
     return jobNumber;
   }
   
@@ -124,7 +124,7 @@ public class OrbRunner {
     }
   }
   
-  private void writeLogToDisk(OrbConfiguration orbConf, String logLocation) {
+  private void writePropertiesToDisk(OrbConfiguration orbConf, String logLocation) {
     String _logLocation = logLocation;
     try {
       System.getProperties().storeToXML(new FileOutputStream(_logLocation + "sys.xml"),
@@ -138,6 +138,25 @@ public class OrbRunner {
         "Environment variables available to golden orb.");
       
       orbConf.writeXml(new FileOutputStream(_logLocation + "orb.xml"));
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+  
+  private void writePropertiesToLogger(OrbConfiguration orbConf) {
+  
+    try {
+   
+      logger.debug(System.getProperties().toString());
+      
+      Properties envProp = new Properties();
+      Map<String,String> getenv = System.getenv();
+      for (String key : getenv.keySet())
+        envProp.put(key, getenv.get(key));
+      logger.debug(envProp.toString());
+      
+      logger.debug(orbConf.toString());
+     
     } catch (Exception e) {
       e.printStackTrace();
     }
