@@ -96,7 +96,7 @@ public class OrbRunner {
       logger.error("Exception", e);
     }
     
-    writeLogToDisk(orbConf, System.getProperty("HOME"));
+//    writeLogToDisk(orbConf, System.getProperty("HOME"));
     return jobNumber;
   }
   
