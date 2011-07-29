@@ -20,7 +20,6 @@ package org.goldenorb;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Map;
 import java.util.Properties;
 
@@ -40,8 +39,8 @@ public class OrbRunner {
   
   private static Logger logger;
   protected static ZooKeeper ZK;
-
-/**
+  
+  /**
    * Constructs an OrbRunner object.
    */
   public OrbRunner() {
@@ -90,54 +89,54 @@ public class OrbRunner {
       logger.error("Exception", e);
     }
     
-	writeLogToDisk(orbConf, System.getProperty("HOME"));
+    writeLogToDisk(orbConf, System.getProperty("HOME"));
     return jobNumber;
   }
-
-	public OrbConfiguration getConf(boolean b) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	protected void parseArgs(OrbConfiguration orbConf, String[] args, String algorithmName) {
-		// TODO Auto-generated method stub
-		try {
-			for (int i = 0; i < args.length; i++) {
-				String arg = args[i];
-				if (arg.startsWith("-D")) { 
-					String currentJavaOpts = orbConf.get("goldenOrb.orb.partition.javaopts");
-					String newJavaOpts = arg.substring(2);
-					orbConf.set("goldenOrb.orb.partition.javaopts", currentJavaOpts + " " + newJavaOpts);
-				} else if (arg.contains(".")) {
-					String[] keyVal = arg.substring(2).split("=");
-					orbConf.set(keyVal[0], keyVal[1]);
-				} else {
-					String argKey = algorithmName+"."+arg.substring(1);
-					String argValue = args[++i];
-					orbConf.set(argKey, argValue);
-				}
-			}
-		} catch (Exception e) {
-			try {
-				throw new IllegalArgumentException();
-			} catch (Exception e1) {}
-		}
-	}
-	
-	private void writeLogToDisk(OrbConfiguration orbConf, String logLocation) {
-		String _logLocation = logLocation;
-		try {
-			System.getProperties().storeToXML(new FileOutputStream(_logLocation + "sys.xml"), "System properties available to golden orb");
-
-			Properties envProp = new Properties();
-			Map<String, String> getenv = System.getenv();
-			for (String key : getenv.keySet())
-				envProp.put(key, getenv.get(key));
-			envProp.storeToXML(new FileOutputStream(_logLocation + "env.xml"), "Environment variables available to golden orb.");
-
-			orbConf.writeXml(new FileOutputStream(_logLocation + "orb.xml"));
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
+  
+  protected void parseArgs(OrbConfiguration orbConf, String[] args, String algorithmName) throws Exception {
+    try {
+      for (int i = 0; i < args.length; i++) {
+        String arg = args[i];
+        if (arg.startsWith("-h") || arg.startsWith("--help")) {
+          throw new Exception("Request for usage documentation");
+        } else if (arg.startsWith("-D")) {
+          String currentJavaOpts = orbConf.get("goldenOrb.orb.partition.javaopts");
+          String newJavaOpts = arg.substring(2);
+          orbConf.set("goldenOrb.orb.partition.javaopts", currentJavaOpts + " " + newJavaOpts);
+        } else if (arg.contains(".")) {
+          String[] keyVal = arg.substring(2).split("=");
+          orbConf.set(keyVal[0], keyVal[1]);
+        } else {
+          String argKey = algorithmName + "." + arg.substring(1);
+          String argValue = args[++i];
+          orbConf.set(argKey, argValue);
+        }
+      }
+    } catch (Exception e) {
+      throw e;
+    }
+  }
+  
+  private void writeLogToDisk(OrbConfiguration orbConf, String logLocation) {
+    String _logLocation = logLocation;
+    try {
+      System.getProperties().storeToXML(new FileOutputStream(_logLocation + "sys.xml"),
+        "System properties available to golden orb");
+      
+      Properties envProp = new Properties();
+      Map<String,String> getenv = System.getenv();
+      for (String key : getenv.keySet())
+        envProp.put(key, getenv.get(key));
+      envProp.storeToXML(new FileOutputStream(_logLocation + "env.xml"),
+        "Environment variables available to golden orb.");
+      
+      orbConf.writeXml(new FileOutputStream(_logLocation + "orb.xml"));
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+  
+  public void printHelpMessage() {
+    // add orbRunner specific help
+  }
 }
