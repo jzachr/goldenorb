@@ -108,17 +108,6 @@ public class OrbRunnerTest extends OrbRunner {
  */
   @After
   public void cleanUpOrbRunner() throws Exception {
-    List<String> jobList = ZK.getChildren("/GoldenOrb/" + orbConf.getOrbClusterName() + "/JobQueue", false);
-    
-    // delete all Jobs
-    for (String jobName : jobList) {
-      ZookeeperUtils.deleteNodeIfEmpty(ZK, "/GoldenOrb/" + orbConf.getOrbClusterName() + "/JobQueue/"
-                                           + jobName);
-    }
-    
-    // delete entire JobQueue path
-    ZookeeperUtils.deleteNodeIfEmpty(ZK, "/GoldenOrb/" + orbConf.getOrbClusterName() + "/JobQueue");
-    ZookeeperUtils.deleteNodeIfEmpty(ZK, "/GoldenOrb/" + orbConf.getOrbClusterName());
     ZookeeperUtils.recursiveDelete(ZK, "/GoldenOrb");
     ZookeeperUtils.deleteNodeIfEmpty(ZK, "/GoldenOrb");
     
