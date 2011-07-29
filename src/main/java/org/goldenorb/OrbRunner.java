@@ -22,9 +22,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Properties;
-import java.net.URI;
 
-import org.apache.hadoop.filecache.DistributedCache;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.zookeeper.CreateMode;
@@ -124,6 +122,7 @@ public class OrbRunner {
     }
   }
   
+  @SuppressWarnings("unused")
   private void writePropertiesToDisk(OrbConfiguration orbConf, String logLocation) {
     String _logLocation = logLocation;
     try {
