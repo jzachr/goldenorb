@@ -22,7 +22,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Properties;
+import java.net.URI;
 
+import org.apache.hadoop.filecache.DistributedCache;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.ZooKeeper;
 import org.goldenorb.conf.OrbConfiguration;
@@ -78,6 +82,9 @@ public class OrbRunner {
         CreateMode.PERSISTENT);
       ZookeeperUtils.notExistCreateNode(ZK, "/GoldenOrb/" + orbConf.getOrbClusterName() + "/JobQueue",
         CreateMode.PERSISTENT);
+      
+      // Distribute files from orbConf to HDFS
+      distributeFiles(orbConf);
       
       // create the sequential Job using orbConf
       jobNumber = ZookeeperUtils.notExistCreateNode(ZK, "/GoldenOrb/" + orbConf.getOrbClusterName()
@@ -138,5 +145,40 @@ public class OrbRunner {
   
   public void printHelpMessage() {
     // add orbRunner specific help
+  }
+  
+    /**
+   * Distribute files through HDFS
+   * 
+   * @param orbConf
+   *          OrbConfiguration containing the file paths to distributed
+   * @throws IOException
+   */
+  public void distributeFiles(OrbConfiguration orbConf) throws IOException {
+    try {
+      FileSystem fs = FileSystem.get(orbConf);
+      if (orbConf.getDistributedFilePaths() != null) {
+        String[] filePaths = orbConf.getDistributedFilePaths().split(",");
+        for (String localPath : filePaths) {
+          if (!(localPath = localPath.trim()).equals("")) {
+            Path hdfsPath = createHDFSPath(localPath);
+            logger.info("Adding " + localPath + " to HDFS at " + hdfsPath.toString());
+            fs.copyFromLocalFile(false, true, new Path(localPath), hdfsPath);
+            orbConf.addHDFSDistributedFile(hdfsPath.toString());
+          }
+        }
+      }
+      
+    } catch (IOException e) {
+      logger.error("EXCEPTION: Error adding files to HDFS.");
+      logger.error(e.getMessage());
+      throw e;
+    }
+    
+  }
+  
+  public Path createHDFSPath(String localPath) {
+    String[] seperated = localPath.split("/");
+    return new Path("/DistributeFiles/" + seperated[seperated.length - 1]);
   }
 }
