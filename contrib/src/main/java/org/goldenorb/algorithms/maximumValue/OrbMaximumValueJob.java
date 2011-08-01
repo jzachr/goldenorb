@@ -1,5 +1,7 @@
 package org.goldenorb.algorithms.maximumValue;
 
+import java.io.IOException;
+
 import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.goldenorb.OrbRunner;
@@ -7,23 +9,15 @@ import org.goldenorb.conf.OrbConfiguration;
 import org.goldenorb.types.message.IntMessage;
 
 public class OrbMaximumValueJob extends OrbRunner{
-	public static void main(String[] args){
-	  if (args.length != 5) {
-	    System.out.println("Missing arguments");
-	    System.out.println("usage: OrbMaximumValueJob input-dir output-dir requested-partitions reserved-partitions classpath");
-	    System.exit(-1);
-	  }
-	  String inDir = args[0];
-	  String outDir = args[1];
-	  int reqP = Integer.parseInt(args[2]);
-	  int resP = Integer.parseInt(args[3]);
-	  String cp = args[4];
-	  
-		OrbMaximumValueJob omvj = new OrbMaximumValueJob();
-		omvj.startJob(inDir, outDir, reqP, resP, cp);
+  public static final String ALGORITHM_NAME = "maximumValue";
+  public static final String USAGE = "mapred.input.dir=/home/user/input/ mapred.output.dir=/home/user/output/ goldenOrb.orb.requestedPartitions=3 goldenOrb.orb.reservedPartitions=0";
+
+  public static void main(String[] args){
+		OrbMaximumValueJob maxValueJob = new OrbMaximumValueJob();
+		maxValueJob.startJob(args);
 	}
 	
-	private void startJob(String inputDir, String outputDir, int requested, int reserved, String classPath){
+	private void startJob(String[] args){
 		OrbConfiguration orbConf = new OrbConfiguration(true);
 		
 		orbConf.setFileInputFormatClass(TextInputFormat.class);
@@ -34,15 +28,28 @@ public class OrbMaximumValueJob extends OrbRunner{
 		orbConf.setVertexOutputFormatClass(MaximumValueVertexWriter.class);
 		orbConf.setNumberOfMessageHandlers(10);
 		orbConf.setNumberOfVertexThreads(10);
+		orbConf.setPartitionDebug(true);
 		
-		orbConf.setFileInputPath(inputDir);
-		orbConf.setFileOutputPath(outputDir);
-		
-		orbConf.setOrbRequestedPartitions(requested);
-		orbConf.setOrbReservedPartitions(reserved);
-		
-		orbConf.setOrbClassPaths(classPath);
-		
-		runJob(orbConf);
-	}
+    try {
+      parseArgs(orbConf, args, ALGORITHM_NAME);   
+    } catch (Exception e) {
+      printHelpMessage();
+      System.exit(-1);
+    }
+
+    try {
+      orbConf.writeXml(System.out);
+    } catch (IOException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+    
+    runJob(orbConf);
+  }
+
+  @Override
+  public void printHelpMessage() {
+    super.printHelpMessage();
+    System.out.println(USAGE);
+  }
 }
