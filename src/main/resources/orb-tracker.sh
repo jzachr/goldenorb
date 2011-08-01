@@ -1,10 +1,33 @@
 #!/bin/sh
 
+ # Licensed to Ravel, Inc. under one
+ # or more contributor license agreements.  See the NOTICE file
+ # distributed with this work for additional information
+ # regarding copyright ownership.  Ravel, Inc. licenses this file
+ # to you under the Apache License, Version 2.0 (the
+ # "License"); you may not use this file except in compliance
+ # with the License.  You may obtain a copy of the License at
+ # 
+ #     http://www.apache.org/licenses/LICENSE-2.0
+ # 
+ # Unless required by applicable law or agreed to in writing, software
+ # distributed under the License is distributed on an "AS IS" BASIS,
+ # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ # See the License for the specific language governing permissions and
+ # limitations under the License
+
+# ORB_MASTER_HOME   user@host:path where GoldenOrb code should be rsync'd from
+# Must have passwordless ssh set up to use rsync.
+#export ORB_MASTER_HOME=
+# ORB_HOME          Path to GoldenOrb on this machine
+#export ORB_HOME=
+
+
 ORB_JAR="org.goldenorb.core-0.1.0-SNAPSHOT.jar"
 
 if [ "x$ORB_HOME" = "x" ]
 then
-	ORB_HOME="../../.."
+	ORB_HOME=".."
 fi
 
 if [ "x$ORB_LIBS" = "x" ]
@@ -27,6 +50,10 @@ ORB_PIDFILE="$ORB_HOME"/orbtracker.pid
 ORB_CLASSPATH="$ORB_LIBS"/.:"$ORB_LIBS"/\*:"$ORB_CONF"/.:"$ORB_CONF"/\*:"$ORB_HOME"/"$ORB_JAR":`cat $ORB_HOME/classpath.txt`
 case $1 in
 start)
+	if [ "$ORB_MASTER_HOME" != "" ]; then
+	    echo rsync from $ORB_MASTER_HOME
+	    rsync -a -e ssh --delete --exclude=.svn --exclude=.git $ORB_MASTER_HOME/conf/ "$ORB_HOME"/conf
+	fi
 	echo "using ORB_HOME=$ORB_HOME"
 	echo "using ORB_LIBS=$ORB_LIBS"
 	echo "starting OrbTracker"
