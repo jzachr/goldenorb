@@ -109,7 +109,7 @@ public class OrbRunner {
           String newJavaOpts = arg.substring(2);
           orbConf.set("goldenOrb.orb.partition.javaopts", currentJavaOpts + " " + newJavaOpts);
         } else if (arg.contains(".")) {
-          String[] keyVal = arg.substring(2).split("=");
+          String[] keyVal = arg.split("=");
           orbConf.set(keyVal[0], keyVal[1]);
         } else {
           String argKey = algorithmName + "." + arg.substring(1);
