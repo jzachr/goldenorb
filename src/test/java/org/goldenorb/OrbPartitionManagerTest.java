@@ -9,6 +9,7 @@ import java.util.Map;
 
 import org.apache.zookeeper.ZooKeeper;
 import org.goldenorb.conf.OrbConfiguration;
+import org.goldenorb.jet.PartitionRequest;
 import org.goldenorb.zookeeper.OrbZKFailure;
 import org.goldenorb.zookeeper.ZookeeperUtils;
 import org.junit.BeforeClass;
@@ -42,9 +43,14 @@ public class OrbPartitionManagerTest {
     assertEquals(OPManager.getPartitionProcessClass(), OrbPartitionProcess.class);
     OPManager.setPartitionProcessClass(OrbPartitionProcess.class);
     logger.info("OrbPartitionManager IP: " + OPManager.getIpAddress());
-    
+    PartitionRequest request = new PartitionRequest();
+    request.setReservedPartitions(reservedPartitions);
+    request.setActivePartitions(requestedPartitions);
+    request.setJobID("0");
+    request.setBasePartitionID(0);
+    request.setJobConf(orbConf);
     try {
-      OPManager.launchPartitions(requestedPartitions, reservedPartitions, 0, "0");
+      OPManager.launchPartitions(request);
       Map<String, List<OrbPartitionProcess>> mapOPP = OPManager.getProcessesByJob();
       assertTrue(mapOPP.get("0").size() == totalPartitions);
       OPManager.kill("0");

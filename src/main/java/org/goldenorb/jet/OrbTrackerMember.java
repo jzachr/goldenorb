@@ -183,7 +183,33 @@ public class OrbTrackerMember implements org.goldenorb.zookeeper.Member,
   public void killJob(String jobNumber) {
     client.killJob(jobNumber);
   }
-  
+
+  /**
+   * Pulls files from HDFS to the local machine's temp directory.
+   */
+  @Override
+  public void getRequiredFiles(OrbConfiguration jobConf) throws OrbZKFailure {
+    try {
+      Path[] hdfsPaths = jobConf.getHDFSdistributedFiles();
+      if (hdfsPaths != null) {
+        String baseLocalPath = System.getProperty("java.io.tmpdir") + "/GoldenOrb/"
+                               + jobConf.getOrbClusterName() + "/" + jobConf.getJobNumber() + "/";
+        FileSystem fs = FileSystem.get(jobConf);
+        for (Path path : hdfsPaths) {
+          String[] name = path.toString().split("/");
+          fs.copyToLocalFile(path, new Path(baseLocalPath + name[name.length - 1]));
+          logger.info(path.toString() + " copied from HDFS to local machine at " + baseLocalPath
+                      + name[name.length - 1]);
+        }
+      }
+      
+    } catch (IOException e) {
+      logger.error("EXCEPTION occured while copying files from HDFS to local machine : " + e.getMessage());
+      e.printStackTrace();
+      throw new OrbZKFailure(e);
+    }
+  }
+
   /* End of non-generated method code */
 
   /**
@@ -344,31 +370,4 @@ public class OrbTrackerMember implements org.goldenorb.zookeeper.Member,
     out.writeBoolean(leader);
     out.writeInt(port);
   }
-  
-  /**
-   * Pulls files from HDFS to the local machine's temp directory.
-   */
-  @Override
-  public void getRequiredFiles(OrbConfiguration orbConf) throws OrbZKFailure {
-    try {
-      Path[] hdfsPaths = orbConf.getHDFSdistributedFiles();
-      if (hdfsPaths != null) {
-        String baseLocalPath = System.getProperty("java.io.tmpdir") + "/GoldenOrb/"
-                               + orbConf.getOrbClusterName() + "/" + orbConf.getJobNumber() + "/";
-        FileSystem fs = FileSystem.get(orbConf);
-        for (Path path : hdfsPaths) {
-          String[] name = path.toString().split("/");
-          fs.copyToLocalFile(path, new Path(baseLocalPath + name[name.length - 1]));
-          logger.info(path.toString() + " copied from HDFS to local machine at " + baseLocalPath
-                      + name[name.length - 1]);
-        }
-      }
-      
-    } catch (IOException e) {
-      logger.error("EXCEPTION occured while copying files from HDFS to local machine : " + e.getMessage());
-      e.printStackTrace();
-      throw new OrbZKFailure(e);
-    }
-  }
-  
 }

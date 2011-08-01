@@ -255,8 +255,7 @@ public class OrbTracker extends OrbTrackerMember implements Runnable, OrbConfigu
     logger.info("requestPartitions");
     PartitionRequestResponse response = null;
     try {
-      /* response = */partitionManager.launchPartitions(request.getActivePartitions(),
-        request.getReservedPartitions(), request.getBasePartitionID(), request.getJobID());
+      partitionManager.launchPartitions(request);
     } catch (InstantiationException e) {
       logger.error(e.getMessage());
     } catch (IllegalAccessException e) {

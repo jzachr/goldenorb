@@ -39,6 +39,7 @@ import org.slf4j.LoggerFactory;
 public class OrbPartitionProcess implements PartitionProcess {
   private Process process;
   private OrbConfiguration conf;
+  private OrbConfiguration jobConf;
   private int processNum;
   private boolean reserved = false;
   private int partitionID;
@@ -61,11 +62,12 @@ public class OrbPartitionProcess implements PartitionProcess {
    * @param boolean reserved
    * @param int partitionID
    */
-  public OrbPartitionProcess(OrbConfiguration conf, int processNum, boolean reserved, int partitionID) {
+  public OrbPartitionProcess(OrbConfiguration conf, OrbConfiguration jobConf, int processNum, boolean reserved, int partitionID) {
     this.conf = conf;
     this.processNum = processNum;
     this.reserved = reserved;
     this.partitionID = partitionID;
+    this.jobConf = jobConf;
   }
   
   /**
@@ -80,12 +82,19 @@ public class OrbPartitionProcess implements PartitionProcess {
     try {
       String customClassPath = buildClassPathPart();
       int orbBasePort = conf.getOrbBasePort();
-      String[] orbPartitionJavaopts = conf.getOrbPartitionJavaopts().split(" ");
+      String tmp = jobConf.getOrbPartitionJavaopts();
+      String[] orbPartitionJavaopts = tmp != null ? tmp.split(" ") : new String[0];
       String sysClassPath = System.getProperties().getProperty("java.class.path", null);
+      String debugOpts = jobConf.getPartitionDebug() ? setupDebugOptions() : new String();
       
       List<String> args = new ArrayList<String>();
       
-      args.add("java");
+      args.add(System.getProperty("java.home") + "/bin/java");
+      
+      if(debugOpts.length() > 0) {
+        args.add(setupDebugOptions());
+      }
+
       args.addAll(Arrays.asList(orbPartitionJavaopts));
       args.add("-cp");
       args.add(sysClassPath + customClassPath);
@@ -94,11 +103,17 @@ public class OrbPartitionProcess implements PartitionProcess {
       args.add(Integer.toString(partitionID));
       args.add(Boolean.toString(reserved));
       args.add(Integer.toString(orbBasePort + processNum));
+
       logger.debug("process args: {}", args.toString());
       
       ProcessBuilder builder = new ProcessBuilder();
       builder.command(args);
+      builder.environment().clear();
+      
       process = builder.start();
+      
+//      Runtime runtime = Runtime.getRuntime();
+//      process = runtime.exec(args.toArray(new String[args.size()]), new String[0]);
       
       new StreamWriter(process.getErrorStream(), errStream);
       new StreamWriter(process.getInputStream(), outStream);
@@ -279,5 +294,42 @@ public class OrbPartitionProcess implements PartitionProcess {
   @Override
   public String getJobNumber() {
     return jobNumber;
+  }
+  
+  private String setupDebugOptions() {
+    StringBuilder sb = new StringBuilder();
+    String ids = jobConf.getPartitionDebugIds();
+    boolean debugThisPartition = false;
+    
+    if(ids.equalsIgnoreCase("*")) {
+      debugThisPartition = true;
+    }
+    else {
+      for(String id : ids.split(",")) {
+        if(Integer.parseInt(id) == partitionID) {
+          debugThisPartition = true;
+          break;
+        }
+      }
+    }
+    
+    if(debugThisPartition) {
+      int debugPort = jobConf.getPartitionDebugBaseport() + partitionID;
+      sb.append("-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=localhost:");
+      sb.append(debugPort);
+    }
+    
+    return sb.toString();
+  }
+
+  @Override
+  public void setCurrentJobConf(OrbConfiguration jobConf) {
+    this.jobConf = jobConf;
+    
+  }
+
+  @Override
+  public OrbConfiguration getCurrentJobConf() {
+    return jobConf;
   }
 }

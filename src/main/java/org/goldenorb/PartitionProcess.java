@@ -82,4 +82,8 @@ public interface PartitionProcess {
   public void setJobNumber(String jobNumber);
 
   public String getJobNumber();
+  
+  public void setCurrentJobConf(OrbConfiguration jobConf);
+  
+  public OrbConfiguration getCurrentJobConf();
 }

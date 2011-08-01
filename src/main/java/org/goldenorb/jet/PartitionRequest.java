@@ -21,8 +21,11 @@ package org.goldenorb.jet;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
+
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
+import org.goldenorb.conf.OrbConfiguration;
 
 /*
  * Start of non-generated import declaration code -- any code written outside of this block will be
@@ -61,6 +64,8 @@ public class PartitionRequest implements Writable {
    * removed in subsequent code generations.
    */
 
+  private OrbConfiguration jobConf;
+  
   /* End of non-generated variable declaraction code */
 
   /**
@@ -72,7 +77,14 @@ public class PartitionRequest implements Writable {
    * Start of non-generated method code -- any code written outside of this block will be removed in
    * subsequent code generations.
    */
-  
+  public OrbConfiguration getJobConf() {
+    return jobConf;
+  }
+
+  public void setJobConf(OrbConfiguration jobConf) {
+    this.jobConf = jobConf;
+  }
+
   /* End of non-generated method code */
   @Override
   public String toString(){
@@ -155,6 +167,8 @@ public class PartitionRequest implements Writable {
     activePartitions = in.readInt();
     jobID = Text.readString(in);
     basePartitionID = in.readInt();
+    jobConf = new OrbConfiguration();
+    jobConf.readFields(in);
   }
   
 /**
@@ -166,6 +180,7 @@ public class PartitionRequest implements Writable {
     out.writeInt(activePartitions);
     Text.writeString(out, jobID);
     out.writeInt(basePartitionID);
+    jobConf.write(out);
   }
   
 }

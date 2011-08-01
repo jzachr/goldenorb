@@ -34,6 +34,7 @@ import org.apache.hadoop.net.DNS;
 import org.goldenorb.conf.OrbConfigurable;
 import org.goldenorb.conf.OrbConfiguration;
 import org.goldenorb.jet.OrbPartitionMember;
+import org.goldenorb.jet.PartitionRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -82,20 +83,25 @@ public class OrbPartitionManager<M extends PartitionProcess> implements OrbConfi
  * @param  int reserved
  * @param  int basePartitionID
  */
-  public void launchPartitions(int requested, int reserved, int basePartitionID, String jobNumber) throws InstantiationException, IllegalAccessException {
+//  public void launchPartitions(int requested, int reserved, int basePartitionID, String jobNumber) throws InstantiationException, IllegalAccessException {
+  public void launchPartitions(PartitionRequest request) throws InstantiationException, IllegalAccessException {
+    int requested = request.getActivePartitions();
+    int reserved = request.getReservedPartitions();
     logger.info("requested " + requested + ", reserved " + reserved);
+    
     List<M> processes = new ArrayList<M>();
     for (int i = 0; i < (requested + reserved); i++) {
-      M partition = processClass.newInstance();
-      partition.setConf(conf);
-      partition.setJobNumber(jobNumber);
-      partition.setProcessNum(i);
+      M partitionProcess = processClass.newInstance();
+      partitionProcess.setConf(conf);
+      partitionProcess.setCurrentJobConf(request.getJobConf());
+      partitionProcess.setJobNumber(request.getJobID());
+      partitionProcess.setProcessNum(i);
       if (i < requested) {
-        partition.setPartitionID(basePartitionID + i);
+        partitionProcess.setPartitionID(request.getBasePartitionID() + i);
       }
       else {
-        partition.setReserved(true);
-        partition.setPartitionID(-1);
+        partitionProcess.setReserved(true);
+        partitionProcess.setPartitionID(-1);
       }
       
       OutputStream outStream = null;
@@ -108,11 +114,11 @@ public class OrbPartitionManager<M extends PartitionProcess> implements OrbConfi
         logger.error(e.getMessage());
       }
       
-      logger.debug("launching partition process " + partition.getPartitionID() + " on " + ipAddress);
-      partition.launch(outStream, errStream);
-      processes.add(partition);
+      logger.debug("launching partition process " + partitionProcess.getPartitionID() + " on " + ipAddress);
+      partitionProcess.launch(outStream, errStream);
+      processes.add(partitionProcess);
     }
-    processesByJob.put(jobNumber, processes);
+    processesByJob.put(request.getJobID(), processes);
   }
   
 /**

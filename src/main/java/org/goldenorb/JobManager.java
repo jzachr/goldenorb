@@ -235,7 +235,7 @@ public class JobManager<M extends OrbTrackerMember> implements OrbConfigurable {
           Integer[] assignment = assignments.get(tracker);
           
           try {
-          tracker.getRequiredFiles(job.getOrbConf());
+            tracker.getRequiredFiles(job.getOrbConf());
           } catch (OrbZKFailure e) {
             logger.error("EXCEPTION : An OrbTrackerMember failed to copy files from HDFS to local machine");
             logger.error(e.getMessage());
@@ -246,6 +246,9 @@ public class JobManager<M extends OrbTrackerMember> implements OrbConfigurable {
           request.setReservedPartitions(assignment[ResourceAllocator.TRACKER_RESERVED]);
           request.setJobID(job.getJobNumber());
           request.setBasePartitionID(basePartitionID);
+          
+          request.setJobConf(job.getOrbConf());
+          
           basePartitionID += assignment[ResourceAllocator.TRACKER_AVAILABLE];
           
           logger.debug("requesting partitions");

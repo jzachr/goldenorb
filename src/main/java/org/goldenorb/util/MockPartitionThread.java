@@ -340,4 +340,16 @@ public class MockPartitionThread extends OrbPartitionMember implements OrbConfig
   public String getJobNumber() {
     return jobNumber;
   }
+
+  @Override
+  public void setCurrentJobConf(OrbConfiguration jobConf) {
+    // TODO Auto-generated method stub
+    
+  }
+
+  @Override
+  public OrbConfiguration getCurrentJobConf() {
+    // TODO Auto-generated method stub
+    return null;
+  }
 }

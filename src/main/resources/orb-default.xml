@@ -40,7 +40,7 @@
 
   <property>
     <name>goldenOrb.orb.requestedPartitions</name>
-    <value>2</value>
+    <value>0</value>
     <description>Requested number of partitions for this job
     </description>
   </property>
@@ -170,4 +170,33 @@
     <description>The number of threads used to handle vertices
     </description>
   </property>
+
+  <property>
+    <name>goldenOrb.orb.partition.debug</name>
+    <value>false</value>
+    <description>Activates JVM debugging when launching OrbPartitions
+    </description>
+  </property>
+
+  <property>
+    <name>goldenOrb.orb.parition.debug.baseport</name>
+    <value>8020</value>
+    <description>Baseport used for debugging OrbPartitions
+    </description>
+  </property>
+
+  <property>
+    <name>goldenorb.orb.partition.debug.ids</name>
+    <value>*</value>
+    <description>Comma-delimited list of OrbPartition IDs to launch in debug mode (* = all)
+    </description>
+  </property>
+
+  <property>
+    <name>goldenOrb.orb.HDFSfilesToDistribute</name>
+    <value></value>
+    <description>Comma-delimited list of absolute jar file paths 
+    </description>
+  </property>
+  
 </configuration>

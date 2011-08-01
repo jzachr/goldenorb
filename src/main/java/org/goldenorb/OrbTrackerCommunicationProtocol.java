@@ -42,6 +42,5 @@ public interface OrbTrackerCommunicationProtocol extends VersionedProtocol {
   
   public void killJob(String jobNumber);
   
-  public void getRequiredFiles(OrbConfiguration orbConf) throws OrbZKFailure;
-
+  public void getRequiredFiles(OrbConfiguration jobConf) throws OrbZKFailure;
 }

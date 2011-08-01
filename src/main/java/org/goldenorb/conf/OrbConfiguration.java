@@ -80,6 +80,10 @@ public class OrbConfiguration extends Configuration {
   public static final String ORB_LOCAL_FILES_TO_DISTRIBUTE = "goldenOrb.orb.localFilesToDistribute";
   public static final String ORB_HDFS_FILES_TO_DISTRIBUTE = "goldenOrb.orb.HDFSfilesToDistribute";
   
+  public static final String ORB_PARTITION_DEBUG = "goldenOrb.orb.partition.debug";
+  public static final String ORB_PARTITION_DEBUG_BASEPORT = "goldenOrb.orb.parition.debug.baseport";
+  public static final String ORB_PARTITION_DEBUG_IDS="goldenOrb.orb.partition.debug.ids";
+
 /**
  * Constructor
  *
@@ -368,7 +372,7 @@ public class OrbConfiguration extends Configuration {
  * Return the orbPartitionJavaopts
  */
   public String getOrbPartitionJavaopts() {
-    return new String(this.get(this.ORB_PARTITION_JAVAOPTS));
+    return this.get(this.ORB_PARTITION_JAVAOPTS);
   }
   
 /**
@@ -658,12 +662,40 @@ public class OrbConfiguration extends Configuration {
   }
   
   public Path[] getHDFSdistributedFiles() {
-    String[] paths = this.get(ORB_HDFS_FILES_TO_DISTRIBUTE).split(",");
-    Path[] result = new Path[paths.length];
-    for (int i =0; i < paths.length; i++) {
-      result[i] = new Path(paths[i]);
+    String tmp = this.get(ORB_HDFS_FILES_TO_DISTRIBUTE);
+    Path[] result = null;
+    if (tmp != null) {
+      String[] paths = tmp.split(",");
+      result = new Path[paths.length];
+      for (int i =0; i < paths.length; i++) {
+        result[i] = new Path(paths[i]);
+      }
     }
+    
     return result;
   }
-
+  
+  public void setPartitionDebug(boolean value) {
+    this.setBoolean(this.ORB_PARTITION_DEBUG, value);
+  }
+  
+  public boolean getPartitionDebug() {
+    return Boolean.parseBoolean(this.get(this.ORB_PARTITION_DEBUG));
+  }
+  
+  public void setPartitionDebugBaseport(int value) {
+    this.setInt(this.ORB_PARTITION_DEBUG_BASEPORT, value);
+  }
+  
+  public int getPartitionDebugBaseport() {
+    return Integer.parseInt(this.get(this.ORB_PARTITION_DEBUG_BASEPORT));
+  }
+  
+  public void setPartitionDebugIds(String value) {
+    this.set(this.ORB_PARTITION_DEBUG_IDS, value);
+  }
+  
+  public String getPartitionDebugIds() {
+    return this.get(this.ORB_PARTITION_DEBUG_IDS);
+  }
 }

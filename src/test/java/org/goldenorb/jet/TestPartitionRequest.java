@@ -31,6 +31,7 @@ import java.io.IOException;
 import org.junit.Before;
 import org.junit.Test;
 
+import org.goldenorb.conf.OrbConfiguration;
 import org.goldenorb.jet.PartitionRequest;
 
 public class TestPartitionRequest {
@@ -63,7 +64,8 @@ public class TestPartitionRequest {
     partitionRequest.setActivePartitions(INT_ACTIVEPARTITIONS_VALUE);
     partitionRequest.setJobID(STRING_JOBID_VALUE);
     partitionRequest.setBasePartitionID(INT_BASEPARTITIONID_VALUE);
-	ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    partitionRequest.setJobConf(new OrbConfiguration(true));
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
     DataOutput out = new DataOutputStream(baos);
     partitionRequest.write(out);
     DataInput in = new DataInputStream(new ByteArrayInputStream(baos.toByteArray()));
