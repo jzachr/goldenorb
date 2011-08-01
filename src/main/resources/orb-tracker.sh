@@ -16,9 +16,6 @@
  # See the License for the specific language governing permissions and
  # limitations under the License
 
-# ORB_MASTER_HOME   user@host:path where GoldenOrb code should be rsync'd from
-# Must have passwordless ssh set up to use rsync.
-#export ORB_MASTER_HOME=
 # ORB_HOME          Path to GoldenOrb on this machine
 #export ORB_HOME=
 
@@ -50,10 +47,6 @@ ORB_PIDFILE="$ORB_HOME"/orbtracker.pid
 ORB_CLASSPATH="$ORB_LIBS"/.:"$ORB_LIBS"/\*:"$ORB_CONF"/.:"$ORB_CONF"/\*:"$ORB_HOME"/"$ORB_JAR":`cat $ORB_HOME/classpath.txt`
 case $1 in
 start)
-	if [ "$ORB_MASTER_HOME" != "" ]; then
-	    echo rsync from $ORB_MASTER_HOME
-	    rsync -a -e ssh --delete --exclude=.svn --exclude=.git $ORB_MASTER_HOME/conf/ "$ORB_HOME"/conf
-	fi
 	echo "using ORB_HOME=$ORB_HOME"
 	echo "using ORB_LIBS=$ORB_LIBS"
 	echo "starting OrbTracker"
