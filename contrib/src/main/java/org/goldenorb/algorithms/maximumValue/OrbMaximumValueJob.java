@@ -40,7 +40,6 @@ public class OrbMaximumValueJob extends OrbRunner{
     try {
       orbConf.writeXml(System.out);
     } catch (IOException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
     
