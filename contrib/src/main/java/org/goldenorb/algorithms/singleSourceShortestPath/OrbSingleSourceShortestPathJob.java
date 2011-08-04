@@ -8,7 +8,7 @@ import org.goldenorb.conf.OrbConfiguration;
 public class OrbSingleSourceShortestPathJob extends OrbRunner {
 
 	public static final String ALGORITHM_NAME = "singlesourceshortestpath";
-	public static final String SOURCE_VERTEX = ALGORITHM_NAME+".source";
+	public static final String SOURCE_VERTEX = "source";
 
 	public static final String USAGE = "mapred.input.dir=/home/user/input/ mapred.output.dir=/home/user/output/ goldenOrb.orb.requestedPartitions=3 goldenOrb.orb.reservedPartitions=0 " + SOURCE_VERTEX + "=\"0\"";
 
