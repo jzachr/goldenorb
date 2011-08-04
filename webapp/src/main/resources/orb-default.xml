@@ -1,0 +1,202 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+
+<configuration>
+
+  <property>
+    <name>goldenOrb.cluster.name</name>
+    <value>OrbCluster</value>
+    <description>The name of the cluster.
+    </description>
+  </property>
+
+  <property>
+    <name>goldenOrb.cluster.baseport</name>
+    <value>30616</value>
+    <description>The base port used by GoldenOrb
+    </description>
+  </property>
+
+  <property>
+    <name>goldenOrb.orb.tracker.port</name>
+    <value>40616</value>
+    <description>Port used by OrbTracker for communication
+    </description>
+  </property>
+
+  <property>
+    <name>goldenOrb.job.heartbeatTimeout</name>
+    <value>60000</value>
+    <description>Timeout for job manager to monitor jobs
+    </description>
+  </property>
+
+  <property>
+    <name>goldenOrb.orb.partitionManagement.baseport</name>
+    <value>50616</value>
+    <description>Communication port for OrbPartitionManager
+    </description>
+  </property>
+
+  <property>
+    <name>goldenOrb.orb.requestedPartitions</name>
+    <value>0</value>
+    <description>Requested number of partitions for this job
+    </description>
+  </property>
+
+  <property>
+    <name>goldenOrb.orb.reservedPartitions</name>
+    <value>0</value>
+    <description>Requested number of reserve partitions for this job
+    </description>
+  </property>
+
+  <property>
+    <name>goldenOrb.zookeeper.quorum</name>
+    <value>localhost</value>
+    <description>The server running zookeeper.
+    </description>
+  </property>
+
+  <property>
+    <name>goldenOrb.zookeeper.port</name>
+    <value>2181</value>
+    <description>The port zookeeper is using.
+    </description>
+  </property>
+
+  <property>
+    <name>goldenOrb.orb.launcher</name>
+    <value>localhost</value>
+    <description>The master server.
+    </description>
+  </property>
+
+  <property>
+    <name>goldenOrb.orb.partitionsPerMachine</name>
+    <value>3</value>
+    <description>Number of partitions per machine.
+    </description>
+  </property>
+
+  <property>
+    <name>goldenOrb.orb.partition.vertex.threads</name>
+    <value>10</value>
+    <description>Number of vertex threads per partition.
+    </description>
+  </property>
+
+  <property>
+    <name>goldenOrb.orb.partition.messagehandlers.threads</name>
+    <value>10</value>
+    <description>Number of message handlers threads per partition.
+    </description>
+  </property>
+
+  <property>
+    <name>goldenOrb.orb.launcher.networkDevice</name>
+    <value>eth0</value>
+    <description>Network Interface to utilize.
+    </description>
+  </property>
+
+  <property>
+    <name>goldenOrb.job.max.tries</name>
+    <value>5</value>
+    <description>Number of attempts JobManager makes before killing job
+    </description>
+  </property>
+
+  <property>
+    <name>goldenOrb.orb.verticesPerBlock</name>
+    <value>2500</value>
+    <description>Number of vertices per block
+    </description>
+  </property>
+
+  <property>
+    <name>goldenOrb.orb.messagesPerBlock</name>
+    <value>10000</value>
+    <description>Number of messages per block
+    </description>
+  </property>
+
+  <property>
+    <name>goldenOrb.orb.handlersPerServer</name>
+    <value>10</value>
+    <description>Number of handlers to use for RPC servers when splitting input
+    </description>
+  </property>
+
+  <property>
+    <name>goldenOrb.orb.inputSplitHandlerThreads</name>
+    <value>1</value>
+    <description>Number of threads to use when splitting input
+    </description>
+  </property>
+
+  <property>
+    <name>goldenOrb.orb.messageHandlerThreads</name>
+    <value>10</value>
+    <description>Number of threads to use when handling messages
+    </description>
+  </property>
+
+  <property>
+    <name>goldenOrb.orb.computeThreads</name>
+    <value>10</value>
+    <description>Number of threads used for computation per vertex
+    </description>
+  </property>
+  
+  <property>
+    <name>goldenOrb.orb.classpaths</name>
+    <value></value>
+    <description>Comma delimited absolute paths to additional jar files
+    </description>
+  </property>
+
+  <property>
+    <name>goldenOrb.orb.partition.javaopts</name>
+    <value>-Xmx1024m</value>
+    <description>Java VM options passed to OrbPartition processes
+    </description>
+  </property>
+  
+  <property>
+    <name>goldenOrb.orb.vertexHandlerThreads</name>
+    <value>10</value>
+    <description>The number of threads used to handle vertices
+    </description>
+  </property>
+
+  <property>
+    <name>goldenOrb.orb.partition.debug</name>
+    <value>false</value>
+    <description>Activates JVM debugging when launching OrbPartitions
+    </description>
+  </property>
+
+  <property>
+    <name>goldenOrb.orb.parition.debug.baseport</name>
+    <value>8020</value>
+    <description>Baseport used for debugging OrbPartitions
+    </description>
+  </property>
+
+  <property>
+    <name>goldenorb.orb.partition.debug.ids</name>
+    <value>*</value>
+    <description>Comma-delimited list of OrbPartition IDs to launch in debug mode (* = all)
+    </description>
+  </property>
+
+  <property>
+    <name>goldenOrb.orb.HDFSfilesToDistribute</name>
+    <value></value>
+    <description>Comma-delimited list of absolute jar file paths 
+    </description>
+  </property>
+  
+</configuration>

@@ -46,8 +46,8 @@
 </dependency>
     <dependency>
     	<groupId>org.goldenorb</groupId>
-    	<artifactId>org.goldenorb.refactor</artifactId>
-    	<version>0.0.2-SNAPSHOT</version>
+    	<artifactId>core</artifactId>
+    	<version>0.1.0-SNAPSHOT</version>
     	<scope>compile</scope>
     	<exclusions>
        			<!-- Excluding so GWT will compile -->
