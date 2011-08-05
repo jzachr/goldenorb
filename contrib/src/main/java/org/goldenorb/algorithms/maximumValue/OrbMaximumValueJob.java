@@ -28,7 +28,6 @@ public class OrbMaximumValueJob extends OrbRunner{
 		orbConf.setVertexOutputFormatClass(MaximumValueVertexWriter.class);
 		orbConf.setNumberOfMessageHandlers(10);
 		orbConf.setNumberOfVertexThreads(10);
-		orbConf.setPartitionDebug(true);
 		
     try {
       parseArgs(orbConf, args, ALGORITHM_NAME);   
