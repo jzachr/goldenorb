@@ -27,7 +27,8 @@ public class SingleSourceShortestPathVertex extends Vertex<PathWritable,IntWrita
   public void compute(Collection<PathMessage> messages) {
     int _minWeight = shortestPath.getWeight().get();
     PathWritable _path = null;
-    String sourceVertex = this.getOci().getOrbProperty(OrbSingleSourceShortestPathJob.SOURCE_VERTEX);
+    String sourceVertex = this.getOci().getOrbProperty(
+      OrbSingleSourceShortestPathJob.ALGORITHM_NAME + "." + OrbSingleSourceShortestPathJob.SOURCE_VERTEX);
     
     if (messages.size() == 0 && this.getVertexID().equalsIgnoreCase(sourceVertex)
         && this.getOci().superStep() == 1) {

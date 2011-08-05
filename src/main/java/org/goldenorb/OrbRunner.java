@@ -94,7 +94,7 @@ public class OrbRunner {
       logger.error("Exception", e);
     }
     
-    writePropertiesToLogger(orbConf);
+//    writePropertiesToLogger(orbConf);
     return jobNumber;
   }
   
@@ -112,8 +112,9 @@ public class OrbRunner {
           String[] keyVal = arg.split("=");
           orbConf.set(keyVal[0], keyVal[1]);
         } else {
-          String argKey = algorithmName + "." + arg.substring(1);
-          String argValue = args[++i];
+          String[] kv = arg.split("=");
+          String argKey = algorithmName + "." + kv[0];
+          String argValue = kv[1];
           orbConf.set(argKey, argValue);
         }
       }
@@ -142,6 +143,7 @@ public class OrbRunner {
     }
   }
   
+  @SuppressWarnings("unused")
   private void writePropertiesToLogger(OrbConfiguration orbConf) {
   
     try {
