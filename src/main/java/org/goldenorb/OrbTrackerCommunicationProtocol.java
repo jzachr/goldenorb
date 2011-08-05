@@ -18,8 +18,6 @@
  */
 package org.goldenorb;
 
-import java.io.IOException;
-
 import org.apache.hadoop.ipc.VersionedProtocol;
 import org.goldenorb.conf.OrbConfiguration;
 import org.goldenorb.jet.PartitionRequest;

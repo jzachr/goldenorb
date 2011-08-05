@@ -21,24 +21,15 @@ package org.goldenorb.jet;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
+import java.net.InetSocketAddress;
 
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
-
-/*
- * Start of non-generated import declaration code -- any code written outside of this block will be
- * removed in subsequent code generations.
- */
+import org.apache.hadoop.ipc.RPC;
 import org.goldenorb.OrbTrackerCommunicationProtocol;
 import org.goldenorb.conf.OrbConfiguration;
 import org.goldenorb.zookeeper.OrbZKFailure;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.apache.hadoop.ipc.RPC;
-import java.net.InetSocketAddress;
-import java.util.ArrayList;
-import java.util.List;
 
 /* End of non-generated import declaraction code */
 
@@ -189,25 +180,7 @@ public class OrbTrackerMember implements org.goldenorb.zookeeper.Member,
    */
   @Override
   public void getRequiredFiles(OrbConfiguration jobConf) throws OrbZKFailure {
-    try {
-      Path[] hdfsPaths = jobConf.getHDFSdistributedFiles();
-      if (hdfsPaths != null) {
-        String baseLocalPath = System.getProperty("java.io.tmpdir") + "/GoldenOrb/"
-                               + jobConf.getOrbClusterName() + "/" + jobConf.getJobNumber() + "/";
-        FileSystem fs = FileSystem.get(jobConf);
-        for (Path path : hdfsPaths) {
-          String[] name = path.toString().split("/");
-          fs.copyToLocalFile(path, new Path(baseLocalPath + name[name.length - 1]));
-          logger.info(path.toString() + " copied from HDFS to local machine at " + baseLocalPath
-                      + name[name.length - 1]);
-        }
-      }
-      
-    } catch (IOException e) {
-      logger.error("EXCEPTION occured while copying files from HDFS to local machine : " + e.getMessage());
-      e.printStackTrace();
-      throw new OrbZKFailure(e);
-    }
+    client.getRequiredFiles(jobConf);  
   }
 
   /* End of non-generated method code */

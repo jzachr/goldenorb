@@ -214,8 +214,6 @@ public class JobManager<M extends OrbTrackerMember> implements OrbConfigurable {
       ZookeeperUtils.tryToCreateNode(zk, jobsInProgressPath + "/" + job.getJobNumber()
                                          + "/messages/heartbeat", new LongWritable(0), CreateMode.PERSISTENT);
       
-      
-      
       // allocate resources and if enough, start the job
       logger.info("checking for available OrbTracker resources");
       Map<M,Integer[]> assignments = null;
@@ -233,8 +231,10 @@ public class JobManager<M extends OrbTrackerMember> implements OrbConfigurable {
         for (M tracker : orbTrackerMembers) {
           logger.debug("OrbTracker - " + tracker.getHostname() + ":" + tracker.getPort());
           Integer[] assignment = assignments.get(tracker);
+          tracker.initProxy(getOrbConf());
           
           try {
+            logger.debug("jobConf().getHDFSdistributedFiles(): {}", job.getOrbConf().getHDFSdistributedFiles());
             tracker.getRequiredFiles(job.getOrbConf());
           } catch (OrbZKFailure e) {
             logger.error("EXCEPTION : An OrbTrackerMember failed to copy files from HDFS to local machine");
@@ -252,7 +252,6 @@ public class JobManager<M extends OrbTrackerMember> implements OrbConfigurable {
           basePartitionID += assignment[ResourceAllocator.TRACKER_AVAILABLE];
           
           logger.debug("requesting partitions");
-          tracker.initProxy(getOrbConf());
           tracker.requestPartitions(request);
           logger.info(request.toString());
           

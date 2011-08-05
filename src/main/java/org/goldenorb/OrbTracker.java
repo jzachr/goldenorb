@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.net.UnknownHostException;
 
 import org.apache.hadoop.filecache.DistributedCache;
+import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.ipc.RPC;
 import org.apache.hadoop.ipc.RPC.Server;
@@ -270,5 +271,28 @@ public class OrbTracker extends OrbTrackerMember implements Runnable, OrbConfigu
     partitionManager.kill(jobNumber);
   }
   
-  
+  @Override
+  public void getRequiredFiles(OrbConfiguration jobConf) throws OrbZKFailure{
+    logger.info("jobConf.getHDFSdistributedFiles(): {}", jobConf.getHDFSdistributedFiles());
+    try {
+      Path[] hdfsPaths = jobConf.getHDFSdistributedFiles();
+      if (hdfsPaths != null) {
+        String baseLocalPath = System.getProperty("java.io.tmpdir") + "/GoldenOrb/"
+                               + jobConf.getOrbClusterName() + "/" + jobConf.getJobNumber() + "/";
+        FileSystem fs = FileSystem.get(jobConf);
+        for (Path path : hdfsPaths) {
+          String[] name = path.toString().split("/");
+          fs.copyToLocalFile(path, new Path(baseLocalPath + name[name.length - 1]));
+          logger.info(path.toString() + " copied from HDFS to local machine at " + baseLocalPath
+                      + name[name.length - 1]);
+        }
+      }
+      
+    } catch (IOException e) {
+      logger.error("EXCEPTION occured while copying files from HDFS to local machine : " + e.getMessage());
+      e.printStackTrace();
+      //throw new OrbZKFailure(e);
+    }
+  }
+
 }

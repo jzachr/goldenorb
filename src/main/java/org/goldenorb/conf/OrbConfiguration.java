@@ -643,8 +643,8 @@ public class OrbConfiguration extends Configuration {
    * @param filePath is the local path to file that will be distributed
    */
   public void addFileToDistribute(String filePath) {
-    String tmp = this.get(ORB_LOCAL_FILES_TO_DISTRIBUTE);
-    this.set(ORB_LOCAL_FILES_TO_DISTRIBUTE, tmp == null ? filePath : tmp + "," + filePath);
+    String tmp = this.get(this.ORB_LOCAL_FILES_TO_DISTRIBUTE);
+    this.set(this.ORB_LOCAL_FILES_TO_DISTRIBUTE, tmp == null ? filePath : tmp + "," + filePath);
   }
   /**
    * Returns the String that represents the local file paths to the files that will be
@@ -653,16 +653,16 @@ public class OrbConfiguration extends Configuration {
    * @return The string of all files to be distributed as a comma separated string
    */
   public String getDistributedFilePaths() {
-    return this.get(ORB_LOCAL_FILES_TO_DISTRIBUTE);
+    return this.get(this.ORB_LOCAL_FILES_TO_DISTRIBUTE);
   }
   
   public void addHDFSDistributedFile(String filePath) {
-    String tmp = this.get(ORB_HDFS_FILES_TO_DISTRIBUTE);
-    this.set(ORB_HDFS_FILES_TO_DISTRIBUTE, tmp == null ? filePath : tmp + "," + filePath);
+    String tmp = this.get(this.ORB_HDFS_FILES_TO_DISTRIBUTE);
+    this.set(this.ORB_HDFS_FILES_TO_DISTRIBUTE, tmp == null ? filePath : tmp + "," + filePath);
   }
   
   public Path[] getHDFSdistributedFiles() {
-    String tmp = this.get(ORB_HDFS_FILES_TO_DISTRIBUTE);
+    String tmp = this.get(this.ORB_HDFS_FILES_TO_DISTRIBUTE);
     Path[] result = null;
     if (tmp != null) {
       String[] paths = tmp.split(",");
@@ -671,7 +671,6 @@ public class OrbConfiguration extends Configuration {
         result[i] = new Path(paths[i]);
       }
     }
-    
     return result;
   }
   

@@ -139,30 +139,4 @@ public class TestOrbTrackerMember {
    */
 
   /* End of user / non-generated code */
-  
-  @Test
-  public void testGetRequiredFiles() throws OrbZKFailure, IOException {
-    OrbConfiguration orbConf= new OrbConfiguration(true);
-    orbConf.setJobNumber("0000001");
-    MiniDFSCluster cluster = new MiniDFSCluster(orbConf, 3, true, null);
-    orbConf.set("fs.default.name", "hdfs://localhost:" + cluster.getNameNodePort());
-    FileSystem fs = cluster.getFileSystem();
-    // Adding files to retrieve 
-    fs.copyFromLocalFile(false, true, new Path("src/test/resources/distributeTest1.txt"), new Path("/DistributedFiles/distributeTest1.txt"));
-    fs.copyFromLocalFile(false, true, new Path("src/test/resources/distributeTest2.txt"), new Path("/DistributedFiles/distributeTest2.txt"));
-    fs.copyFromLocalFile(false, true, new Path("src/test/resources/HelloWorld.jar"), new Path("/DistributedFiles/HelloWorld.jar"));
-    // Add files to orbConf
-    orbConf.addHDFSDistributedFile("/DistributedFiles/distributeTest1.txt");
-    orbConf.addHDFSDistributedFile("/DistributedFiles/distributeTest2.txt");
-    orbConf.addHDFSDistributedFile("/DistributedFiles/HelloWorld.jar");
-    
-    orbTrackerMember.getRequiredFiles(orbConf);
-    
-    FileInputStream file = new FileInputStream(System.getProperty("java.io.tmpdir") + "/GoldenOrb/"
-                             + orbConf.getOrbClusterName() + "/" + orbConf.getJobNumber() + "/distributeTest1.txt");
-    Scanner in = new Scanner(file);
-    
-    assertEquals("File is used in OrbRunnerTest.java" , in.nextLine());
-  }
-  
 }
