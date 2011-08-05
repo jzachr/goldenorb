@@ -20,7 +20,7 @@
 #export ORB_HOME=
 
 
-ORB_JAR="org.goldenorb.core-0.1.0-SNAPSHOT.jar"
+ORB_JAR="org.goldenorb.core-0.1.1-SNAPSHOT.jar"
 
 if [ "x$ORB_HOME" = "x" ]
 then
@@ -44,7 +44,7 @@ fi
 
 ORB_LOGF="$ORB_HOME"/logs/orb-tracker.`date +%Y-%m-%d.%H%M-%Z`.out
 ORB_PIDFILE="$ORB_HOME"/orbtracker.pid
-ORB_CLASSPATH="$ORB_LIBS"/.:"$ORB_LIBS"/\*:"$ORB_CONF"/.:"$ORB_CONF"/\*:"$ORB_HOME"/"$ORB_JAR":`cat $ORB_HOME/classpath.txt`
+ORB_CLASSPATH="$ORB_CONF"/.:"$ORB_HOME"/"$ORB_JAR":"$ORB_LIBS"/\*
 case $1 in
 start)
 	echo "using ORB_HOME=$ORB_HOME"

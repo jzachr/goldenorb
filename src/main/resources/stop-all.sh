@@ -16,7 +16,7 @@
  # See the License for the specific language governing permissions and
  # limitations under the License
 
-d "$ORB_HOME"/conf
+cd "$ORB_HOME"/conf
 while read f
 do 
 echo $f
@@ -25,6 +25,6 @@ ORB=`echo $f | awk -F ":" '{print $2}'`
 echo "ORB_HOME=$ORB"
 echo "ip_addr=$ip_addr"
 ssh -n $ip_addr "$ORB/bin/orb-tracker.sh stop"
-echo "Stopped orb-trackers at $f"
+echo "Stopped OrbTracker at $f"
 done < orbServers
 

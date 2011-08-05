@@ -26,5 +26,5 @@ echo "ORB_HOME=$ORB"
 echo "ip_addr=$ip_addr"
 rsync -a -e ssh --delete --exclude=.svn --exclude=.git "$ORB_HOME/conf/" "$f/conf"
 ssh -n $ip_addr "$ORB/bin/orb-tracker.sh start"
-echo "Started orb-tracker at $f"
+echo "Started OrbTracker at $f"
 done < orbServers
