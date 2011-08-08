@@ -26,16 +26,32 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.goldenorb.conf.OrbConfiguration;
 
+/**
+ * A Utility that sets a FSDataInputStream to read from a specific path on the HDFS to retrieve the data that was
+ * backed up at a specific super step that was check pointed.
+ * 
+ * 
+ */
 
 public class CheckPointDataInput extends FSDataInputStream {
   
   
 /**
- * Constructor
+ * Constructor - 
+ * 
+ * Ex. If you wanted to get a CheckPointDataInput set to read the data that was on partion 3 at super step 5
+ * when it was check pointed.
+ * 
+ * <code>
+ * CheckPointDataInput cpdiP3SS5 = new CheckPointDataInput(orbConf, super_super, step);
+ * </code>
  *
- * @param  OrbConfiguration orbConf
- * @param  int super_step
- * @param  int partition
+ * The 
+ *
+ * @param  OrbConfiguration orbConf - OrbConfiguration that contains the FileOutputPath and job number
+ *  that you want to connect to.
+ * @param  int super_step - A previous super step you to retrieve data from.
+ * @param  int partition - A partition to retrieve data that was previously written.
  */
   public CheckPointDataInput(OrbConfiguration orbConf, int super_step, int partition) throws IOException {
     super((FileSystem.get(URI.create(orbConf.getFileOutputPath() + "/" + orbConf.getJobNumber() + "/" + super_step
