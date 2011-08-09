@@ -10,6 +10,8 @@ org.goldenorb.io.output.checkpoint
 org.goldenorb.jet
 org.goldenorb.net
 org.goldenorb.queue
+org.goldenorb.types
 org.goldenorb.types.message
 org.goldenorb.util
+org.goldenorb.util.message
 org.goldenorb.zookeeper
