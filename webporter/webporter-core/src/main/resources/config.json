@@ -1,0 +1,12 @@
+{
+  "domain": "www.zhihu.com",
+  "headers": {
+    "BBB": "bbb"
+  },
+  "cookies": {
+    "CCC": "ccc",
+    "DDD": "ddd"
+  },
+  "retryTimes": 3,
+  "sleepTime": 10
+}
